@@ -12,12 +12,13 @@
   "dependencies": {
     "@types/canvas-confetti": "^1.9.0",
     "canvas-confetti": "^1.9.4",
+    "framer-motion": "^11.5.5",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.17.0",
-    "next": "16.2.7",
+    "next": "^9.3.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "framer-motion": "^11.5.5"
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@prisma/client": "^7.8.0",
@@ -33,11 +34,16 @@
     "jest": "^30.4.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "next-auth": "^4.24.14",
-    "prisma": "^7.8.0",
+    "next-auth": "^3.29.10",
+    "prisma": "^6.19.3",
     "supertest": "^7.2.2",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.11",
     "typescript": "^5"
+  },
+  "overrides": {
+    "inflight": "^1.0.7",
+    "glob": "^10.3.10",
+    "uuid": "^9.0.0"
   }
 }

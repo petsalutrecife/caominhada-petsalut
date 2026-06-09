@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, PaymentStatus } from '@prisma/client';
 import { getToken } from 'next-auth/jwt';
 
 const prisma = new PrismaClient();
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const token = await getToken({ req: request });
   if (!token || token.role !== 'institution') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
