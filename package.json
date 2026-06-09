@@ -10,12 +10,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.3",
+    "@prisma/adapter-libsql": "^7.8.0",
     "@types/canvas-confetti": "^1.9.0",
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^11.5.5",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.17.0",
-    "next": "^9.3.3",
+    "next": "^16.2.7",
+    "next-auth": "^4.24.14",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1"
@@ -23,6 +26,7 @@
   "devDependencies": {
     "@prisma/client": "^7.8.0",
     "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -34,8 +38,7 @@
     "jest": "^30.4.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "next-auth": "^3.29.10",
-    "prisma": "^6.19.3",
+    "prisma": "^7.8.0",
     "supertest": "^7.2.2",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.11",

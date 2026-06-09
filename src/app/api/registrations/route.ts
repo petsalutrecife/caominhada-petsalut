@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient, PaymentStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { PaymentStatus } from '@/generated/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
+
 
 const registrationSchema = z.object({
   tutorName: z.string(),
@@ -14,7 +16,7 @@ const registrationSchema = z.object({
   petAge: z.number().int().positive().optional(),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const body = await request.json();
   const parsed = registrationSchema.safeParse(body);
   if (!parsed.success) {

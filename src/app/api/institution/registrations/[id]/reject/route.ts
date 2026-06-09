@@ -1,21 +1,23 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient, PaymentStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { PaymentStatus } from '@/generated/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { getToken } from 'next-auth/jwt';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
+
 
 const rejectSchema = z.object({
   reason: z.string().min(1),
 });
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = await getToken({ req: request });
   if (!token || token.role !== 'institution') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const institutionId = token.sub as string;
-  const { id } = params;
+  const { id } = await params;
 
   const body = await request.json();
   const parsed = rejectSchema.safeParse(body);

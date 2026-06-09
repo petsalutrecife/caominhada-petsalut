@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient, PaymentStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { promises as fs } from 'fs';
 import { join } from 'path';
 
-const prisma = new PrismaClient();
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const formData = await request.formData();
   const file = formData.get('file');
   if (!file || !(file instanceof Blob)) {
@@ -34,7 +38,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
     data: {
       proofFileUrl: fileUrl,
       proofUploadedAt: new Date(),
-      // keep current status (could be awaiting confirmation)
     },
   });
 

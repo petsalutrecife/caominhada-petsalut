@@ -1,12 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["driverAdapters"]
 }
+
 
 datasource db {
   provider = "sqlite"
-
 }
+
 
 enum PaymentStatus {
   PAGAMENTO_PENDENTE

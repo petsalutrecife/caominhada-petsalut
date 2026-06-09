@@ -1,15 +1,17 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient, PaymentStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { PaymentStatus } from '@/generated/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
+
 
 const schema = z.object({
   institutionId: z.string().uuid(),
 });
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const body = await request.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
@@ -34,3 +36,5 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   return NextResponse.json({ success: true, registrationId: registration.id }, { status: 200 });
 }
+
+
