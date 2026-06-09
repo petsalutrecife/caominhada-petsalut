@@ -624,8 +624,19 @@ export default function AdminDashboard() {
                             <span className="text-[10px] text-slate-400 block mt-0.5">{r.tutorEmail} • {r.tutorPhone}</span>
                           </td>
                           <td className="p-4">
-                            <span className="font-semibold block">{r.petName}</span>
-                            <span className="text-[10px] text-slate-400 block mt-0.5">{r.petBreed} • {r.petSize} ({r.petAge}a)</span>
+                            <div className="flex items-center gap-3">
+                              <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center shrink-0">
+                                {r.petPhoto ? (
+                                  <img src={r.petPhoto} alt={r.petName} className="h-full w-full object-cover" />
+                                ) : (
+                                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">{r.petName.substring(0, 2)}</span>
+                                )}
+                              </div>
+                              <div>
+                                <span className="font-semibold block text-slate-950 dark:text-white">{r.petName}</span>
+                                <span className="text-[10px] text-slate-400 block mt-0.5">{r.petBreed} • {r.petSize} ({r.petAge}a)</span>
+                              </div>
+                            </div>
                           </td>
                           <td className="p-4">
                             <button

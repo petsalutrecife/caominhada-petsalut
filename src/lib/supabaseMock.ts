@@ -15,6 +15,7 @@ export interface Registration {
   statusKit: 'Aguardando' | 'Liberado' | 'Retirado';
   createdAt: string;
   qrCode: string;
+  petPhoto?: string;
 }
 
 export interface Sponsor {
@@ -117,7 +118,8 @@ const initialRegistrations: Registration[] = [
     statusPayment: 'Aprovado',
     statusKit: 'Retirado',
     createdAt: '2026-06-01T10:30:00Z',
-    qrCode: 'PET-2026-0001|Mariana Silva|Mel|Aprovado'
+    qrCode: 'PET-2026-0001|Mariana Silva|Mel|Aprovado',
+    petPhoto: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop&q=80'
   },
   {
     id: 'reg-2',
@@ -133,7 +135,8 @@ const initialRegistrations: Registration[] = [
     statusPayment: 'Aprovado',
     statusKit: 'Liberado',
     createdAt: '2026-06-02T14:15:00Z',
-    qrCode: 'PET-2026-0002|Thiago Oliveira|Rocky|Aprovado'
+    qrCode: 'PET-2026-0002|Thiago Oliveira|Rocky|Aprovado',
+    petPhoto: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=150&h=150&fit=crop&q=80'
   },
   {
     id: 'reg-3',
@@ -149,7 +152,8 @@ const initialRegistrations: Registration[] = [
     statusPayment: 'Pendente',
     statusKit: 'Aguardando',
     createdAt: '2026-06-03T09:00:00Z',
-    qrCode: 'PET-2026-0003|Ana Clara Souza|Pipoca|Pendente'
+    qrCode: 'PET-2026-0003|Ana Clara Souza|Pipoca|Pendente',
+    petPhoto: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=150&h=150&fit=crop&q=80'
   },
   {
     id: 'reg-4',
@@ -165,7 +169,8 @@ const initialRegistrations: Registration[] = [
     statusPayment: 'Aprovado',
     statusKit: 'Aguardando',
     createdAt: '2026-06-04T16:45:00Z',
-    qrCode: 'PET-2026-0004|Roberto Alves|Thor|Aprovado'
+    qrCode: 'PET-2026-0004|Roberto Alves|Thor|Aprovado',
+    petPhoto: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=150&h=150&fit=crop&q=80'
   },
   {
     id: 'reg-5',
@@ -181,7 +186,8 @@ const initialRegistrations: Registration[] = [
     statusPayment: 'Pendente',
     statusKit: 'Aguardando',
     createdAt: '2026-06-05T11:20:00Z',
-    qrCode: 'PET-2026-0005|Juliana Costa|Luna|Pendente'
+    qrCode: 'PET-2026-0005|Juliana Costa|Luna|Pendente',
+    petPhoto: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=150&h=150&fit=crop&q=80'
   },
   {
     id: 'reg-6',
@@ -197,7 +203,8 @@ const initialRegistrations: Registration[] = [
     statusPayment: 'Aprovado',
     statusKit: 'Retirado',
     createdAt: '2026-06-06T15:10:00Z',
-    qrCode: 'PET-2026-0006|Pedro Santos|Fred|Aprovado'
+    qrCode: 'PET-2026-0006|Pedro Santos|Fred|Aprovado',
+    petPhoto: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=150&h=150&fit=crop&q=80'
   },
   {
     id: 'reg-7',
@@ -213,7 +220,8 @@ const initialRegistrations: Registration[] = [
     statusPayment: 'Aprovado',
     statusKit: 'Liberado',
     createdAt: '2026-06-07T08:30:00Z',
-    qrCode: 'PET-2026-0007|Beatriz Lima|Bela|Aprovado'
+    qrCode: 'PET-2026-0007|Beatriz Lima|Bela|Aprovado',
+    petPhoto: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=150&h=150&fit=crop&q=80'
   }
 ];
 

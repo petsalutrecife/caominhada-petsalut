@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Registration } from '@/lib/supabaseMock';
-import { ArrowLeft, User, Phone, Mail, Award, CheckCircle2, Copy, ExternalLink, Calendar, Heart, Shield } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, Award, CheckCircle2, Copy, ExternalLink, Calendar, Heart, Shield, Camera, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // CPF validation function (Brazilian Check Digits)
@@ -49,6 +49,7 @@ export default function RegisterPage() {
   const [petBreed, setPetBreed] = useState('');
   const [petSize, setPetSize] = useState<'Pequeno' | 'Médio' | 'Grande'>('Médio');
   const [petAge, setPetAge] = useState<number>(3);
+  const [petPhoto, setPetPhoto] = useState('');
   
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -142,6 +143,7 @@ export default function RegisterPage() {
           petBreed,
           petSize,
           petAge,
+          petPhoto,
           statusPayment: 'Pendente', // Starts pending until payment simulation
           statusKit: 'Aguardando'
         });
@@ -480,6 +482,41 @@ export default function RegisterPage() {
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-blue/30 dark:focus:ring-lime-500/30 transition-all"
                   />
                   {errors.petAge && <span className="text-[10px] font-semibold text-danger">{errors.petAge}</span>}
+                </div>
+
+                {/* Pet Photo Upload */}
+                <div className="sm:col-span-2 flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Foto do Pet (Opcional)</label>
+                  <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                    <div className="relative h-20 w-20 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-250 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                      {petPhoto ? (
+                        <img src={petPhoto} alt="Foto do Pet" className="w-full h-full object-cover" />
+                      ) : (
+                        <Camera className="h-8 w-8 text-slate-400" />
+                      )}
+                    </div>
+                    <div className="flex flex-col items-start gap-1">
+                      <label className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-850 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 cursor-pointer flex items-center gap-2 hover-lift transition-all">
+                        <Upload className="h-3.5 w-3.5" /> Escolher Foto
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setPetPhoto(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-[10px] text-slate-400 mt-1">Formatos aceitos: JPG, PNG. Máx 2MB.</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

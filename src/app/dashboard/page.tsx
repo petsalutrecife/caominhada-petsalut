@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Registration } from '@/lib/supabaseMock';
-import { LogOut, Calendar, MapPin, Award, CheckCircle2, Clock, ShieldAlert, CreditCard, ClipboardList, RefreshCw, X, Download } from 'lucide-react';
+import { LogOut, Calendar, MapPin, Award, CheckCircle2, Clock, ShieldAlert, CreditCard, ClipboardList, RefreshCw, X, Download, Camera, Upload } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 export default function ParticipantDashboard() {
@@ -344,8 +344,70 @@ export default function ParticipantDashboard() {
             </div>
 
             {/* Pet Card */}
-            <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift">
+            <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift animate-in fade-in duration-300">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins mb-4">Dados do Pet Cadastrado</h3>
+              
+              {/* Pet Photo Uploader/Display */}
+              <div className="flex flex-col items-center gap-3 mb-6 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-850">
+                <div className="relative h-28 w-28 rounded-full border-4 border-white dark:border-slate-800 shadow-md overflow-hidden group bg-slate-200 dark:bg-slate-700">
+                  {registration.petPhoto ? (
+                    <img src={registration.petPhoto} alt="Foto do Pet" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500">
+                      <Camera className="h-10 w-10" />
+                    </div>
+                  )}
+                  
+                  {/* Photo upload hover overlay */}
+                  <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white text-[10px] font-bold">
+                    <Upload className="h-5 w-5 mb-1" />
+                    Alterar Foto
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            const newPhoto = reader.result as string;
+                            const updated = supabaseMock.updateRegistration(registration.id, { petPhoto: newPhoto });
+                            setRegistration(updated);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+                
+                {!registration.petPhoto ? (
+                  <label className="text-xs font-bold text-primary-blue dark:text-lime-400 hover:underline cursor-pointer flex items-center gap-1">
+                    <Upload className="h-3 w-3" /> Enviar foto do pet
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            const newPhoto = reader.result as string;
+                            const updated = supabaseMock.updateRegistration(registration.id, { petPhoto: newPhoto });
+                            setRegistration(updated);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                ) : (
+                  <span className="text-[10px] text-slate-400">Passe o mouse para alterar a foto</span>
+                )}
+              </div>
+
               <div className="flex flex-col gap-3 text-sm">
                 <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-900">
                   <span className="text-slate-400 font-medium">Nome</span>
