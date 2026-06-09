@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+
+}
+
+enum PaymentStatus {
+  PAGAMENTO_PENDENTE
+  AGUARDANDO_CONFIRMACAO
+  CONFIRMADO
+  RECUSADO
+}
+
+model Institution {
+  id                String        @id @default(cuid())
+  name              String
+  description       String?
+  logoUrl           String?
+  pixKey            String?
+  pixReceiverName   String?
+  pixBankName       String?
+  pixQrCodeUrl      String?
+  donationAmount    Decimal?
+  email             String        @unique
+  passwordHash      String
+  active            Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  registrations     Registration[]
+  confirmedRegistrations Registration[] @relation("ConfirmedBy")
+}
+
+model Registration {
+  id                     String        @id @default(cuid())
+  tutorName              String
+  tutorEmail             String
+  tutorPhone             String
+  tutorCpf               String
+  petName                String
+  petBreed               String?
+  petAge                 Int?
+  institutionId          String?
+  institution            Institution? @relation(fields: [institutionId], references: [id])
+  paymentStatus          PaymentStatus @default(PAGAMENTO_PENDENTE)
+  proofFileUrl           String?
+  proofUploadedAt        DateTime?
+  confirmedAt            DateTime?
+  rejectedAt             DateTime?
+  rejectionReason        String?
+  confirmedByInstitution Institution? @relation("ConfirmedBy", fields: [confirmedByInstitutionId], references: [id])
+  confirmedByInstitutionId String?
+  registrationNumber     String? @unique
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+}
