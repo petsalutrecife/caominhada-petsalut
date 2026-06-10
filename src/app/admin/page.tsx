@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
-import { supabaseMock, Registration, Sponsor, Expense } from '@/lib/supabaseMock';
+import { supabaseMock, Registration, Sponsor, Expense, Institution } from '@/lib/supabaseMock';
 import { 
   LogOut, ClipboardList, TrendingUp, Users, Award, Landmark, Plus, Trash2, 
-  Download, Edit, Search, Filter, ShieldCheck, Check, DollarSign, Upload, Globe, FileText, CheckSquare, RefreshCw
+  Download, Edit, Search, Filter, ShieldCheck, Check, DollarSign, Upload, Globe, FileText, CheckSquare, RefreshCw,
+  Heart, Building2, X, Eye
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -30,11 +31,15 @@ export default function AdminDashboard() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
 
   // Search & Filter states (Participants)
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPayment, setFilterPayment] = useState<string>('All');
   const [filterKit, setFilterKit] = useState<string>('All');
+  const [filterDonation, setFilterDonation] = useState<string>('All');
+  const [filterInstitution, setFilterInstitution] = useState<string>('All');
+  const [viewReceiptUrl, setViewReceiptUrl] = useState<string | null>(null);
 
   // New Sponsor Form states
   const [newSponsorName, setNewSponsorName] = useState('');
@@ -67,6 +72,7 @@ export default function AdminDashboard() {
     setRegistrations(supabaseMock.getRegistrations());
     setSponsors(supabaseMock.getSponsors());
     setExpenses(supabaseMock.getExpenses());
+    setInstitutions(supabaseMock.getInstitutions());
   };
 
   const handleLogout = () => {
@@ -76,16 +82,37 @@ export default function AdminDashboard() {
 
   // --- Actions ---
 
-  // Update participant payment
+  // Approve donation (validates the receipt)
+  const handleApproveDonation = (id: string) => {
+    supabaseMock.updateRegistration(id, {
+      donationStatus: 'Validado',
+      statusPayment: 'Aprovado',
+      statusKit: 'Liberado'
+    });
+    refreshData();
+  };
+
+  // Reject donation
+  const handleRejectDonation = (id: string) => {
+    supabaseMock.updateRegistration(id, {
+      donationStatus: 'Rejeitado',
+      statusPayment: 'Pendente',
+      statusKit: 'Aguardando'
+    });
+    refreshData();
+  };
+
+  // Update participant payment (legacy toggle)
   const handleUpdatePayment = (id: string, currentStatus: 'Pendente' | 'Aprovado') => {
     const nextStatus = currentStatus === 'Pendente' ? 'Aprovado' : 'Pendente';
     const updates: Partial<Registration> = { statusPayment: nextStatus };
     
-    // Automatically liberate kit if payment is approved
     if (nextStatus === 'Aprovado') {
       updates.statusKit = 'Liberado';
+      updates.donationStatus = 'Validado';
     } else {
       updates.statusKit = 'Aguardando';
+      updates.donationStatus = 'Enviado';
     }
 
     supabaseMock.updateRegistration(id, updates);
@@ -189,19 +216,26 @@ export default function AdminDashboard() {
   // Export Participants as CSV
   const handleExportCSV = () => {
     let csvContent = 'data:text/csv;charset=utf-8,';
-    csvContent += 'Inscricao,Tutor,CPF,Telefone,Email,Pet,Raca,Porte,Idade,Pagamento,Kit,Data Cadastro\n';
+    csvContent += 'Inscricao,Tutor,CPF,Telefone,WhatsApp,Email,Cidade,Estado,Pet,Especie,Raca,Porte,Idade,Instituicao,Status Doacao,Pagamento,Kit,Data Cadastro\n';
     
     registrations.forEach(r => {
+      const instName = institutions.find(i => i.id === r.selectedInstitution)?.name || '';
       const row = [
         r.regNumber,
         r.tutorName,
         r.tutorCpf,
         r.tutorPhone,
+        r.tutorWhatsApp || '',
         r.tutorEmail,
+        r.tutorCity || '',
+        r.tutorState || '',
         r.petName,
+        r.petSpecies || '',
         r.petBreed,
         r.petSize,
         r.petAge,
+        instName,
+        r.donationStatus || '',
         r.statusPayment,
         r.statusKit,
         r.createdAt
@@ -274,11 +308,13 @@ export default function AdminDashboard() {
   const totalPagos = registrations.filter(r => r.statusPayment === 'Aprovado').length;
   const totalKitsEntregues = registrations.filter(r => r.statusKit === 'Retirado').length;
   const totalPatrocinadores = sponsors.length;
+  const totalDoacoesValidadas = registrations.filter(r => r.donationStatus === 'Validado').length;
+  const totalDoacoesPendentes = registrations.filter(r => r.donationStatus === 'Enviado').length;
   
-  // Registration Fee = R$ 29,90
-  const receitaInscricoes = totalPagos * 29.90;
+  // Donation-based model: minimum R$ 50 per inscription
+  const receitaDoacoes = totalDoacoesValidadas * 50;
   const receitaPatrocinios = sponsors.reduce((acc, curr) => acc + curr.investedValue, 0);
-  const receitaTotal = receitaInscricoes + receitaPatrocinios;
+  const receitaTotal = receitaDoacoes + receitaPatrocinios;
 
   const despesaTotal = expenses.reduce((acc, curr) => acc + curr.value, 0);
   const lucroLiquido = receitaTotal - despesaTotal;
@@ -306,6 +342,9 @@ export default function AdminDashboard() {
   const PET_COLORS = ['#A7CF00', '#003A8C', '#F59E0B'];
 
   // Filtered registrations list for manager table
+  // Helper to get institution name
+  const getInstName = (instId: string) => institutions.find(i => i.id === instId)?.name || 'N/A';
+
   const filteredRegistrations = registrations.filter(r => {
     const matchesSearch = 
       r.tutorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -315,8 +354,10 @@ export default function AdminDashboard() {
 
     const matchesPayment = filterPayment === 'All' || r.statusPayment === filterPayment;
     const matchesKit = filterKit === 'All' || r.statusKit === filterKit;
+    const matchesDonation = filterDonation === 'All' || r.donationStatus === filterDonation;
+    const matchesInstitution = filterInstitution === 'All' || r.selectedInstitution === filterInstitution;
 
-    return matchesSearch && matchesPayment && matchesKit;
+    return matchesSearch && matchesPayment && matchesKit && matchesDonation && matchesInstitution;
   });
 
   if (!mounted || !adminUser) {
@@ -435,13 +476,13 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Metric: Confirmed */}
+                {/* Metric: Donations Validated */}
                 <div className="bg-white dark:bg-slate-950 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover-lift">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Confirmados (Pagos)</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Doações Validadas</span>
                   <div className="flex justify-between items-baseline mt-4">
-                    <span className="text-3xl font-extrabold font-poppins text-slate-900 dark:text-white">{totalPagos}</span>
-                    <span className="text-xs font-semibold text-slate-400">
-                      {totalInscritos > 0 ? `${Math.round((totalPagos / totalInscritos) * 100)}%` : '0%'}
+                    <span className="text-3xl font-extrabold font-poppins text-emerald-600 dark:text-emerald-400">{totalDoacoesValidadas}</span>
+                    <span className="text-xs font-semibold text-amber-500">
+                      {totalDoacoesPendentes} pendentes
                     </span>
                   </div>
                 </div>
@@ -556,10 +597,10 @@ export default function AdminDashboard() {
               </div>
 
               {/* Filters Block */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
                 
                 {/* Search */}
-                <div className="relative">
+                <div className="relative sm:col-span-2 lg:col-span-1">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
@@ -570,17 +611,34 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                {/* Filter Payment */}
+                {/* Filter Donation Status */}
                 <div className="flex items-center gap-2">
-                  <Filter className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <Heart className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                   <select
-                    value={filterPayment}
-                    onChange={(e) => setFilterPayment(e.target.value)}
+                    value={filterDonation}
+                    onChange={(e) => setFilterDonation(e.target.value)}
                     className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none text-slate-600 dark:text-slate-350"
                   >
-                    <option value="All">Todos Pagamentos</option>
-                    <option value="Aprovado">Aprovado</option>
-                    <option value="Pendente">Pendente</option>
+                    <option value="All">Status Doação</option>
+                    <option value="Aguardando Comprovante">Aguardando Comprovante</option>
+                    <option value="Enviado">Enviado</option>
+                    <option value="Validado">Validado</option>
+                    <option value="Rejeitado">Rejeitado</option>
+                  </select>
+                </div>
+
+                {/* Filter Institution */}
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <select
+                    value={filterInstitution}
+                    onChange={(e) => setFilterInstitution(e.target.value)}
+                    className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none text-slate-600 dark:text-slate-350"
+                  >
+                    <option value="All">Todas Instituições</option>
+                    {institutions.map(inst => (
+                      <option key={inst.id} value={inst.id}>{inst.name}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -608,10 +666,11 @@ export default function AdminDashboard() {
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-bold">
                         <th className="p-4">Nº Inscrição</th>
-                        <th className="p-4">Tutor (Contato)</th>
-                        <th className="p-4">Pet (Porte/Idade)</th>
-                        <th className="p-4">Pagamento</th>
-                        <th className="p-4">Entrega Kit</th>
+                        <th className="p-4">Tutor</th>
+                        <th className="p-4">Pet</th>
+                        <th className="p-4">Instituição</th>
+                        <th className="p-4">Doação</th>
+                        <th className="p-4">Kit</th>
                         <th className="p-4 text-center">Ações</th>
                       </tr>
                     </thead>
@@ -621,7 +680,8 @@ export default function AdminDashboard() {
                           <td className="p-4 font-mono font-bold text-primary-blue dark:text-blue-400">{r.regNumber}</td>
                           <td className="p-4">
                             <span className="font-bold block text-slate-900 dark:text-white">{r.tutorName}</span>
-                            <span className="text-[10px] text-slate-400 block mt-0.5">{r.tutorEmail} • {r.tutorPhone}</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">{r.tutorEmail}</span>
+                            <span className="text-[10px] text-slate-400 block">{r.tutorCity || ''}{r.tutorState ? `/${r.tutorState}` : ''}</span>
                           </td>
                           <td className="p-4">
                             <div className="flex items-center gap-3">
@@ -634,23 +694,54 @@ export default function AdminDashboard() {
                               </div>
                               <div>
                                 <span className="font-semibold block text-slate-950 dark:text-white">{r.petName}</span>
-                                <span className="text-[10px] text-slate-400 block mt-0.5">{r.petBreed} • {r.petSize} ({r.petAge}a)</span>
+                                <span className="text-[10px] text-slate-400 block mt-0.5">{r.petBreed} • {r.petSize}</span>
                               </div>
                             </div>
                           </td>
                           <td className="p-4">
-                            <button
-                              onClick={() => handleUpdatePayment(r.id, r.statusPayment)}
-                              className={`px-2 py-1 rounded-lg font-bold text-[9px] uppercase tracking-wider flex items-center gap-1 ${
-                                r.statusPayment === 'Aprovado'
+                            <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-300 block">{getInstName(r.selectedInstitution)}</span>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex flex-col gap-1.5">
+                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg font-bold text-[9px] uppercase tracking-wider w-fit ${
+                                r.donationStatus === 'Validado'
                                   ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-400'
-                                  : 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-400'
-                              }`}
-                              title="Clique para alternar o pagamento"
-                            >
-                              {r.statusPayment === 'Aprovado' ? <ShieldCheck className="h-3 w-3" /> : null}
-                              {r.statusPayment}
-                            </button>
+                                  : r.donationStatus === 'Enviado'
+                                    ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-400'
+                                    : r.donationStatus === 'Rejeitado'
+                                      ? 'bg-red-100 dark:bg-red-950/50 text-red-800 dark:text-red-400'
+                                      : 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-400'
+                              }`}>
+                                {r.donationStatus === 'Validado' && <ShieldCheck className="h-3 w-3" />}
+                                {r.donationStatus || 'Aguardando'}
+                              </span>
+                              {r.donationStatus === 'Enviado' && (
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => handleApproveDonation(r.id)}
+                                    className="px-2 py-1 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white text-[8px] font-bold flex items-center gap-0.5 transition-colors"
+                                    title="Aprovar doação"
+                                  >
+                                    <Check className="h-3 w-3" /> Aprovar
+                                  </button>
+                                  <button
+                                    onClick={() => handleRejectDonation(r.id)}
+                                    className="px-2 py-1 rounded-md bg-red-500 hover:bg-red-600 text-white text-[8px] font-bold flex items-center gap-0.5 transition-colors"
+                                    title="Rejeitar doação"
+                                  >
+                                    <X className="h-3 w-3" /> Rejeitar
+                                  </button>
+                                </div>
+                              )}
+                              {r.donationReceipt && (
+                                <button
+                                  onClick={() => setViewReceiptUrl(r.donationReceipt || null)}
+                                  className="text-[9px] text-blue-500 hover:text-blue-700 font-semibold flex items-center gap-0.5"
+                                >
+                                  <Eye className="h-3 w-3" /> Ver comprovante
+                                </button>
+                              )}
+                            </div>
                           </td>
                           <td className="p-4">
                             <select
@@ -676,7 +767,7 @@ export default function AdminDashboard() {
                       ))}
                       {filteredRegistrations.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="text-center p-8 text-slate-400 font-semibold">Nenhum participante correspondente aos filtros.</td>
+                          <td colSpan={7} className="text-center p-8 text-slate-400 font-semibold">Nenhum participante correspondente aos filtros.</td>
                         </tr>
                       )}
                     </tbody>
@@ -706,7 +797,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <span className="text-[9px] text-slate-400 mt-2 block">
-                    Inscrições: R$ {receitaInscricoes.toFixed(2)} + Patrocínios: R$ {receitaPatrocinios.toFixed(2)}
+                    Doações: R$ {receitaDoacoes.toFixed(2)} + Patrocínios: R$ {receitaPatrocinios.toFixed(2)}
                   </span>
                 </div>
 
@@ -1041,6 +1132,22 @@ export default function AdminDashboard() {
         </div>
 
       </div>
+
+      {/* Receipt Viewer Modal */}
+      {viewReceiptUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setViewReceiptUrl(null)}>
+          <div className="relative max-w-lg w-full bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setViewReceiptUrl(null)}
+              className="absolute top-4 right-4 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white font-poppins mb-4">Comprovante de Doação</h4>
+            <img src={viewReceiptUrl} alt="Comprovante de Doação PIX" className="max-h-[60vh] rounded-xl border border-slate-200 dark:border-slate-800" />
+          </div>
+        </div>
+      )}
 
     </div>
   );

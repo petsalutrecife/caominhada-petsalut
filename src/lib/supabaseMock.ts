@@ -4,18 +4,37 @@ export interface Registration {
   id: string;
   tutorName: string;
   tutorCpf: string;
+  tutorBirthDate: string;
   tutorPhone: string;
+  tutorWhatsApp: string;
   tutorEmail: string;
+  tutorCity: string;
+  tutorState: string;
   petName: string;
+  petSpecies: string;
   petBreed: string;
   petSize: 'Pequeno' | 'Médio' | 'Grande';
   petAge: number;
+  petPhoto?: string;
+  selectedInstitution: string; // institution id
+  donationReceipt?: string; // base64 of the receipt image
+  donationStatus: 'Aguardando Comprovante' | 'Enviado' | 'Validado' | 'Rejeitado';
   regNumber: string;
   statusPayment: 'Pendente' | 'Aprovado';
   statusKit: 'Aguardando' | 'Liberado' | 'Retirado';
   createdAt: string;
   qrCode: string;
-  petPhoto?: string;
+}
+
+export interface Institution {
+  id: string;
+  name: string;
+  logo: string;
+  description: string;
+  mission: string;
+  pixKey: string;
+  pixType: 'CNPJ' | 'E-mail' | 'Telefone' | 'Chave Aleatória';
+  totalDonations: number;
 }
 
 export interface Sponsor {
@@ -37,6 +56,50 @@ export interface Expense {
 }
 
 // Initial mock data seed
+
+const initialInstitutions: Institution[] = [
+  {
+    id: 'inst-1',
+    name: 'Abrigo São Lázaro',
+    logo: '🏠',
+    description: 'Abrigo que acolhe e cuida de cães e gatos abandonados na região metropolitana do Recife há mais de 15 anos.',
+    mission: 'Resgatar, tratar e encontrar lares amorosos para animais em situação de abandono e maus-tratos.',
+    pixKey: '12.345.678/0001-90',
+    pixType: 'CNPJ',
+    totalDonations: 0
+  },
+  {
+    id: 'inst-2',
+    name: 'Projeto Patinhas Felizes',
+    logo: '🐾',
+    description: 'ONG focada na castração, vacinação e conscientização sobre posse responsável de animais domésticos.',
+    mission: 'Reduzir a população de animais de rua através de castração gratuita e educação comunitária.',
+    pixKey: 'doacoes@patinhasfelizes.org.br',
+    pixType: 'E-mail',
+    totalDonations: 0
+  },
+  {
+    id: 'inst-3',
+    name: 'Instituto Vida Animal',
+    logo: '💚',
+    description: 'Instituição dedicada ao resgate de animais em áreas de risco e atendimento veterinário emergencial gratuito.',
+    mission: 'Garantir atendimento veterinário de emergência gratuito para animais de famílias de baixa renda.',
+    pixKey: '(81) 99999-8888',
+    pixType: 'Telefone',
+    totalDonations: 0
+  },
+  {
+    id: 'inst-4',
+    name: 'Lar dos Peludos',
+    logo: '🏡',
+    description: 'Lar temporário que abriga animais resgatados até a adoção definitiva, com foco em cães idosos e especiais.',
+    mission: 'Dar dignidade e conforto a cães idosos, com deficiência ou doenças crônicas que foram abandonados.',
+    pixKey: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    pixType: 'Chave Aleatória',
+    totalDonations: 0
+  }
+];
+
 const initialSponsors: Sponsor[] = [
   {
     id: 'sp-1',
@@ -108,120 +171,176 @@ const initialRegistrations: Registration[] = [
     id: 'reg-1',
     tutorName: 'Mariana Silva',
     tutorCpf: '123.456.789-00',
+    tutorBirthDate: '1990-05-15',
     tutorPhone: '(11) 98765-4321',
+    tutorWhatsApp: '(11) 98765-4321',
     tutorEmail: 'mariana.silva@email.com',
+    tutorCity: 'Recife',
+    tutorState: 'PE',
     petName: 'Mel',
+    petSpecies: 'Cachorro',
     petBreed: 'Golden Retriever',
     petSize: 'Grande',
     petAge: 3,
+    petPhoto: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop&q=80',
+    selectedInstitution: 'inst-1',
+    donationReceipt: '',
+    donationStatus: 'Validado',
     regNumber: 'PET-2026-0001',
     statusPayment: 'Aprovado',
     statusKit: 'Retirado',
     createdAt: '2026-06-01T10:30:00Z',
-    qrCode: 'PET-2026-0001|Mariana Silva|Mel|Aprovado',
-    petPhoto: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop&q=80'
+    qrCode: 'PET-2026-0001|Mariana Silva|Mel|Aprovado'
   },
   {
     id: 'reg-2',
     tutorName: 'Thiago Oliveira',
     tutorCpf: '234.567.890-12',
+    tutorBirthDate: '1985-11-20',
     tutorPhone: '(21) 99888-7766',
+    tutorWhatsApp: '(21) 99888-7766',
     tutorEmail: 'thiago.oliveira@email.com',
+    tutorCity: 'Recife',
+    tutorState: 'PE',
     petName: 'Rocky',
+    petSpecies: 'Cachorro',
     petBreed: 'Bulldog Francês',
     petSize: 'Pequeno',
     petAge: 2,
+    petPhoto: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=150&h=150&fit=crop&q=80',
+    selectedInstitution: 'inst-2',
+    donationReceipt: '',
+    donationStatus: 'Validado',
     regNumber: 'PET-2026-0002',
     statusPayment: 'Aprovado',
     statusKit: 'Liberado',
     createdAt: '2026-06-02T14:15:00Z',
-    qrCode: 'PET-2026-0002|Thiago Oliveira|Rocky|Aprovado',
-    petPhoto: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=150&h=150&fit=crop&q=80'
+    qrCode: 'PET-2026-0002|Thiago Oliveira|Rocky|Aprovado'
   },
   {
     id: 'reg-3',
     tutorName: 'Ana Clara Souza',
     tutorCpf: '345.678.901-23',
+    tutorBirthDate: '1993-03-08',
     tutorPhone: '(31) 98555-4433',
+    tutorWhatsApp: '(31) 98555-4433',
     tutorEmail: 'ana.clara@email.com',
+    tutorCity: 'Olinda',
+    tutorState: 'PE',
     petName: 'Pipoca',
+    petSpecies: 'Cachorro',
     petBreed: 'Vira-lata (SDR)',
     petSize: 'Médio',
     petAge: 5,
+    petPhoto: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=150&h=150&fit=crop&q=80',
+    selectedInstitution: 'inst-3',
+    donationReceipt: '',
+    donationStatus: 'Enviado',
     regNumber: 'PET-2026-0003',
     statusPayment: 'Pendente',
     statusKit: 'Aguardando',
     createdAt: '2026-06-03T09:00:00Z',
-    qrCode: 'PET-2026-0003|Ana Clara Souza|Pipoca|Pendente',
-    petPhoto: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=150&h=150&fit=crop&q=80'
+    qrCode: 'PET-2026-0003|Ana Clara Souza|Pipoca|Pendente'
   },
   {
     id: 'reg-4',
     tutorName: 'Roberto Alves',
     tutorCpf: '456.789.012-34',
+    tutorBirthDate: '1988-07-22',
     tutorPhone: '(11) 97666-5544',
+    tutorWhatsApp: '(11) 97666-5544',
     tutorEmail: 'roberto.alves@email.com',
+    tutorCity: 'Recife',
+    tutorState: 'PE',
     petName: 'Thor',
+    petSpecies: 'Cachorro',
     petBreed: 'Rottweiler',
     petSize: 'Grande',
     petAge: 4,
+    petPhoto: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=150&h=150&fit=crop&q=80',
+    selectedInstitution: 'inst-1',
+    donationReceipt: '',
+    donationStatus: 'Validado',
     regNumber: 'PET-2026-0004',
     statusPayment: 'Aprovado',
     statusKit: 'Aguardando',
     createdAt: '2026-06-04T16:45:00Z',
-    qrCode: 'PET-2026-0004|Roberto Alves|Thor|Aprovado',
-    petPhoto: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=150&h=150&fit=crop&q=80'
+    qrCode: 'PET-2026-0004|Roberto Alves|Thor|Aprovado'
   },
   {
     id: 'reg-5',
     tutorName: 'Juliana Costa',
     tutorCpf: '567.890.123-45',
+    tutorBirthDate: '1995-12-10',
     tutorPhone: '(19) 99333-2211',
+    tutorWhatsApp: '(19) 99333-2211',
     tutorEmail: 'juliana.costa@email.com',
+    tutorCity: 'Jaboatão dos Guararapes',
+    tutorState: 'PE',
     petName: 'Luna',
+    petSpecies: 'Cachorro',
     petBreed: 'Shih Tzu',
     petSize: 'Pequeno',
     petAge: 1,
+    petPhoto: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=150&h=150&fit=crop&q=80',
+    selectedInstitution: 'inst-4',
+    donationReceipt: '',
+    donationStatus: 'Aguardando Comprovante',
     regNumber: 'PET-2026-0005',
     statusPayment: 'Pendente',
     statusKit: 'Aguardando',
     createdAt: '2026-06-05T11:20:00Z',
-    qrCode: 'PET-2026-0005|Juliana Costa|Luna|Pendente',
-    petPhoto: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=150&h=150&fit=crop&q=80'
+    qrCode: 'PET-2026-0005|Juliana Costa|Luna|Pendente'
   },
   {
     id: 'reg-6',
     tutorName: 'Pedro Santos',
     tutorCpf: '678.901.234-56',
+    tutorBirthDate: '1982-01-30',
     tutorPhone: '(11) 98111-2233',
+    tutorWhatsApp: '(11) 98111-2233',
     tutorEmail: 'pedro.santos@email.com',
+    tutorCity: 'Recife',
+    tutorState: 'PE',
     petName: 'Fred',
+    petSpecies: 'Cachorro',
     petBreed: 'Beagle',
     petSize: 'Médio',
     petAge: 6,
+    petPhoto: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=150&h=150&fit=crop&q=80',
+    selectedInstitution: 'inst-2',
+    donationReceipt: '',
+    donationStatus: 'Validado',
     regNumber: 'PET-2026-0006',
     statusPayment: 'Aprovado',
     statusKit: 'Retirado',
     createdAt: '2026-06-06T15:10:00Z',
-    qrCode: 'PET-2026-0006|Pedro Santos|Fred|Aprovado',
-    petPhoto: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=150&h=150&fit=crop&q=80'
+    qrCode: 'PET-2026-0006|Pedro Santos|Fred|Aprovado'
   },
   {
     id: 'reg-7',
     tutorName: 'Beatriz Lima',
-    tutorCpf: '789.012-345-67',
+    tutorCpf: '789.012.345-67',
+    tutorBirthDate: '1991-09-05',
     tutorPhone: '(21) 97222-3344',
+    tutorWhatsApp: '(21) 97222-3344',
     tutorEmail: 'beatriz.lima@email.com',
+    tutorCity: 'Recife',
+    tutorState: 'PE',
     petName: 'Bela',
+    petSpecies: 'Cachorro',
     petBreed: 'Poodle',
     petSize: 'Pequeno',
     petAge: 7,
+    petPhoto: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=150&h=150&fit=crop&q=80',
+    selectedInstitution: 'inst-3',
+    donationReceipt: '',
+    donationStatus: 'Validado',
     regNumber: 'PET-2026-0007',
     statusPayment: 'Aprovado',
     statusKit: 'Liberado',
     createdAt: '2026-06-07T08:30:00Z',
-    qrCode: 'PET-2026-0007|Beatriz Lima|Bela|Aprovado',
-    petPhoto: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=150&h=150&fit=crop&q=80'
+    qrCode: 'PET-2026-0007|Beatriz Lima|Bela|Aprovado'
   }
 ];
 
@@ -240,6 +359,39 @@ class SupabaseMockClient {
     if (typeof window !== 'undefined') {
       localStorage.setItem(key, JSON.stringify(data));
     }
+  }
+
+  // --- Institutions API ---
+
+  getInstitutions(): Institution[] {
+    return this.getStorage<Institution>('ps_institutions', initialInstitutions);
+  }
+
+  saveInstitution(inst: Omit<Institution, 'id'>): Institution {
+    const list = this.getInstitutions();
+    const newInst: Institution = {
+      ...inst,
+      id: `inst-${Date.now()}`
+    };
+    list.push(newInst);
+    this.setStorage('ps_institutions', list);
+    return newInst;
+  }
+
+  updateInstitution(id: string, updates: Partial<Institution>): Institution {
+    const list = this.getInstitutions();
+    const idx = list.findIndex(i => i.id === id);
+    if (idx === -1) throw new Error('Institution not found');
+    const updated = { ...list[idx], ...updates };
+    list[idx] = updated;
+    this.setStorage('ps_institutions', list);
+    return updated;
+  }
+
+  deleteInstitution(id: string): void {
+    const list = this.getInstitutions();
+    const filtered = list.filter(i => i.id !== id);
+    this.setStorage('ps_institutions', filtered);
   }
 
   // --- Database CRUD ---
