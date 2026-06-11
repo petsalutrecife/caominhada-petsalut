@@ -6,13 +6,13 @@ import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock } from '@/lib/supabaseMock';
-import { Mail, Shield, User, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Mail, Shield, User, ArrowRight, ArrowLeft, Building } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   
-  // Tabs: 'participant' or 'admin'
-  const [activeTab, setActiveTab] = useState<'participant' | 'admin'>('participant');
+  // Tabs: 'participant' | 'institution' | 'admin'
+  const [activeTab, setActiveTab] = useState<'participant' | 'institution' | 'admin'>('participant');
   
   // Form fields
   const [email, setEmail] = useState('');
@@ -65,6 +65,8 @@ export default function LoginPage() {
       if (res.success) {
         if (res.user.role === 'admin') {
           router.push('/admin');
+        } else if (res.user.role === 'institution') {
+          router.push('/institution/dashboard');
         } else {
           router.push('/dashboard');
         }
@@ -98,30 +100,42 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Dual Tab Switcher */}
-          <div className="grid grid-cols-2 p-1.5 bg-slate-100 dark:bg-slate-900 rounded-2xl mb-8">
+          {/* Triple Tab Switcher */}
+          <div className="grid grid-cols-3 p-1.5 bg-slate-100 dark:bg-slate-900 rounded-2xl mb-8 font-poppins">
             <button
               onClick={() => setActiveTab('participant')}
-              className={`py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              className={`py-2 px-1 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'participant'
                   ? 'bg-white dark:bg-slate-850 text-primary-blue dark:text-lime-400 shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <User className="h-4 w-4" /> Participante
+              <span className="flex items-center justify-center gap-1">
+                <User className="h-3.5 w-3.5" /> Tutor
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('institution')}
+              className={`py-2 px-1 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'institution'
+                  ? 'bg-white dark:bg-slate-850 text-primary-blue dark:text-lime-400 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <span className="flex items-center justify-center gap-1">
+                <Building className="h-3.5 w-3.5" /> Instituição
               </span>
             </button>
             <button
               onClick={() => setActiveTab('admin')}
-              className={`py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              className={`py-2 px-1 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'admin'
                   ? 'bg-white dark:bg-slate-850 text-primary-blue dark:text-lime-400 shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <Shield className="h-4 w-4" /> Administrador
+              <span className="flex items-center justify-center gap-1">
+                <Shield className="h-3.5 w-3.5" /> Admin
               </span>
             </button>
           </div>
@@ -155,7 +169,7 @@ export default function LoginPage() {
             {/* CPF / Password Field */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="authInput" className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                {activeTab === 'participant' ? 'CPF do Tutor' : 'Senha de Administrador'}
+                {activeTab === 'participant' ? 'CPF do Tutor' : activeTab === 'institution' ? 'Senha da Instituição' : 'Senha de Administrador'}
               </label>
               <div className="relative">
                 <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -184,14 +198,21 @@ export default function LoginPage() {
 
           {/* Quick Info / Hints */}
           <div className="mt-8 border-t border-slate-100 dark:border-slate-900 pt-6 text-center text-xs text-slate-500">
-            {activeTab === 'participant' ? (
+            {activeTab === 'participant' && (
               <p>
                 Não tem uma inscrição?{' '}
                 <Link href="/register" className="text-primary-blue dark:text-lime-400 font-bold hover:underline">
                   Inscreva-se aqui
                 </Link>
               </p>
-            ) : (
+            )}
+            {activeTab === 'institution' && (
+              <p className="text-[10px] text-slate-400">
+                Acesso para ONGs parceiras. <br />
+                Exemplo: <strong>lazaro@abrigo.org</strong> / <strong>password123</strong>
+              </p>
+            )}
+            {activeTab === 'admin' && (
               <p className="text-[10px] text-slate-400">
                 Acesso administrativo restrito. <br />
                 Demo Admin: <strong>admin@petsalut.com.br</strong> / <strong>admin123</strong>
