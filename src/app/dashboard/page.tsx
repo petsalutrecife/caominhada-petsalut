@@ -5,8 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
-import { supabaseMock, Registration } from '@/lib/supabaseMock';
-import { LogOut, Calendar, MapPin, Award, CheckCircle2, Clock, ShieldAlert, CreditCard, ClipboardList, RefreshCw, X, Download, Camera, Upload } from 'lucide-react';
+import { supabaseMock, Registration, Institution } from '@/lib/supabaseMock';
+import { 
+  LogOut, Calendar, MapPin, Award, CheckCircle2, Clock, ShieldAlert, 
+  CreditCard, ClipboardList, RefreshCw, X, Download, Camera, Upload, 
+  Heart, Check, FileText, AlertTriangle
+} from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 export default function ParticipantDashboard() {
@@ -15,11 +19,14 @@ export default function ParticipantDashboard() {
   // Auth state
   const [user, setUser] = useState<any>(null);
   const [registration, setRegistration] = useState<Registration | null>(null);
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Pix modal state
-  const [pixModalOpen, setPixModalOpen] = useState(false);
-  const [isPaying, setIsPaying] = useState(false);
+  // Re-upload state
+  const [reuploadModalOpen, setReuploadModalOpen] = useState(false);
+  const [newReceipt, setNewReceipt] = useState('');
+  const [newReceiptName, setNewReceiptName] = useState('');
+  const [isSubmittingReceipt, setIsSubmittingReceipt] = useState(false);
 
   useEffect(() => {
     const currentUser = supabaseMock.getCurrentUser();
@@ -29,6 +36,7 @@ export default function ParticipantDashboard() {
     }
 
     setUser(currentUser);
+    setInstitutions(supabaseMock.getInstitutions());
     
     // Fetch user registration details
     const regs = supabaseMock.getRegistrations();
@@ -48,24 +56,28 @@ export default function ParticipantDashboard() {
     router.push('/login');
   };
 
-  const handlePixPayment = () => {
-    if (!registration) return;
-    
-    setIsPaying(true);
-    
-    // Simulate gateway delay
+  const handleReuploadReceipt = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReceipt || !registration) return;
+
+    setIsSubmittingReceipt(true);
+
     setTimeout(() => {
       try {
         const updated = supabaseMock.updateRegistration(registration.id, {
-          statusPayment: 'Aprovado',
-          statusKit: 'Liberado' // Kit gets released once paid!
+          donationReceipt: newReceipt,
+          donationStatus: 'AGUARDANDO VALIDAÇÃO',
+          rejectionReason: ''
         });
         setRegistration(updated);
-        setIsPaying(false);
-        setPixModalOpen(false);
+        setIsSubmittingReceipt(false);
+        setReuploadModalOpen(false);
+        setNewReceipt('');
+        setNewReceiptName('');
+        alert('Comprovante enviado com sucesso para validação!');
       } catch (err) {
-        setIsPaying(false);
-        alert('Erro ao processar pagamento simulado.');
+        setIsSubmittingReceipt(false);
+        alert('Erro ao reenviar comprovante. Tente novamente.');
       }
     }, 1500);
   };
@@ -78,8 +90,6 @@ export default function ParticipantDashboard() {
       unit: 'mm',
       format: 'a4'
     });
-
-    // A4 landscape size: 297mm x 210mm
     
     // Outer border (Primary Blue)
     doc.setDrawColor(0, 58, 140);
@@ -161,15 +171,15 @@ export default function ParticipantDashboard() {
     );
   }
 
+  const inst = institutions.find(i => i.id === registration.selectedInstitution);
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(registration.qrCode)}`;
+  const isApproved = registration.donationStatus === 'APROVADA';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
       {/* Header */}
       <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
-        <Link href="/">
-          <Logo />
-        </Link>
+        <Link href="/"><Logo /></Link>
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <button
@@ -182,23 +192,58 @@ export default function ParticipantDashboard() {
       </header>
 
       {/* Main Dashboard Layout */}
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 flex-1 flex flex-col gap-8">
+      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 flex-1 flex flex-col gap-8 animate-in fade-in duration-300">
         
         {/* Welcome Banner */}
         <div className="bg-gradient-to-r from-blue-900 to-slate-900 dark:from-slate-950 dark:to-slate-900 p-8 rounded-3xl text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-md">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold font-poppins">Olá, {registration.tutorName.split(' ')[0]}!</h2>
-            <p className="text-sm text-slate-300 mt-1">Bem-vindo ao seu painel oficial da Cãominhada Petsalut 2026.</p>
+            <p className="text-sm text-slate-350 mt-1">Acompanhe aqui o andamento de sua inscrição e doação parceira.</p>
           </div>
-          <div className="px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 text-xs font-bold flex items-center gap-2">
-            <ClipboardList className="h-4 w-4" /> Inscrição: <span className="font-mono text-lime-400">{registration.regNumber}</span>
+          <div className="px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 text-xs font-bold flex items-center gap-2 font-mono">
+            <ClipboardList className="h-4 w-4" /> Inscrição: <span className="text-lime-400">{registration.regNumber}</span>
           </div>
         </div>
+
+        {/* Status Notification Alert cards based on donationStatus */}
+        {!isApproved && (
+          <div className="w-full">
+            {registration.donationStatus === 'REJEITADA' ? (
+              <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-900 p-6 rounded-3xl text-left flex flex-col sm:flex-row items-start gap-4">
+                <AlertTriangle className="h-8 w-8 text-red-500 shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h4 className="font-extrabold text-red-800 dark:text-red-400 text-base font-poppins">Comprovante de Doação Rejeitado</h4>
+                  <p className="text-xs text-red-700 dark:text-red-300 mt-1.5 leading-relaxed">
+                    A instituição <strong>{inst?.name}</strong> analisou seu comprovante e rejeitou a validação. <br />
+                    <strong>Motivo da rejeição:</strong> <span className="underline font-semibold">{registration.rejectionReason || 'Não informado pela instituição.'}</span>
+                  </p>
+                  <button
+                    onClick={() => setReuploadModalOpen(true)}
+                    className="mt-4 px-5 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 transition-all shadow-sm shadow-red-500/10"
+                  >
+                    <Upload className="h-3.5 w-3.5" /> Reenviar Comprovante
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-250 dark:border-amber-900/60 p-6 rounded-3xl text-left flex flex-col sm:flex-row items-start gap-4">
+                <Clock className="h-8 w-8 text-amber-500 shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-extrabold text-amber-800 dark:text-amber-400 text-base font-poppins">Doação em Processo de Validação</h4>
+                  <p className="text-xs text-amber-700 dark:text-amber-300 mt-1.5 leading-relaxed">
+                    Sua doação de <strong>R$ {registration.donationValue.toFixed(2)}</strong> para <strong>{inst?.name}</strong> está em análise ({registration.donationStatus.toLowerCase()}). 
+                    O prazo de validação é de até 24h. Fique tranquilo, assim que a instituição aprovar, liberaremos seu QR Code de acesso e Kit.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Dashboard Cards Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Side: Status and actions */}
+          {/* Left Side: Status, Certificate and "Minhas Doações" */}
           <div className="lg:col-span-8 flex flex-col gap-8">
             
             {/* Status Grid */}
@@ -210,28 +255,19 @@ export default function ParticipantDashboard() {
                   <div className="p-3 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-2xl">
                     <CreditCard className="h-5 w-5" />
                   </div>
-                  {registration.statusPayment === 'Aprovado' ? (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400">Aprovado</span>
+                  {isApproved ? (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400">Confirmado</span>
                   ) : (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-400">Pendente</span>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-400">Aguardando</span>
                   )}
                 </div>
                 
                 <div>
-                  <h4 className="text-xs uppercase tracking-wider font-bold text-slate-400">Status do Pagamento</h4>
+                  <h4 className="text-xs uppercase tracking-wider font-bold text-slate-400">Inscrição</h4>
                   <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2">
-                    {registration.statusPayment === 'Aprovado' ? 'Sua participação está confirmada!' : 'Aguardando pagamento da taxa.'}
+                    {isApproved ? 'Sua participação está confirmada! 🎉' : 'Inscrição pendente de validação de doação.'}
                   </p>
                 </div>
-
-                {registration.statusPayment === 'Pendente' && (
-                  <button
-                    onClick={() => setPixModalOpen(true)}
-                    className="mt-6 w-full py-2.5 rounded-xl text-xs font-bold bg-primary-blue hover:bg-blue-800 text-white dark:bg-lime-500 dark:hover:bg-lime-600 dark:text-slate-950 transition-colors"
-                  >
-                    Efetuar Pagamento (Simulado)
-                  </button>
-                )}
               </div>
 
               {/* Kit Distribution Card */}
@@ -243,11 +279,11 @@ export default function ParticipantDashboard() {
                   {registration.statusKit === 'Retirado' && (
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Retirado</span>
                   )}
-                  {registration.statusKit === 'Liberado' && (
+                  {registration.statusKit === 'Liberado' && isApproved && (
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400">Liberado</span>
                   )}
-                  {registration.statusKit === 'Aguardando' && (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-400 font-mono">Aguardando</span>
+                  {(registration.statusKit === 'Aguardando' || !isApproved) && (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-400 font-mono">Bloqueado</span>
                   )}
                 </div>
 
@@ -255,8 +291,8 @@ export default function ParticipantDashboard() {
                   <h4 className="text-xs uppercase tracking-wider font-bold text-slate-400">Status do Kit</h4>
                   <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2">
                     {registration.statusKit === 'Retirado' && 'Kit já retirado. Excelente caminhada!'}
-                    {registration.statusKit === 'Liberado' && 'Kit liberado para retirada!'}
-                    {registration.statusKit === 'Aguardando' && 'Aguardando aprovação do pagamento.'}
+                    {registration.statusKit === 'Liberado' && isApproved && 'Kit liberado para retirada!'}
+                    {(!isApproved || registration.statusKit === 'Aguardando') && 'Será liberado assim que a doação for aprovada.'}
                   </p>
                 </div>
 
@@ -268,6 +304,60 @@ export default function ParticipantDashboard() {
 
             </div>
 
+            {/* SECTION: Minhas Doações */}
+            <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins flex items-center gap-2">
+                <Heart className="h-5 w-5 text-red-500" />
+                Minhas Doações
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Abaixo estão listadas as suas contribuições enviadas para as instituições do evento.
+              </p>
+
+              <hr className="border-slate-100 dark:border-slate-900 my-4" />
+
+              <div className="overflow-x-auto w-full">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-850 text-slate-400 uppercase font-bold">
+                      <th className="p-3">Instituição</th>
+                      <th className="p-3">Valor</th>
+                      <th className="p-3">Data</th>
+                      <th className="p-3 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="text-slate-700 dark:text-slate-300">
+                      <td className="p-3 flex items-center gap-2">
+                        <span className="text-xl">{inst?.logo || '🐾'}</span>
+                        <div>
+                          <span className="font-bold block text-slate-900 dark:text-white">{inst?.name || 'Carregando...'}</span>
+                          <span className="text-[9px] text-slate-450">{inst?.city}/{inst?.state}</span>
+                        </div>
+                      </td>
+                      <td className="p-3 font-bold text-slate-900 dark:text-white">
+                        R$ {registration.donationValue.toFixed(2)}
+                      </td>
+                      <td className="p-3 font-medium">
+                        {new Date(registration.createdAt).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="p-3 text-right">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                          registration.donationStatus === 'APROVADA'
+                            ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400'
+                            : registration.donationStatus === 'REJEITADA'
+                              ? 'bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-400'
+                              : 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400'
+                        }`}>
+                          {registration.donationStatus}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
             {/* Certificate Area Card */}
             <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins">Certificado Digital</h3>
@@ -277,7 +367,7 @@ export default function ParticipantDashboard() {
 
               <hr className="border-slate-100 dark:border-slate-900 my-4" />
 
-              {registration.statusKit === 'Retirado' ? (
+              {registration.statusKit === 'Retirado' && isApproved ? (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 rounded-2xl">
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="h-8 w-8 text-emerald-500" />
@@ -297,34 +387,13 @@ export default function ParticipantDashboard() {
                 <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-850 flex items-start gap-3">
                   <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Acesso ainda bloqueado</span>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Acesso bloqueado</span>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                      O certificado estará disponível assim que o kit especial da Cãominhada for retirado ou o evento for finalizado.
+                      O certificado estará disponível assim que o kit especial da Cãominhada for retirado. A liberação do kit requer que o comprovante de doação seja validado pela instituição.
                     </p>
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Event Schedule Brief */}
-            <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins">Informações para o dia do Evento</h3>
-              <p className="text-xs text-slate-500 mt-1 mb-4">Lembre-se das regras importantes para garantir o conforto de todos.</p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-350 block mb-1">📅 Dia do Evento</span>
-                  <p className="text-[11px] text-slate-500">Domingo, 20/09/2026 às 08h00 para alongamento. Largada às 09h00.</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-350 block mb-1">🦮 Guias e Coleiras</span>
-                  <p className="text-[11px] text-slate-500">Uso obrigatório de guia curta durante todo o evento por segurança.</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-350 block mb-1">💧 Hidratação</span>
-                  <p className="text-[11px] text-slate-500">Pontos de água a cada 500m. Ofereça água em pequenas doses ao pet.</p>
-                </div>
-              </div>
             </div>
 
           </div>
@@ -335,19 +404,33 @@ export default function ParticipantDashboard() {
             {/* QR Code Card */}
             <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center hover-lift">
               <span className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-4">QR Code Credencial</span>
-              <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm w-44 h-44 flex items-center justify-center">
-                <img src={qrUrl} alt="QR Code Inscrição" className="w-full h-full object-contain" />
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 leading-relaxed">
-                Apresente este código na tenda de credenciamento para liberar a retirada do seu kit físico e brindes.
-              </p>
+              
+              {isApproved ? (
+                <>
+                  <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm w-44 h-44 flex items-center justify-center">
+                    <img src={qrUrl} alt="QR Code Inscrição" className="w-full h-full object-contain" />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 leading-relaxed">
+                    Apresente este código na tenda de credenciamento para liberar a retirada do seu kit físico e brindes.
+                  </p>
+                </>
+              ) : (
+                <div className="py-8 px-4 flex flex-col items-center gap-4">
+                  <div className="h-28 w-28 rounded-2xl bg-slate-100 dark:bg-slate-900 border-2 border-dashed border-slate-350 dark:border-slate-800 flex items-center justify-center text-slate-350">
+                    <ShieldAlert className="h-10 w-10 text-slate-450 dark:text-slate-500" />
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">Aguardando Validação</h4>
+                  <p className="text-[10px] text-slate-400 leading-relaxed max-w-[180px]">
+                    Seu QR Code de credenciamento será ativado assim que a doação for aprovada pela instituição parceira.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Pet Card */}
-            <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift animate-in fade-in duration-300">
+            <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins mb-4">Dados do Pet Cadastrado</h3>
               
-              {/* Pet Photo Uploader/Display */}
               <div className="flex flex-col items-center gap-3 mb-6 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-850">
                 <div className="relative h-28 w-28 rounded-full border-4 border-white dark:border-slate-800 shadow-md overflow-hidden group bg-slate-200 dark:bg-slate-700">
                   {registration.petPhoto ? (
@@ -414,6 +497,10 @@ export default function ParticipantDashboard() {
                   <span className="font-bold text-slate-800 dark:text-slate-200">{registration.petName}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-900">
+                  <span className="text-slate-400 font-medium">Espécie</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{registration.petSpecies}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-900">
                   <span className="text-slate-400 font-medium">Raça</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200">{registration.petBreed}</span>
                 </div>
@@ -433,40 +520,84 @@ export default function ParticipantDashboard() {
         </div>
       </main>
 
-      {/* PIX Payment Modal */}
-      {pixModalOpen && (
+      {/* RE-UPLOAD COMPROVANTE MODAL */}
+      {reuploadModalOpen && (
         <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-950 max-w-sm w-full rounded-3xl p-6 border border-slate-200 dark:border-slate-850 shadow-2xl flex flex-col items-center text-center relative animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-950 max-w-md w-full rounded-3xl p-6 border border-slate-250 dark:border-slate-850 shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200">
             <button
-              onClick={() => setPixModalOpen(false)}
-              className="absolute top-4 right-4 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-400 hover:text-slate-600 transition-colors"
+              onClick={() => setReuploadModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-400 hover:text-slate-600 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-primary-blue dark:text-blue-400 uppercase tracking-widest block mb-4">Simulador de Pagamento Pix</span>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white font-poppins">Taxa de Inscrição</h3>
-            <span className="text-3xl font-extrabold text-primary-blue dark:text-lime-400 font-poppins mt-2">R$ 29,90</span>
-
-            <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-250 dark:border-slate-800 w-full my-6 flex flex-col items-center">
-              {/* Fake Pix QR Code image */}
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-inner w-36 h-36 flex items-center justify-center">
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=00020126580014BR.GOV.BCB.PIX0136ps-caominhada-event-key-2026520400005303986540529.905802BR5915Petsalut%20Eventos6009Sao%20Paulo62070503***6304CA12`} alt="Pix QR Code" className="w-full h-full object-contain" />
-              </div>
-              <span className="text-[10px] text-slate-400 mt-3 font-mono break-all select-all">Copy/Paste Key: 00020126580014BR.GOV.BCB.PIX...</span>
+            <div className="text-center mb-6">
+              <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-primary-blue dark:text-blue-400 uppercase tracking-widest inline-block mb-3">Reenviar Comprovante</span>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins">Substituir comprovante de doação</h3>
+              <p className="text-xs text-slate-500 mt-1">O seu comprovante anterior foi rejeitado. Por favor, faça o upload de um comprovante válido de doação PIX mínima de R$ 50,00.</p>
             </div>
 
-            <p className="text-xs text-slate-500 leading-relaxed px-2">
-              Esta é uma simulação de pagamento via Pix. Clique no botão abaixo para aprovar imediatamente a inscrição e liberar o kit.
-            </p>
+            <form onSubmit={handleReuploadReceipt} className="flex flex-col gap-4">
+              <div className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all ${
+                newReceipt 
+                  ? 'border-[#8DC63F] bg-lime-50/20 dark:bg-lime-950/10' 
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50'
+              }`}>
+                {newReceipt ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <FileText className="h-10 w-10 text-[#003A8C] dark:text-blue-400" />
+                    <div className="text-center">
+                      <span className="text-xs font-bold block text-slate-800 dark:text-slate-200 truncate max-w-[200px]">{newReceiptName || 'comprovante.pdf'}</span>
+                      <span className="text-[10px] text-slate-400 block font-semibold">Pronto para envio</span>
+                    </div>
+                    <button type="button" onClick={() => { setNewReceipt(''); setNewReceiptName(''); }} className="text-[10px] text-red-400 hover:text-red-650 font-bold flex items-center gap-1">
+                      <X className="h-3 w-3" /> Remover
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload className="h-8 w-8 text-slate-400" />
+                    <label className="px-4 py-2 rounded-xl bg-[#003A8C] hover:bg-blue-700 text-white text-xs font-bold cursor-pointer flex items-center gap-1.5 transition-all">
+                      <Upload className="h-3.5 w-3.5" /> Escolher Arquivo
+                      <input type="file" accept="image/*,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert('O arquivo excede o limite máximo de 10MB.');
+                              return;
+                            }
+                            setNewReceiptName(file.name);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setNewReceipt(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                    <span className="text-[9px] text-slate-400">PDF, PNG, JPG até 10MB</span>
+                  </div>
+                )}
+              </div>
 
-            <button
-              onClick={handlePixPayment}
-              disabled={isPaying}
-              className="mt-6 w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-colors flex items-center justify-center gap-2 hover-lift disabled:opacity-50"
-            >
-              {isPaying ? 'Processando Pix...' : 'Confirmar Pagamento Pix'}
-            </button>
+              <button
+                type="submit"
+                disabled={!newReceipt || isSubmittingReceipt}
+                className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-colors flex items-center justify-center gap-2 hover-lift disabled:opacity-50"
+              >
+                {isSubmittingReceipt ? (
+                  <>
+                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Enviando comprovante...
+                  </>
+                ) : (
+                  'Confirmar Reenvio'
+                )}
+              </button>
+            </form>
           </div>
         </div>
       )}

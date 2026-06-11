@@ -17,8 +17,11 @@ export interface Registration {
   petAge: number;
   petPhoto?: string;
   selectedInstitution: string; // institution id
+  donationValue: number;
   donationReceipt?: string; // base64 of the receipt image
-  donationStatus: 'Aguardando Comprovante' | 'Enviado' | 'Validado' | 'Rejeitado';
+  donationStatus: 'AGUARDANDO VALIDAÇÃO' | 'EM ANÁLISE' | 'APROVADA' | 'REJEITADA';
+  rejectionReason?: string;
+  notes?: string;
   regNumber: string;
   statusPayment: 'Pendente' | 'Aprovado';
   statusKit: 'Aguardando' | 'Liberado' | 'Retirado';
@@ -29,11 +32,25 @@ export interface Registration {
 export interface Institution {
   id: string;
   name: string;
-  logo: string;
+  logo: string; // emoji or char
   description: string;
   mission: string;
+  city: string;
+  state: string;
   pixKey: string;
-  pixType: 'CNPJ' | 'E-mail' | 'Telefone' | 'Chave Aleatória';
+  pixType: string;
+  pixQrCode?: string;
+  responsibleName?: string;
+  responsibleEmail?: string;
+  responsiblePhone?: string;
+  status: 'Ativo' | 'Inativo';
+  animalsServed: number;
+  castrations: number;
+  rescues: number;
+  photo: string;
+  banner: string;
+  email?: string;
+  password?: string;
   totalDonations: number;
 }
 
@@ -64,9 +81,19 @@ const initialInstitutions: Institution[] = [
     logo: '🏠',
     description: 'Abrigo que acolhe e cuida de cães e gatos abandonados na região metropolitana do Recife há mais de 15 anos.',
     mission: 'Resgatar, tratar e encontrar lares amorosos para animais em situação de abandono e maus-tratos.',
+    city: 'Recife',
+    state: 'PE',
     pixKey: '12.345.678/0001-90',
     pixType: 'CNPJ',
-    totalDonations: 0
+    status: 'Ativo',
+    animalsServed: 250,
+    castrations: 820,
+    rescues: 560,
+    photo: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=400&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1200&h=400&fit=crop&q=80',
+    email: 'lazaro@abrigo.org',
+    password: 'password123',
+    totalDonations: 200 // initial value
   },
   {
     id: 'inst-2',
@@ -74,9 +101,19 @@ const initialInstitutions: Institution[] = [
     logo: '🐾',
     description: 'ONG focada na castração, vacinação e conscientização sobre posse responsável de animais domésticos.',
     mission: 'Reduzir a população de animais de rua através de castração gratuita e educação comunitária.',
+    city: 'Recife',
+    state: 'PE',
     pixKey: 'doacoes@patinhasfelizes.org.br',
     pixType: 'E-mail',
-    totalDonations: 0
+    status: 'Ativo',
+    animalsServed: 180,
+    castrations: 1200,
+    rescues: 340,
+    photo: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=400&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=1200&h=400&fit=crop&q=80',
+    email: 'patinhas@projeto.org',
+    password: 'password123',
+    totalDonations: 100
   },
   {
     id: 'inst-3',
@@ -84,9 +121,19 @@ const initialInstitutions: Institution[] = [
     logo: '💚',
     description: 'Instituição dedicada ao resgate de animais em áreas de risco e atendimento veterinário emergencial gratuito.',
     mission: 'Garantir atendimento veterinário de emergência gratuito para animais de famílias de baixa renda.',
+    city: 'Olinda',
+    state: 'PE',
     pixKey: '(81) 99999-8888',
     pixType: 'Telefone',
-    totalDonations: 0
+    status: 'Ativo',
+    animalsServed: 310,
+    castrations: 650,
+    rescues: 980,
+    photo: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&h=400&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=1200&h=400&fit=crop&q=80',
+    email: 'vida@instituto.org',
+    password: 'password123',
+    totalDonations: 100
   },
   {
     id: 'inst-4',
@@ -94,9 +141,19 @@ const initialInstitutions: Institution[] = [
     logo: '🏡',
     description: 'Lar temporário que abriga animais resgatados até a adoção definitiva, com foco em cães idosos e especiais.',
     mission: 'Dar dignidade e conforto a cães idosos, com deficiência ou doenças crônicas que foram abandonados.',
+    city: 'Jaboatão dos Guararapes',
+    state: 'PE',
     pixKey: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     pixType: 'Chave Aleatória',
-    totalDonations: 0
+    status: 'Ativo',
+    animalsServed: 95,
+    castrations: 420,
+    rescues: 180,
+    photo: 'https://images.unsplash.com/photo-1444212477490-ca407925329e?w=600&h=400&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1444212477490-ca407925329e?w=1200&h=400&fit=crop&q=80',
+    email: 'peludos@lar.org',
+    password: 'password123',
+    totalDonations: 50
   }
 ];
 
@@ -184,8 +241,9 @@ const initialRegistrations: Registration[] = [
     petAge: 3,
     petPhoto: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop&q=80',
     selectedInstitution: 'inst-1',
+    donationValue: 100,
     donationReceipt: '',
-    donationStatus: 'Validado',
+    donationStatus: 'APROVADA',
     regNumber: 'PET-2026-0001',
     statusPayment: 'Aprovado',
     statusKit: 'Retirado',
@@ -209,8 +267,9 @@ const initialRegistrations: Registration[] = [
     petAge: 2,
     petPhoto: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=150&h=150&fit=crop&q=80',
     selectedInstitution: 'inst-2',
+    donationValue: 50,
     donationReceipt: '',
-    donationStatus: 'Validado',
+    donationStatus: 'APROVADA',
     regNumber: 'PET-2026-0002',
     statusPayment: 'Aprovado',
     statusKit: 'Liberado',
@@ -234,8 +293,9 @@ const initialRegistrations: Registration[] = [
     petAge: 5,
     petPhoto: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=150&h=150&fit=crop&q=80',
     selectedInstitution: 'inst-3',
+    donationValue: 50,
     donationReceipt: '',
-    donationStatus: 'Enviado',
+    donationStatus: 'AGUARDANDO VALIDAÇÃO',
     regNumber: 'PET-2026-0003',
     statusPayment: 'Pendente',
     statusKit: 'Aguardando',
@@ -259,8 +319,9 @@ const initialRegistrations: Registration[] = [
     petAge: 4,
     petPhoto: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=150&h=150&fit=crop&q=80',
     selectedInstitution: 'inst-1',
+    donationValue: 100,
     donationReceipt: '',
-    donationStatus: 'Validado',
+    donationStatus: 'APROVADA',
     regNumber: 'PET-2026-0004',
     statusPayment: 'Aprovado',
     statusKit: 'Aguardando',
@@ -284,8 +345,9 @@ const initialRegistrations: Registration[] = [
     petAge: 1,
     petPhoto: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=150&h=150&fit=crop&q=80',
     selectedInstitution: 'inst-4',
+    donationValue: 50,
     donationReceipt: '',
-    donationStatus: 'Aguardando Comprovante',
+    donationStatus: 'EM ANÁLISE',
     regNumber: 'PET-2026-0005',
     statusPayment: 'Pendente',
     statusKit: 'Aguardando',
@@ -309,8 +371,9 @@ const initialRegistrations: Registration[] = [
     petAge: 6,
     petPhoto: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=150&h=150&fit=crop&q=80',
     selectedInstitution: 'inst-2',
+    donationValue: 50,
     donationReceipt: '',
-    donationStatus: 'Validado',
+    donationStatus: 'APROVADA',
     regNumber: 'PET-2026-0006',
     statusPayment: 'Aprovado',
     statusKit: 'Retirado',
@@ -334,8 +397,9 @@ const initialRegistrations: Registration[] = [
     petAge: 7,
     petPhoto: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=150&h=150&fit=crop&q=80',
     selectedInstitution: 'inst-3',
+    donationValue: 50,
     donationReceipt: '',
-    donationStatus: 'Validado',
+    donationStatus: 'APROVADA',
     regNumber: 'PET-2026-0007',
     statusPayment: 'Aprovado',
     statusKit: 'Liberado',
@@ -508,6 +572,18 @@ class SupabaseMockClient {
     // Admin check
     if (email === 'admin@petsalut.com.br' && identity === 'admin123') {
       const user = { email, role: 'admin', name: 'Administrador Petsalut' };
+      localStorage.setItem('ps_session', JSON.stringify(user));
+      return { success: true, user };
+    }
+
+    // Institution check
+    const institutionsList = this.getInstitutions();
+    const instUser = institutionsList.find(i => 
+      i.email && i.email.toLowerCase().trim() === email.toLowerCase().trim() && 
+      i.password === identity
+    );
+    if (instUser) {
+      const user = { email, role: 'institution', id: instUser.id, name: instUser.name };
       localStorage.setItem('ps_session', JSON.stringify(user));
       return { success: true, user };
     }
