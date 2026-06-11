@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
-import { supabaseMock, Sponsor } from '@/lib/supabaseMock';
+import { supabaseMock, Sponsor, Institution } from '@/lib/supabaseMock';
 import { 
   Calendar, MapPin, Clock, Award, ShieldAlert, Heart, Trophy, Users, 
   ChevronRight, Menu, X, ArrowRight, Info, Compass, Dog, Route
@@ -13,6 +13,7 @@ import {
 
 export default function LandingPage() {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 360, hours: 14, minutes: 27, seconds: 45 });
@@ -23,6 +24,7 @@ export default function LandingPage() {
   useEffect(() => {
     setMounted(true);
     setSponsors(supabaseMock.getSponsors());
+    setInstitutions(supabaseMock.getInstitutions());
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -71,6 +73,7 @@ export default function LandingPage() {
           <nav className="hidden lg:flex items-center gap-8 font-poppins">
             <a href="#inicio" className="text-sm font-bold text-[#003A8C] dark:text-lime-400 transition-colors relative after:content-[''] after:absolute after:bottom-[-29px] after:left-0 after:w-full after:h-[3px] after:bg-[#8DC63F]">Início</a>
             <a href="#sobre" className="text-sm font-medium text-slate-650 dark:text-slate-350 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Sobre o Evento</a>
+            <a href="#instituicoes" className="text-sm font-medium text-slate-650 dark:text-slate-350 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Instituições Ajudadas</a>
             <a href="#percurso" className="text-sm font-medium text-slate-650 dark:text-slate-355 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Percurso</a>
             <a href="#patrocinadores" className="text-sm font-medium text-slate-655 dark:text-slate-355 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Patrocinadores</a>
             <a href="#informacoes" className="text-sm font-medium text-slate-655 dark:text-slate-355 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Informações</a>
@@ -105,6 +108,7 @@ export default function LandingPage() {
             <div className="flex flex-col gap-4">
               <a href="#inicio" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-bold hover:bg-slate-55">Início</a>
               <a href="#sobre" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Sobre o Evento</a>
+              <a href="#instituicoes" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Instituições Ajudadas</a>
               <a href="#percurso" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Percurso</a>
               <a href="#patrocinadores" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Patrocinadores</a>
               <a href="#informacoes" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Informações</a>
@@ -361,6 +365,102 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Seção Instituições Ajudadas */}
+      <section id="instituicoes" className="py-24 px-4 bg-slate-50 dark:bg-slate-900/40 transition-colors scroll-mt-20">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="max-w-3xl mx-auto mb-16">
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#8DC63F]/10 dark:bg-lime-400/10 text-[#8DC63F] dark:text-lime-400 uppercase tracking-widest font-poppins">
+              Solidariedade & Cuidado Animal
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] dark:text-white font-poppins mt-3">
+              Instituições Parceiras que Você Ajudará
+            </h2>
+            <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
+              O propósito da Cãominhada Petsalut 2026 é apoiar o trabalho incansável de resgate e reabilitação de animais abandonados. 
+              Ao se inscrever, a sua doação mínima de <strong>R$ 50,00</strong> vai diretamente para a conta da instituição de sua escolha.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {institutions.filter(inst => inst.status === 'Ativo').map((inst) => (
+              <div 
+                key={inst.id} 
+                className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden hover-lift flex flex-col justify-between text-left group"
+              >
+                <div>
+                  {/* Photo Banner with Logo Overlay */}
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <img 
+                      src={inst.photo || 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=400&fit=crop&q=80'} 
+                      alt={inst.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent" />
+                    
+                    {/* Floating Logo Badge */}
+                    <div className="absolute top-4 left-4 h-12 w-12 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-2xl shadow-md border border-slate-100 dark:border-slate-700">
+                      {inst.logo}
+                    </div>
+
+                    {/* Location Badge */}
+                    <div className="absolute bottom-4 left-4 flex items-center gap-1 text-xs font-semibold text-white">
+                      <MapPin className="h-3.5 w-3.5 text-[#8DC63F]" strokeWidth={2} />
+                      <span>{inst.city} - {inst.state}</span>
+                    </div>
+                  </div>
+
+                  {/* Body Content */}
+                  <div className="p-6">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-xl font-poppins tracking-tight line-clamp-1">
+                      {inst.name}
+                    </h3>
+                    
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-2 h-16 overflow-hidden line-clamp-3 leading-relaxed">
+                      {inst.description}
+                    </p>
+
+                    {/* Mission Text box */}
+                    <div className="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80">
+                      <span className="text-[10px] font-bold text-[#003A8C] dark:text-blue-400 uppercase tracking-widest block mb-1">
+                        Propósito & Missão
+                      </span>
+                      <p className="text-[11px] font-medium text-slate-650 dark:text-slate-300 italic line-clamp-3 leading-relaxed">
+                        "{inst.mission}"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Counters and Action Button */}
+                <div className="p-6 pt-0">
+                  <div className="grid grid-cols-3 gap-2 border-t border-slate-150 dark:border-slate-800 pt-4 mb-4 text-center">
+                    <div>
+                      <span className="text-sm font-black text-[#003A8C] dark:text-blue-400 block">{inst.animalsServed}</span>
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Atendidos</span>
+                    </div>
+                    <div className="border-x border-slate-150 dark:border-slate-800">
+                      <span className="text-sm font-black text-[#8DC63F] block">{inst.castrations}</span>
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Castrados</span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-black text-amber-500 block">{inst.rescues}</span>
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Resgates</span>
+                    </div>
+                  </div>
+
+                  <Link 
+                    href="/register" 
+                    className="w-full py-3 rounded-2xl bg-[#8DC63F] hover:bg-[#7cb335] text-white dark:text-slate-950 font-bold text-xs flex items-center justify-center gap-2 hover-lift transition-all shadow-sm shadow-lime-500/10"
+                  >
+                    Apoiar esta ONG 🐾
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -636,6 +736,7 @@ export default function LandingPage() {
             <div className="flex flex-col gap-3 text-sm">
               <a href="#inicio" className="hover:text-white transition-colors">Início</a>
               <a href="#sobre" className="hover:text-white transition-colors">Sobre o Evento</a>
+              <a href="#instituicoes" className="hover:text-white transition-colors">Instituições Ajudadas</a>
               <a href="#percurso" className="hover:text-white transition-colors">Percurso</a>
               <a href="#patrocinadores" className="hover:text-white transition-colors">Patrocinadores</a>
             </div>
