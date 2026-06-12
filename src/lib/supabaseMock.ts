@@ -1,4 +1,9 @@
-// Mock Supabase Client for local interactive demonstration
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export interface Registration {
   id: string;
@@ -72,90 +77,117 @@ export interface Expense {
   date: string;
 }
 
-// Initial mock data seed
+// Helper mapping functions to support camelCase in UI and snake_case in Database
 
-const initialInstitutions: Institution[] = [
-  {
-    id: 'inst-1',
-    name: 'Abrigo São Lázaro',
-    logo: '🏠',
-    description: 'Abrigo que acolhe e cuida de cães e gatos abandonados na região metropolitana do Recife há mais de 15 anos.',
-    mission: 'Resgatar, tratar e encontrar lares amorosos para animais em situação de abandono e maus-tratos.',
-    city: 'Recife',
-    state: 'PE',
-    pixKey: '12.345.678/0001-90',
-    pixType: 'CNPJ',
-    status: 'Ativo',
-    animalsServed: 250,
-    castrations: 820,
-    rescues: 560,
-    photo: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=400&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1200&h=400&fit=crop&q=80',
-    email: 'lazaro@abrigo.org',
-    password: 'password123',
-    totalDonations: 200 // initial value
-  },
-  {
-    id: 'inst-2',
-    name: 'Projeto Patinhas Felizes',
-    logo: '🐾',
-    description: 'ONG focada na castração, vacinação e conscientização sobre posse responsável de animais domésticos.',
-    mission: 'Reduzir a população de animais de rua através de castração gratuita e educação comunitária.',
-    city: 'Recife',
-    state: 'PE',
-    pixKey: 'doacoes@patinhasfelizes.org.br',
-    pixType: 'E-mail',
-    status: 'Ativo',
-    animalsServed: 180,
-    castrations: 1200,
-    rescues: 340,
-    photo: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=400&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=1200&h=400&fit=crop&q=80',
-    email: 'patinhas@projeto.org',
-    password: 'password123',
-    totalDonations: 100
-  },
-  {
-    id: 'inst-3',
-    name: 'Instituto Vida Animal',
-    logo: '💚',
-    description: 'Instituição dedicada ao resgate de animais em áreas de risco e atendimento veterinário emergencial gratuito.',
-    mission: 'Garantir atendimento veterinário de emergência gratuito para animais de famílias de baixa renda.',
-    city: 'Olinda',
-    state: 'PE',
-    pixKey: '(81) 99999-8888',
-    pixType: 'Telefone',
-    status: 'Ativo',
-    animalsServed: 310,
-    castrations: 650,
-    rescues: 980,
-    photo: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&h=400&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=1200&h=400&fit=crop&q=80',
-    email: 'vida@instituto.org',
-    password: 'password123',
-    totalDonations: 100
-  },
-  {
-    id: 'inst-4',
-    name: 'Lar dos Peludos',
-    logo: '🏡',
-    description: 'Lar temporário que abriga animais resgatados até a adoção definitiva, com foco em cães idosos e especiais.',
-    mission: 'Dar dignidade e conforto a cães idosos, com deficiência ou doenças crônicas que foram abandonados.',
-    city: 'Jaboatão dos Guararapes',
-    state: 'PE',
-    pixKey: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-    pixType: 'Chave Aleatória',
-    status: 'Ativo',
-    animalsServed: 95,
-    castrations: 420,
-    rescues: 180,
-    photo: 'https://images.unsplash.com/photo-1444212477490-ca407925329e?w=600&h=400&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1444212477490-ca407925329e?w=1200&h=400&fit=crop&q=80',
-    email: 'peludos@lar.org',
-    password: 'password123',
-    totalDonations: 50
-  }
-];
+function mapDbToRegistration(db: any): Registration {
+  return {
+    id: db.id,
+    tutorName: db.tutor_name,
+    tutorCpf: db.tutor_cpf,
+    tutorBirthDate: db.tutor_birth_date,
+    tutorPhone: db.tutor_phone,
+    tutorWhatsApp: db.tutor_whats_app,
+    tutorEmail: db.tutor_email,
+    tutorCity: db.tutor_city,
+    tutorState: db.tutor_state,
+    petName: db.pet_name,
+    petSpecies: db.pet_species,
+    petBreed: db.pet_breed,
+    petSize: db.pet_size,
+    petAge: Number(db.pet_age),
+    petPhoto: db.pet_photo || undefined,
+    selectedInstitution: db.selected_institution,
+    donationValue: Number(db.donation_value),
+    donationReceipt: db.donation_receipt || undefined,
+    donationStatus: db.donation_status,
+    rejectionReason: db.rejection_reason || undefined,
+    notes: db.notes || undefined,
+    regNumber: db.reg_number,
+    statusPayment: db.status_payment,
+    statusKit: db.status_kit,
+    createdAt: db.created_at,
+    qrCode: db.qr_code
+  };
+}
+
+function mapRegistrationToDb(reg: Partial<Registration>): any {
+  const db: any = {};
+  if (reg.id !== undefined) db.id = reg.id;
+  if (reg.tutorName !== undefined) db.tutor_name = reg.tutorName;
+  if (reg.tutorCpf !== undefined) db.tutor_cpf = reg.tutorCpf;
+  if (reg.tutorBirthDate !== undefined) db.tutor_birth_date = reg.tutorBirthDate;
+  if (reg.tutorPhone !== undefined) db.tutor_phone = reg.tutorPhone;
+  if (reg.tutorWhatsApp !== undefined) db.tutor_whats_app = reg.tutorWhatsApp;
+  if (reg.tutorEmail !== undefined) db.tutor_email = reg.tutorEmail;
+  if (reg.tutorCity !== undefined) db.tutor_city = reg.tutorCity;
+  if (reg.tutorState !== undefined) db.tutor_state = reg.tutorState;
+  if (reg.petName !== undefined) db.pet_name = reg.petName;
+  if (reg.petSpecies !== undefined) db.pet_species = reg.petSpecies;
+  if (reg.petBreed !== undefined) db.pet_breed = reg.petBreed;
+  if (reg.petSize !== undefined) db.pet_size = reg.petSize;
+  if (reg.petAge !== undefined) db.pet_age = reg.petAge;
+  if (reg.petPhoto !== undefined) db.pet_photo = reg.petPhoto;
+  if (reg.selectedInstitution !== undefined) db.selected_institution = reg.selectedInstitution;
+  if (reg.donationValue !== undefined) db.donation_value = reg.donationValue;
+  if (reg.donationReceipt !== undefined) db.donation_receipt = reg.donationReceipt;
+  if (reg.donationStatus !== undefined) db.donation_status = reg.donationStatus;
+  if (reg.rejectionReason !== undefined) db.rejection_reason = reg.rejectionReason;
+  if (reg.notes !== undefined) db.notes = reg.notes;
+  if (reg.regNumber !== undefined) db.reg_number = reg.regNumber;
+  if (reg.statusPayment !== undefined) db.status_payment = reg.statusPayment;
+  if (reg.statusKit !== undefined) db.status_kit = reg.statusKit;
+  if (reg.createdAt !== undefined) db.created_at = reg.createdAt;
+  if (reg.qrCode !== undefined) db.qr_code = reg.qrCode;
+  return db;
+}
+
+function mapDbToInstitution(db: any): Institution {
+  return {
+    id: db.id,
+    name: db.name,
+    logo: db.logo,
+    description: db.description,
+    mission: db.mission,
+    city: db.city,
+    state: db.state,
+    pixKey: db.pix_key,
+    pixType: db.pix_type,
+    status: db.status,
+    animalsServed: Number(db.animals_served),
+    castrations: Number(db.castrations),
+    rescues: Number(db.rescues),
+    photo: db.photo,
+    banner: db.banner,
+    email: db.email,
+    password: db.password,
+    totalDonations: Number(db.total_donations)
+  };
+}
+
+function mapInstitutionToDb(inst: Partial<Institution>): any {
+  const db: any = {};
+  if (inst.id !== undefined) db.id = inst.id;
+  if (inst.name !== undefined) db.name = inst.name;
+  if (inst.logo !== undefined) db.logo = inst.logo;
+  if (inst.description !== undefined) db.description = inst.description;
+  if (inst.mission !== undefined) db.mission = inst.mission;
+  if (inst.city !== undefined) db.city = inst.city;
+  if (inst.state !== undefined) db.state = inst.state;
+  if (inst.pixKey !== undefined) db.pix_key = inst.pixKey;
+  if (inst.pixType !== undefined) db.pix_type = inst.pixType;
+  if (inst.status !== undefined) db.status = inst.status;
+  if (inst.animalsServed !== undefined) db.animals_served = inst.animalsServed;
+  if (inst.castrations !== undefined) db.castrations = inst.castrations;
+  if (inst.rescues !== undefined) db.rescues = inst.rescues;
+  if (inst.photo !== undefined) db.photo = inst.photo;
+  if (inst.banner !== undefined) db.banner = inst.banner;
+  if (inst.email !== undefined) db.email = inst.email;
+  if (inst.password !== undefined) db.password = inst.password;
+  if (inst.totalDonations !== undefined) db.total_donations = inst.totalDonations;
+  return db;
+}
+
+// Initial fallback mock data seed for sponsors & expenses (kept in LocalStorage for simplicity)
 
 const initialSponsors: Sponsor[] = [
   {
@@ -223,192 +255,14 @@ const initialExpenses: Expense[] = [
   { id: 'ex-6', title: 'Copos de água biodegradáveis', category: 'Alimentação', value: 600, date: '2026-06-06' }
 ];
 
-const initialRegistrations: Registration[] = [
-  {
-    id: 'reg-1',
-    tutorName: 'Mariana Silva',
-    tutorCpf: '123.456.789-00',
-    tutorBirthDate: '1990-05-15',
-    tutorPhone: '(11) 98765-4321',
-    tutorWhatsApp: '(11) 98765-4321',
-    tutorEmail: 'mariana.silva@email.com',
-    tutorCity: 'Recife',
-    tutorState: 'PE',
-    petName: 'Mel',
-    petSpecies: 'Cachorro',
-    petBreed: 'Golden Retriever',
-    petSize: 'Grande',
-    petAge: 3,
-    petPhoto: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop&q=80',
-    selectedInstitution: 'inst-1',
-    donationValue: 100,
-    donationReceipt: '',
-    donationStatus: 'APROVADA',
-    regNumber: 'PET-2026-0001',
-    statusPayment: 'Aprovado',
-    statusKit: 'Retirado',
-    createdAt: '2026-06-01T10:30:00Z',
-    qrCode: 'PET-2026-0001|Mariana Silva|Mel|Aprovado'
-  },
-  {
-    id: 'reg-2',
-    tutorName: 'Thiago Oliveira',
-    tutorCpf: '234.567.890-12',
-    tutorBirthDate: '1985-11-20',
-    tutorPhone: '(21) 99888-7766',
-    tutorWhatsApp: '(21) 99888-7766',
-    tutorEmail: 'thiago.oliveira@email.com',
-    tutorCity: 'Recife',
-    tutorState: 'PE',
-    petName: 'Rocky',
-    petSpecies: 'Cachorro',
-    petBreed: 'Bulldog Francês',
-    petSize: 'Pequeno',
-    petAge: 2,
-    petPhoto: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=150&h=150&fit=crop&q=80',
-    selectedInstitution: 'inst-2',
-    donationValue: 50,
-    donationReceipt: '',
-    donationStatus: 'APROVADA',
-    regNumber: 'PET-2026-0002',
-    statusPayment: 'Aprovado',
-    statusKit: 'Liberado',
-    createdAt: '2026-06-02T14:15:00Z',
-    qrCode: 'PET-2026-0002|Thiago Oliveira|Rocky|Aprovado'
-  },
-  {
-    id: 'reg-3',
-    tutorName: 'Ana Clara Souza',
-    tutorCpf: '345.678.901-23',
-    tutorBirthDate: '1993-03-08',
-    tutorPhone: '(31) 98555-4433',
-    tutorWhatsApp: '(31) 98555-4433',
-    tutorEmail: 'ana.clara@email.com',
-    tutorCity: 'Olinda',
-    tutorState: 'PE',
-    petName: 'Pipoca',
-    petSpecies: 'Cachorro',
-    petBreed: 'Vira-lata (SDR)',
-    petSize: 'Médio',
-    petAge: 5,
-    petPhoto: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=150&h=150&fit=crop&q=80',
-    selectedInstitution: 'inst-3',
-    donationValue: 50,
-    donationReceipt: '',
-    donationStatus: 'AGUARDANDO VALIDAÇÃO',
-    regNumber: 'PET-2026-0003',
-    statusPayment: 'Pendente',
-    statusKit: 'Aguardando',
-    createdAt: '2026-06-03T09:00:00Z',
-    qrCode: 'PET-2026-0003|Ana Clara Souza|Pipoca|Pendente'
-  },
-  {
-    id: 'reg-4',
-    tutorName: 'Roberto Alves',
-    tutorCpf: '456.789.012-34',
-    tutorBirthDate: '1988-07-22',
-    tutorPhone: '(11) 97666-5544',
-    tutorWhatsApp: '(11) 97666-5544',
-    tutorEmail: 'roberto.alves@email.com',
-    tutorCity: 'Recife',
-    tutorState: 'PE',
-    petName: 'Thor',
-    petSpecies: 'Cachorro',
-    petBreed: 'Rottweiler',
-    petSize: 'Grande',
-    petAge: 4,
-    petPhoto: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=150&h=150&fit=crop&q=80',
-    selectedInstitution: 'inst-1',
-    donationValue: 100,
-    donationReceipt: '',
-    donationStatus: 'APROVADA',
-    regNumber: 'PET-2026-0004',
-    statusPayment: 'Aprovado',
-    statusKit: 'Aguardando',
-    createdAt: '2026-06-04T16:45:00Z',
-    qrCode: 'PET-2026-0004|Roberto Alves|Thor|Aprovado'
-  },
-  {
-    id: 'reg-5',
-    tutorName: 'Juliana Costa',
-    tutorCpf: '567.890.123-45',
-    tutorBirthDate: '1995-12-10',
-    tutorPhone: '(19) 99333-2211',
-    tutorWhatsApp: '(19) 99333-2211',
-    tutorEmail: 'juliana.costa@email.com',
-    tutorCity: 'Jaboatão dos Guararapes',
-    tutorState: 'PE',
-    petName: 'Luna',
-    petSpecies: 'Cachorro',
-    petBreed: 'Shih Tzu',
-    petSize: 'Pequeno',
-    petAge: 1,
-    petPhoto: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=150&h=150&fit=crop&q=80',
-    selectedInstitution: 'inst-4',
-    donationValue: 50,
-    donationReceipt: '',
-    donationStatus: 'EM ANÁLISE',
-    regNumber: 'PET-2026-0005',
-    statusPayment: 'Pendente',
-    statusKit: 'Aguardando',
-    createdAt: '2026-06-05T11:20:00Z',
-    qrCode: 'PET-2026-0005|Juliana Costa|Luna|Pendente'
-  },
-  {
-    id: 'reg-6',
-    tutorName: 'Pedro Santos',
-    tutorCpf: '678.901.234-56',
-    tutorBirthDate: '1982-01-30',
-    tutorPhone: '(11) 98111-2233',
-    tutorWhatsApp: '(11) 98111-2233',
-    tutorEmail: 'pedro.santos@email.com',
-    tutorCity: 'Recife',
-    tutorState: 'PE',
-    petName: 'Fred',
-    petSpecies: 'Cachorro',
-    petBreed: 'Beagle',
-    petSize: 'Médio',
-    petAge: 6,
-    petPhoto: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=150&h=150&fit=crop&q=80',
-    selectedInstitution: 'inst-2',
-    donationValue: 50,
-    donationReceipt: '',
-    donationStatus: 'APROVADA',
-    regNumber: 'PET-2026-0006',
-    statusPayment: 'Aprovado',
-    statusKit: 'Retirado',
-    createdAt: '2026-06-06T15:10:00Z',
-    qrCode: 'PET-2026-0006|Pedro Santos|Fred|Aprovado'
-  },
-  {
-    id: 'reg-7',
-    tutorName: 'Beatriz Lima',
-    tutorCpf: '789.012.345-67',
-    tutorBirthDate: '1991-09-05',
-    tutorPhone: '(21) 97222-3344',
-    tutorWhatsApp: '(21) 97222-3344',
-    tutorEmail: 'beatriz.lima@email.com',
-    tutorCity: 'Recife',
-    tutorState: 'PE',
-    petName: 'Bela',
-    petSpecies: 'Cachorro',
-    petBreed: 'Poodle',
-    petSize: 'Pequeno',
-    petAge: 7,
-    petPhoto: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=150&h=150&fit=crop&q=80',
-    selectedInstitution: 'inst-3',
-    donationValue: 50,
-    donationReceipt: '',
-    donationStatus: 'APROVADA',
-    regNumber: 'PET-2026-0007',
-    statusPayment: 'Aprovado',
-    statusKit: 'Liberado',
-    createdAt: '2026-06-07T08:30:00Z',
-    qrCode: 'PET-2026-0007|Beatriz Lima|Bela|Aprovado'
-  }
-];
-
 class SupabaseMockClient {
+  private institutions: Institution[] = [];
+  private registrations: Registration[] = [];
+
+  constructor() {
+    this.syncFromSupabase();
+  }
+
   private getStorage<T>(key: string, initial: T[]): T[] {
     if (typeof window === 'undefined') return initial;
     const item = localStorage.getItem(key);
@@ -425,20 +279,50 @@ class SupabaseMockClient {
     }
   }
 
+  // Async server-sync triggered on boot and page queries
+  async syncFromSupabase() {
+    try {
+      const { data: instData } = await supabase.from('institutions').select('*');
+      if (instData) {
+        this.institutions = instData.map(mapDbToInstitution);
+        this.setStorage('ps_institutions', this.institutions);
+      }
+      
+      const { data: regData } = await supabase.from('registrations').select('*');
+      if (regData) {
+        this.registrations = regData.map(mapDbToRegistration);
+        this.setStorage('ps_registrations', this.registrations);
+      }
+    } catch (err) {
+      console.error('Error syncing with Supabase:', err);
+    }
+  }
+
   // --- Institutions API ---
 
   getInstitutions(): Institution[] {
-    return this.getStorage<Institution>('ps_institutions', initialInstitutions);
+    this.syncFromSupabase();
+    if (this.institutions.length > 0) return this.institutions;
+    return this.getStorage<Institution>('ps_institutions', []);
   }
 
   saveInstitution(inst: Omit<Institution, 'id'>): Institution {
-    const list = this.getInstitutions();
+    const newId = `inst-${Date.now()}`;
     const newInst: Institution = {
       ...inst,
-      id: `inst-${Date.now()}`
+      id: newId,
+      totalDonations: inst.totalDonations || 0
     };
-    list.push(newInst);
-    this.setStorage('ps_institutions', list);
+
+    // Synchronous optimistic update
+    this.institutions.push(newInst);
+    this.setStorage('ps_institutions', this.institutions);
+
+    // Async server insert
+    supabase.from('institutions').insert([mapInstitutionToDb(newInst)]).then(({ error }) => {
+      if (error) console.error('Error creating institution in Supabase:', error);
+    });
+
     return newInst;
   }
 
@@ -447,21 +331,40 @@ class SupabaseMockClient {
     const idx = list.findIndex(i => i.id === id);
     if (idx === -1) throw new Error('Institution not found');
     const updated = { ...list[idx], ...updates };
+
+    // Synchronous optimistic update
     list[idx] = updated;
-    this.setStorage('ps_institutions', list);
+    this.institutions = list;
+    this.setStorage('ps_institutions', this.institutions);
+
+    // Async server update
+    supabase.from('institutions').update(mapInstitutionToDb(updates)).eq('id', id).then(({ error }) => {
+      if (error) console.error('Error updating institution in Supabase:', error);
+    });
+
     return updated;
   }
 
   deleteInstitution(id: string): void {
     const list = this.getInstitutions();
     const filtered = list.filter(i => i.id !== id);
-    this.setStorage('ps_institutions', filtered);
+
+    // Synchronous optimistic update
+    this.institutions = filtered;
+    this.setStorage('ps_institutions', this.institutions);
+
+    // Async server delete
+    supabase.from('institutions').delete().eq('id', id).then(({ error }) => {
+      if (error) console.error('Error deleting institution from Supabase:', error);
+    });
   }
 
-  // --- Database CRUD ---
+  // --- Registrations API ---
 
   getRegistrations(): Registration[] {
-    return this.getStorage<Registration>('ps_registrations', initialRegistrations);
+    this.syncFromSupabase();
+    if (this.registrations.length > 0) return this.registrations;
+    return this.getStorage<Registration>('ps_registrations', []);
   }
 
   saveRegistration(reg: Omit<Registration, 'id' | 'createdAt' | 'regNumber' | 'qrCode'>): Registration {
@@ -478,8 +381,16 @@ class SupabaseMockClient {
       qrCode: `${regNumber}|${reg.tutorName}|${reg.petName}|${reg.statusPayment}`
     };
 
+    // Synchronous optimistic update
     list.push(newReg);
-    this.setStorage('ps_registrations', list);
+    this.registrations = list;
+    this.setStorage('ps_registrations', this.registrations);
+
+    // Async server insert
+    supabase.from('registrations').insert([mapRegistrationToDb(newReg)]).then(({ error }) => {
+      if (error) console.error('Error creating registration in Supabase:', error);
+    });
+
     return newReg;
   }
 
@@ -489,21 +400,36 @@ class SupabaseMockClient {
     if (idx === -1) throw new Error('Registration not found');
 
     const updated = { ...list[idx], ...updates };
-    // update qrCode value dynamically if payment or tutor name changes
     updated.qrCode = `${updated.regNumber}|${updated.tutorName}|${updated.petName}|${updated.statusPayment}`;
     
+    // Synchronous optimistic update
     list[idx] = updated;
-    this.setStorage('ps_registrations', list);
+    this.registrations = list;
+    this.setStorage('ps_registrations', this.registrations);
+
+    // Async server update
+    supabase.from('registrations').update(mapRegistrationToDb(updates)).eq('id', id).then(({ error }) => {
+      if (error) console.error('Error updating registration in Supabase:', error);
+    });
+
     return updated;
   }
 
   deleteRegistration(id: string): void {
     const list = this.getRegistrations();
     const filtered = list.filter(r => r.id !== id);
-    this.setStorage('ps_registrations', filtered);
+
+    // Synchronous optimistic update
+    this.registrations = filtered;
+    this.setStorage('ps_registrations', this.registrations);
+
+    // Async server delete
+    supabase.from('registrations').delete().eq('id', id).then(({ error }) => {
+      if (error) console.error('Error deleting registration from Supabase:', error);
+    });
   }
 
-  // --- Sponsors API ---
+  // --- Sponsors API (LocalStorage) ---
 
   getSponsors(): Sponsor[] {
     return this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
@@ -536,7 +462,7 @@ class SupabaseMockClient {
     this.setStorage('ps_sponsors', filtered);
   }
 
-  // --- Expenses API ---
+  // --- Expenses API (LocalStorage) ---
 
   getExpenses(): Expense[] {
     return this.getStorage<Expense>('ps_expenses', initialExpenses);
@@ -561,7 +487,6 @@ class SupabaseMockClient {
 
   // --- Auth & Session API ---
 
-  // Simple session storage
   getCurrentUser() {
     if (typeof window === 'undefined') return null;
     const session = localStorage.getItem('ps_session');
@@ -588,7 +513,7 @@ class SupabaseMockClient {
       return { success: true, user };
     }
 
-    // Participant check: we match by email AND tutorCpf (standardizing input)
+    // Participant check: we match by email AND tutorCpf
     const list = this.getRegistrations();
     const formattedCpf = identity.replace(/\D/g, '');
     const userReg = list.find(r => 

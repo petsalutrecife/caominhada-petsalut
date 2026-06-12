@@ -12,6 +12,7 @@
   "dependencies": {
     "@libsql/client": "^0.17.3",
     "@prisma/adapter-libsql": "^7.8.0",
+    "@supabase/supabase-js": "^2.108.1",
     "@types/canvas-confetti": "^1.9.0",
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^11.5.5",
