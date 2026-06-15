@@ -26,6 +26,11 @@ export default function LandingPage() {
     setSponsors(supabaseMock.getSponsors());
     setInstitutions(supabaseMock.getInstitutions());
 
+    // Fetch from Supabase and refresh data
+    supabaseMock.syncFromSupabase().then(() => {
+      setInstitutions(supabaseMock.getInstitutions());
+    });
+
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const difference = eventDate - now;

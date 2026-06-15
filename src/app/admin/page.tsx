@@ -92,7 +92,12 @@ export default function AdminDashboard() {
 
     // Initial load of database
     refreshData();
-  }, [router]);
+
+    // Fetch from Supabase and refresh data once done
+    supabaseMock.syncFromSupabase().then(() => {
+      refreshData();
+    });
+  }, []);
 
   const refreshData = async () => {
     setRegistrations(supabaseMock.getRegistrations());
@@ -482,10 +487,10 @@ export default function AdminDashboard() {
 
   const filteredRegistrations = registrations.filter(r => {
     const matchesSearch = 
-      r.tutorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.petName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.regNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.tutorCpf.includes(searchQuery);
+      (r.tutorName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.petName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.regNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.tutorCpf || '').includes(searchQuery);
 
     const matchesPayment = filterPayment === 'All' || r.statusPayment === filterPayment;
     const matchesKit = filterKit === 'All' || r.statusKit === filterKit;

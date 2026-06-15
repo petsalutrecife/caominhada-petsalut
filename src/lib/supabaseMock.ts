@@ -82,31 +82,31 @@ export interface Expense {
 function mapDbToRegistration(db: any): Registration {
   return {
     id: db.id,
-    tutorName: db.tutor_name,
-    tutorCpf: db.tutor_cpf,
-    tutorBirthDate: db.tutor_birth_date,
-    tutorPhone: db.tutor_phone,
-    tutorWhatsApp: db.tutor_whats_app,
-    tutorEmail: db.tutor_email,
-    tutorCity: db.tutor_city,
-    tutorState: db.tutor_state,
-    petName: db.pet_name,
-    petSpecies: db.pet_species,
-    petBreed: db.pet_breed,
-    petSize: db.pet_size,
-    petAge: Number(db.pet_age),
+    tutorName: db.tutor_name || '',
+    tutorCpf: db.tutor_cpf || '',
+    tutorBirthDate: db.tutor_birth_date || '',
+    tutorPhone: db.tutor_phone || '',
+    tutorWhatsApp: db.tutor_whats_app || '',
+    tutorEmail: db.tutor_email || '',
+    tutorCity: db.tutor_city || '',
+    tutorState: db.tutor_state || '',
+    petName: db.pet_name || '',
+    petSpecies: db.pet_species || '',
+    petBreed: db.pet_breed || '',
+    petSize: db.pet_size || 'Médio',
+    petAge: Number(db.pet_age) || 0,
     petPhoto: db.pet_photo || undefined,
-    selectedInstitution: db.selected_institution,
-    donationValue: Number(db.donation_value),
+    selectedInstitution: db.selected_institution || '',
+    donationValue: Number(db.donation_value) || 0,
     donationReceipt: db.donation_receipt || undefined,
-    donationStatus: db.donation_status,
+    donationStatus: db.donation_status || 'AGUARDANDO VALIDAÇÃO',
     rejectionReason: db.rejection_reason || undefined,
     notes: db.notes || undefined,
-    regNumber: db.reg_number,
-    statusPayment: db.status_payment,
-    statusKit: db.status_kit,
-    createdAt: db.created_at,
-    qrCode: db.qr_code
+    regNumber: db.reg_number || '',
+    statusPayment: db.status_payment || 'Pendente',
+    statusKit: db.status_kit || 'Aguardando',
+    createdAt: db.created_at || new Date().toISOString(),
+    qrCode: db.qr_code || ''
   };
 }
 
@@ -144,23 +144,23 @@ function mapRegistrationToDb(reg: Partial<Registration>): any {
 function mapDbToInstitution(db: any): Institution {
   return {
     id: db.id,
-    name: db.name,
-    logo: db.logo,
-    description: db.description,
-    mission: db.mission,
-    city: db.city,
-    state: db.state,
-    pixKey: db.pix_key,
-    pixType: db.pix_type,
-    status: db.status,
-    animalsServed: Number(db.animals_served),
-    castrations: Number(db.castrations),
-    rescues: Number(db.rescues),
-    photo: db.photo,
-    banner: db.banner,
-    email: db.email,
-    password: db.password,
-    totalDonations: Number(db.total_donations)
+    name: db.name || '',
+    logo: db.logo || '🏠',
+    description: db.description || '',
+    mission: db.mission || '',
+    city: db.city || '',
+    state: db.state || '',
+    pixKey: db.pix_key || '',
+    pixType: db.pix_type || 'CNPJ',
+    status: db.status || 'Ativo',
+    animalsServed: Number(db.animals_served) || 0,
+    castrations: Number(db.castrations) || 0,
+    rescues: Number(db.rescues) || 0,
+    photo: db.photo || '',
+    banner: db.banner || '',
+    email: db.email || '',
+    password: db.password || '',
+    totalDonations: Number(db.total_donations) || 0
   };
 }
 
@@ -301,7 +301,6 @@ class SupabaseMockClient {
   // --- Institutions API ---
 
   getInstitutions(): Institution[] {
-    this.syncFromSupabase();
     if (this.institutions.length > 0) return this.institutions;
     return this.getStorage<Institution>('ps_institutions', []);
   }
@@ -362,7 +361,6 @@ class SupabaseMockClient {
   // --- Registrations API ---
 
   getRegistrations(): Registration[] {
-    this.syncFromSupabase();
     if (this.registrations.length > 0) return this.registrations;
     return this.getStorage<Registration>('ps_registrations', []);
   }

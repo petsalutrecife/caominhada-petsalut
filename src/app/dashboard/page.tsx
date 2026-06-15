@@ -63,7 +63,7 @@ export default function ParticipantDashboard() {
     };
 
     loadData();
-  }, [router]);
+  }, []);
 
   const handleLogout = () => {
     supabaseMock.signOut();

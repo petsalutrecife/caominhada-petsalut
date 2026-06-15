@@ -48,7 +48,18 @@ export default function InstitutionDashboard() {
     }
     
     refreshData();
-  }, [router]);
+
+    // Fetch from Supabase and refresh data
+    supabaseMock.syncFromSupabase().then(() => {
+      const updatedInsts = supabaseMock.getInstitutions();
+      setAllInstitutions(updatedInsts);
+      const updatedFoundInst = updatedInsts.find(i => i.id === user.id);
+      if (updatedFoundInst) {
+        setCurrentInst(updatedFoundInst);
+      }
+      refreshData();
+    });
+  }, []);
 
   const refreshData = async () => {
     setRegistrations(supabaseMock.getRegistrations());
