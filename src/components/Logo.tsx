@@ -16,7 +16,7 @@ export default function Logo({ className = '', size = 'md' }: LogoProps) {
   return (
     <div className={`flex items-center select-none ${className}`}>
       <img
-        src="/logo.jfif"
+        src="/logo.jpeg"
         alt="Logo Pet Salute"
         className={`${heights[size]} w-auto object-contain`}
       />

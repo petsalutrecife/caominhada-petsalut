@@ -131,7 +131,7 @@ export default function LandingPage() {
         <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden lg:block select-none z-0">
           <div className="relative w-full h-full">
             <img
-              src="/hero-dogs.PNG"
+              src="/hero-dogs.png"
               alt="Cãominhada Petsalut Evento"
               className="w-full h-full object-cover object-right"
             />
@@ -159,7 +159,7 @@ export default function LandingPage() {
             {/* Custom Typography Logo Image replacing raw HTML text title */}
             <div className="relative w-full max-w-[480px] select-none mb-4">
               <img
-                src="/logocorrida.PNG"
+                src="/logocorrida.jpeg"
                 alt="Cãominhada Petsalut 2026"
                 className="w-full h-auto object-contain"
               />
@@ -260,7 +260,7 @@ export default function LandingPage() {
           {/* Mobile Hero Image */}
           <div className="lg:hidden relative h-[280px] w-full rounded-3xl overflow-hidden shadow-lg border border-slate-150 mt-4">
             <img
-              src="/hero-dogs.PNG"
+              src="/hero-dogs.png"
               alt="Cãominhada Petsalut Evento"
               className="w-full h-full object-cover"
             />
