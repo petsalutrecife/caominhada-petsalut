@@ -512,32 +512,13 @@ export default function LandingPage() {
               <div className="relative z-10 w-full h-full flex flex-col justify-between">
                 <span className="px-3 py-1.5 rounded-xl bg-[#003A8C] text-white text-xs font-bold w-fit">Mapa Ilustrativo do Percurso</span>
                 
-                {/* Visual SVG Path representing the 3km walk */}
-                <div className="w-full max-w-sm mx-auto my-auto h-40 relative">
-                  <svg viewBox="0 0 400 150" fill="none" className="w-full h-full text-[#003A8C] dark:text-blue-400">
-                    <path d="M20,130 C100,20 120,40 180,90 C240,140 320,100 380,20" stroke="currentColor" strokeWidth="4" strokeDasharray="8 6" />
-                    
-                    {/* Start Pin */}
-                    <g transform="translate(20,130)">
-                      <circle r="12" fill="#003A8C" />
-                      <circle r="6" fill="#8DC63F" />
-                      <text x="0" y="24" textAnchor="middle" fill="currentColor" className="text-[10px] font-bold fill-slate-800 dark:fill-slate-200">LARGADA</text>
-                    </g>
-                    
-                    {/* Mid Refresher */}
-                    <g transform="translate(180,90)">
-                      <circle r="8" fill="#8DC63F" />
-                      <path d="M-4,-4 H4 V4 H-4 Z" fill="white" />
-                      <text x="0" y="-14" textAnchor="middle" fill="currentColor" className="text-[9px] font-bold fill-slate-800 dark:fill-slate-200">Hidratação 1.5km</text>
-                    </g>
-
-                    {/* Finish Pin */}
-                    <g transform="translate(380,20)">
-                      <circle r="12" fill="#22C55E" />
-                      <circle r="6" fill="white" />
-                      <text x="-15" y="24" textAnchor="middle" fill="currentColor" className="text-[10px] font-bold fill-slate-800 dark:fill-slate-200">CHEGADA</text>
-                    </g>
-                  </svg>
+                {/* Visual Image representing the 3km walk map */}
+                <div className="w-full max-w-sm mx-auto my-auto h-36 relative flex items-center justify-center overflow-hidden rounded-2xl">
+                  <img
+                    src="/mapa.png"
+                    alt="Mapa do Percurso"
+                    className="max-w-full max-h-full object-contain rounded-xl"
+                  />
                 </div>
 
                 <div className="flex justify-between items-center bg-white dark:bg-slate-950 p-4 rounded-2xl shadow-sm border border-slate-200/50 dark:border-slate-800/50">
