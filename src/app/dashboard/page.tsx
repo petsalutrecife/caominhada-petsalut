@@ -29,26 +29,40 @@ export default function ParticipantDashboard() {
   const [isSubmittingReceipt, setIsSubmittingReceipt] = useState(false);
 
   useEffect(() => {
-    const currentUser = supabaseMock.getCurrentUser();
-    if (!currentUser || currentUser.role !== 'participant') {
-      router.push('/login');
-      return;
-    }
+    const loadData = async () => {
+      const currentUser = supabaseMock.getCurrentUser();
+      if (!currentUser || currentUser.role !== 'participant') {
+        router.push('/login');
+        return;
+      }
 
-    setUser(currentUser);
-    setInstitutions(supabaseMock.getInstitutions());
-    
-    // Fetch user registration details
-    const regs = supabaseMock.getRegistrations();
-    const userReg = regs.find(r => r.id === currentUser.id);
-    
-    if (userReg) {
-      setRegistration(userReg);
-    } else {
-      router.push('/login');
-    }
-    
-    setIsLoading(false);
+      setUser(currentUser);
+      setInstitutions(supabaseMock.getInstitutions());
+      
+      // Fetch user registration details from local cache first
+      let regs = supabaseMock.getRegistrations();
+      let userReg = regs.find(r => r.id === currentUser.id);
+      
+      if (userReg) {
+        setRegistration(userReg);
+      }
+      
+      setIsLoading(false);
+
+      // Sync with Supabase in background
+      await supabaseMock.syncFromSupabase();
+
+      // Reload fresh data
+      regs = supabaseMock.getRegistrations();
+      userReg = regs.find(r => r.id === currentUser.id);
+      if (userReg) {
+        setRegistration(userReg);
+      } else if (!userReg && !registration) {
+        router.push('/login');
+      }
+    };
+
+    loadData();
   }, [router]);
 
   const handleLogout = () => {

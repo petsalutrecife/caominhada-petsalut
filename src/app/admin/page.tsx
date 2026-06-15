@@ -94,7 +94,14 @@ export default function AdminDashboard() {
     refreshData();
   }, [router]);
 
-  const refreshData = () => {
+  const refreshData = async () => {
+    setRegistrations(supabaseMock.getRegistrations());
+    setSponsors(supabaseMock.getSponsors());
+    setExpenses(supabaseMock.getExpenses());
+    setInstitutions(supabaseMock.getInstitutions());
+
+    await supabaseMock.syncFromSupabase();
+
     setRegistrations(supabaseMock.getRegistrations());
     setSponsors(supabaseMock.getSponsors());
     setExpenses(supabaseMock.getExpenses());

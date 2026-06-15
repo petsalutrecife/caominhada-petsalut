@@ -50,7 +50,9 @@ export default function InstitutionDashboard() {
     refreshData();
   }, [router]);
 
-  const refreshData = () => {
+  const refreshData = async () => {
+    setRegistrations(supabaseMock.getRegistrations());
+    await supabaseMock.syncFromSupabase();
     setRegistrations(supabaseMock.getRegistrations());
   };
 
