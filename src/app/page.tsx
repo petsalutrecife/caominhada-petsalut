@@ -18,8 +18,8 @@ export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 360, hours: 14, minutes: 27, seconds: 45 });
 
-  // Event Date: Sept 20, 2026 08:00:00
-  const eventDate = new Date('2026-09-20T08:00:00').getTime();
+  // Event Date: Sept 20, 2026 07:00:00
+  const eventDate = new Date('2026-09-20T07:00:00').getTime();
 
   useEffect(() => {
     setMounted(true);
@@ -51,11 +51,11 @@ export default function LandingPage() {
   }, [eventDate]);
 
   const scheduleItems = [
-    { time: '08:00', title: 'Abertura & Retirada de Kits', desc: 'Credenciamento de última hora e entrega dos kits especiais para tutores e pets.' },
-    { time: '08:30', title: 'Aquecimento & Alongamento', desc: 'Sessão divertida de alongamento com adestradores profissionais e dicas para a caminhada.' },
-    { time: '09:00', title: 'Largada da Cãominhada', desc: 'Início do percurso de 3km com pontos de hidratação exclusivos para cães e tutores.' },
-    { time: '10:30', title: 'Chegada & Entrega de Medalhas', desc: 'Recepção festiva com entrega de medalhas de participação exclusivas para todos os pets.' },
-    { time: '11:00', title: 'Desfile, Brindes & Encerramento', desc: 'Desfile de fantasias e talentos pet, sorteios especiais dos patrocinadores e fotos oficiais.' },
+    { time: '07:00', title: 'Abertura & Retirada de Kits', desc: 'Credenciamento de última hora e entrega dos kits especiais para tutores e pets.' },
+    { time: '07:30', title: 'Aquecimento & Alongamento', desc: 'Sessão divertida de alongamento com adestradores profissionais e dicas para a caminhada.' },
+    { time: '08:00', title: 'Largada da Cãominhada', desc: 'Início do percurso de 3km com pontos de hidratação exclusivos para cães e tutores.' },
+    { time: '09:30', title: 'Chegada & Entrega de Medalhas', desc: 'Recepção festiva com entrega de medalhas de participação exclusivas para todos os pets.' },
+    { time: '10:00', title: 'Desfile, Brindes & Encerramento', desc: 'Desfile de fantasias e talentos pet, sorteios especiais dos patrocinadores e fotos oficiais.' },
   ];
 
   const benefits = [
@@ -256,8 +256,8 @@ export default function LandingPage() {
               {/* Blue Card Footer */}
               <div className="bg-[#003A8C] dark:bg-slate-950 px-4 py-3.5 text-white flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] font-bold font-poppins">
                 <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4 text-[#8DC63F]" /> 20 de Setembro de 2026</span>
-                <span className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-[#8DC63F]" /> 8h00 às 12h00</span>
-                <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#8DC63F]" /> Parque Villa Lobos - São Paulo/SP</span>
+                <span className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-[#8DC63F]" /> Largada 07h00</span>
+                <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#8DC63F]" /> Museu Militar do Forte do Brum - Recife/PE</span>
               </div>
             </div>
           </div>
@@ -341,7 +341,7 @@ export default function LandingPage() {
                 Criando memórias saudáveis com quem te dá amor incondicional
               </h3>
               <p className="leading-relaxed text-slate-600 dark:text-slate-400">
-                Nosso evento foi projetado com toda a estrutura necessária para que você e seu companheiro canino curtam o trajeto sem preocupações. O percurso de 3km no Parque Villa Lobos é plano, arborizado e conta com suporte especializado ao longo de todo o caminho.
+                Nosso evento foi projetado com toda a estrutura necessária para que você e seu companheiro canino curtam o trajeto sem preocupações. O percurso de 3km no Museu Militar do Forte do Brum é plano, arborizado e conta com suporte especializado ao longo de todo o caminho.
               </p>
               <p className="leading-relaxed text-slate-600 dark:text-slate-400">
                 Além de caminhar, o evento é uma oportunidade fantástica para conscientização sobre a saúde animal, alimentação saudável e cuidados preventivos fornecidos pela equipe de veterinários Petsalut.
@@ -350,9 +350,9 @@ export default function LandingPage() {
               <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-start gap-4">
                 <MapPin className="h-6 w-6 text-[#8DC63F] shrink-0 mt-1" />
                 <div className="text-left">
-                  <h4 className="font-bold text-slate-950 dark:text-white">Percurso de 3km no Parque Villa Lobos</h4>
+                  <h4 className="font-bold text-slate-950 dark:text-white">Percurso de 3km no Museu Militar do Forte do Brum</h4>
                   <p className="text-sm text-slate-550 mt-1">
-                    Largada e Chegada no Bolsão principal do Parque Villa Lobos. Pontos de hidratação e refresco a cada 500 metros para os cães.
+                    Largada e Chegada no Bolsão principal do Museu Militar do Forte do Brum. Pontos de hidratação e refresco a cada 500 metros para os cães.
                   </p>
                 </div>
               </div>
@@ -686,7 +686,7 @@ export default function LandingPage() {
             <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
               <h4 className="font-bold text-slate-900 dark:text-white font-poppins text-sm flex items-center gap-2">🐾 Onde e quando retirar o kit?</h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
-                Os kits contendo a camiseta, a bandana do pet e a sacochila serão entregues no **Parque Villa Lobos**, no sábado (19/09/2026) das 09h às 17h, ou na tenda de credenciamento do evento no domingo (20/09/2026) a partir das 08h00. Apresente seu QR Code de participante.
+                Os kits contendo a camiseta, a bandana do pet e a sacochila serão entregues no **Museu Militar do Forte do Brum**, no sábado (19/09/2026) das 09h às 17h, ou na tenda de credenciamento do evento no domingo (20/09/2026) a partir das 07h00. Apresente seu QR Code de participante.
               </p>
             </div>
 
