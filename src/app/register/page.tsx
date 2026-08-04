@@ -147,11 +147,6 @@ export default function RegisterPage() {
         newErrors.tutorCpf = 'CPF inválido. Verifique os dígitos.';
       }
       if (!tutorBirthDate) newErrors.tutorBirthDate = 'Data de nascimento é obrigatória.';
-      if (!tutorPhone) {
-        newErrors.tutorPhone = 'Telefone é obrigatório.';
-      } else if (tutorPhone.replace(/\D/g, '').length < 10) {
-        newErrors.tutorPhone = 'Telefone deve ter DDD + número.';
-      }
       if (!tutorWhatsApp) {
         newErrors.tutorWhatsApp = 'WhatsApp é obrigatório.';
       } else if (tutorWhatsApp.replace(/\D/g, '').length < 10) {
@@ -240,7 +235,7 @@ export default function RegisterPage() {
           tutorName,
           tutorCpf,
           tutorBirthDate,
-          tutorPhone,
+          tutorPhone: tutorWhatsApp,
           tutorWhatsApp,
           tutorEmail,
           tutorCity,
@@ -509,32 +504,17 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Telefone */}
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="tutorPhone" className="text-xs font-bold text-slate-700 dark:text-slate-300">Telefone *</label>
-                    <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input id="tutorPhone" type="text" placeholder="(00) 00000-0000" value={tutorPhone}
-                        onChange={handlePhoneChange(setTutorPhone, 'tutorPhone')}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/30 dark:focus:ring-lime-500/30 transition-all ${errors.tutorPhone ? 'border-red-400' : 'border-slate-200 dark:border-slate-800'}`}
-                      />
-                    </div>
-                    {errors.tutorPhone && <span className="text-[10px] font-semibold text-red-500">{errors.tutorPhone}</span>}
+                {/* WhatsApp / Telefone */}
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="tutorWhatsApp" className="text-xs font-bold text-slate-700 dark:text-slate-300">WhatsApp *</label>
+                  <div className="relative">
+                    <MessageCircle className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input id="tutorWhatsApp" type="text" placeholder="(00) 00000-0000" value={tutorWhatsApp}
+                      onChange={handlePhoneChange(setTutorWhatsApp, 'tutorWhatsApp')}
+                      className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/30 dark:focus:ring-lime-500/30 transition-all ${errors.tutorWhatsApp ? 'border-red-400' : 'border-slate-200 dark:border-slate-800'}`}
+                    />
                   </div>
-
-                  {/* WhatsApp */}
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="tutorWhatsApp" className="text-xs font-bold text-slate-700 dark:text-slate-300">WhatsApp *</label>
-                    <div className="relative">
-                      <MessageCircle className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input id="tutorWhatsApp" type="text" placeholder="(00) 00000-0000" value={tutorWhatsApp}
-                        onChange={handlePhoneChange(setTutorWhatsApp, 'tutorWhatsApp')}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/30 dark:focus:ring-lime-500/30 transition-all ${errors.tutorWhatsApp ? 'border-red-400' : 'border-slate-200 dark:border-slate-800'}`}
-                      />
-                    </div>
-                    {errors.tutorWhatsApp && <span className="text-[10px] font-semibold text-red-500">{errors.tutorWhatsApp}</span>}
-                  </div>
+                  {errors.tutorWhatsApp && <span className="text-[10px] font-semibold text-red-500">{errors.tutorWhatsApp}</span>}
                 </div>
 
                 {/* Email */}
