@@ -187,6 +187,67 @@ function mapInstitutionToDb(inst: Partial<Institution>): any {
   return db;
 }
 
+// Initial fallback mock data seed for institutions
+const initialInstitutions: Institution[] = [
+  {
+    id: 'inst-1',
+    name: 'Abrigo de Seu Alberto',
+    logo: '🐕',
+    description: 'Abrigo dedicado ao resgate, cuidado e adoção de animais em situação de rua na região metropolitana do Recife.',
+    mission: 'Resgatar e reabilitar animais abandonados, promovendo adoção responsável e bem-estar animal.',
+    city: 'Recife',
+    state: 'PE',
+    pixKey: '(81) 99201-4838',
+    pixType: 'Telefone',
+    responsiblePhone: '(81) 99201-4838',
+    status: 'Ativo',
+    animalsServed: 312,
+    castrations: 145,
+    rescues: 89,
+    photo: '/institutions/inst-1-abrigo-seu-alberto.png',
+    banner: '/institutions/inst-1-abrigo-seu-alberto.png',
+    totalDonations: 0
+  },
+  {
+    id: 'inst-2',
+    name: 'Projeto Amor sem Fronteiras',
+    logo: '❤️',
+    description: 'Projeto voluntário que atua no resgate de animais abandonados e na promoção de campanhas de adoção consciente.',
+    mission: 'Amor que não conhece fronteiras: resgatar, cuidar e encontrar um lar para cada animal.',
+    city: 'Recife',
+    state: 'PE',
+    pixKey: '(81) 99524-7931',
+    pixType: 'Telefone',
+    responsiblePhone: '(81) 99524-7931',
+    status: 'Ativo',
+    animalsServed: 228,
+    castrations: 97,
+    rescues: 64,
+    photo: '/institutions/inst-2-amor-sem-fronteiras.png',
+    banner: '/institutions/inst-2-amor-sem-fronteiras.png',
+    totalDonations: 0
+  },
+  {
+    id: 'inst-3',
+    name: 'Todos por Guerreiro',
+    logo: '🐾',
+    description: 'ONG focada no resgate de animais em situação de vulnerabilidade, promovendo saúde, castração e adoção responsável.',
+    mission: 'Unidos pelo mesmo propósito: dar voz e abrigo a quem não pode falar por si.',
+    city: 'Recife',
+    state: 'PE',
+    pixKey: 'todosporguerreiro@gmail.com',
+    pixType: 'Email',
+    responsibleEmail: 'todosporguerreiro@gmail.com',
+    status: 'Ativo',
+    animalsServed: 185,
+    castrations: 72,
+    rescues: 53,
+    photo: '/institutions/inst-3-todos-por-guerreiro.png',
+    banner: '/institutions/inst-3-todos-por-guerreiro.png',
+    totalDonations: 0
+  }
+];
+
 // Initial fallback mock data seed for sponsors & expenses (kept in LocalStorage for simplicity)
 
 const initialSponsors: Sponsor[] = [
@@ -283,9 +344,15 @@ class SupabaseMockClient {
   async syncFromSupabase() {
     try {
       const { data: instData } = await supabase.from('institutions').select('*');
-      if (instData) {
+      if (instData && instData.length > 0) {
         this.institutions = instData.map(mapDbToInstitution);
         this.setStorage('ps_institutions', this.institutions);
+      } else {
+        // Supabase empty or unreachable: use seed data
+        if (this.institutions.length === 0) {
+          this.institutions = initialInstitutions;
+          this.setStorage('ps_institutions', initialInstitutions);
+        }
       }
       
       const { data: regData } = await supabase.from('registrations').select('*');
@@ -295,6 +362,11 @@ class SupabaseMockClient {
       }
     } catch (err) {
       console.error('Error syncing with Supabase:', err);
+      // Ensure seed data is loaded on error
+      if (this.institutions.length === 0) {
+        this.institutions = initialInstitutions;
+        this.setStorage('ps_institutions', initialInstitutions);
+      }
     }
   }
 
@@ -302,7 +374,12 @@ class SupabaseMockClient {
 
   getInstitutions(): Institution[] {
     if (this.institutions.length > 0) return this.institutions;
-    return this.getStorage<Institution>('ps_institutions', []);
+    const stored = this.getStorage<Institution>('ps_institutions', []);
+    if (stored.length > 0) return stored;
+    // Use seed data as ultimate fallback
+    this.institutions = initialInstitutions;
+    this.setStorage('ps_institutions', initialInstitutions);
+    return initialInstitutions;
   }
 
   saveInstitution(inst: Omit<Institution, 'id'>): Institution {
