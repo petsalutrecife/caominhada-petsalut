@@ -390,7 +390,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {institutions.filter(inst => inst.status === 'Ativo').map((inst) => (
               <div 
                 key={inst.id} 
