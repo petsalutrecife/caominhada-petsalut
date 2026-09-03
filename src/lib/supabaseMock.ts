@@ -498,7 +498,12 @@ class SupabaseMockClient {
   // --- Sponsors API (LocalStorage) ---
 
   getSponsors(): Sponsor[] {
-    return this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
+    const list = this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
+    if (list.some(s => s.name.includes('Royal Canin') || s.name.includes('Petsalut Plano') || s.name.includes('PremieRpet'))) {
+      this.setStorage('ps_sponsors', initialSponsors);
+      return initialSponsors;
+    }
+    return list;
   }
 
   saveSponsor(sponsor: Omit<Sponsor, 'id'>): Sponsor {

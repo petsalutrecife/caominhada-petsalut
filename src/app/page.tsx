@@ -675,7 +675,13 @@ export default function LandingPage() {
 
           {/* Premium Sponsors Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-            {sponsors.map((s) => (
+            {(sponsors && sponsors.length > 0 && !sponsors.some(s => s.name.includes('Royal Canin') || s.name.includes('Petsalut Plano')) ? sponsors : [
+              { id: 'sp-1', name: 'Oh Pet Club', logo: '/sponsors/ohpet.png', category: 'Premium', description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.', website: 'https://ohpet.com.br' },
+              { id: 'sp-2', name: 'Amigo Bicho', logo: '/sponsors/amigobicho.png', category: 'Premium', description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.', website: 'https://amigobicho.com.br' },
+              { id: 'sp-3', name: 'Metrópole', logo: '/sponsors/metropole.png', category: 'Premium', description: 'Excelência em serviços e grande parceiro da Cãominhada.', website: 'https://metropole.com.br' },
+              { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Premium', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://pethappy.com.br' },
+              { id: 'sp-5', name: 'Eu Pet', logo: '/sponsors/eupet.png', category: 'Premium', description: 'Plano de Saúde Pet completo para a saúde do seu melhor amigo.', website: 'https://eupet.com.br' }
+            ]).map((s) => (
               <a
                 key={s.id}
                 href={s.website}
