@@ -28,8 +28,8 @@ export default function LandingPage() {
     { id: 'informacoes', label: 'Informações', href: '#informacoes' },
   ];
 
-  // Event Date: Sept 20, 2026 07:00:00
-  const eventDate = new Date('2026-09-20T07:00:00').getTime();
+  // Event Date: Sept 27, 2026 05:30:00
+  const eventDate = new Date('2026-09-27T05:30:00').getTime();
 
   useEffect(() => {
     setMounted(true);
@@ -77,11 +77,11 @@ export default function LandingPage() {
   }, [eventDate]);
 
   const scheduleItems = [
-    { time: '07:00', title: 'Abertura & Retirada de Kits', desc: 'Credenciamento de última hora e entrega dos kits especiais para tutores e pets.' },
-    { time: '07:30', title: 'Aquecimento & Alongamento', desc: 'Sessão divertida de alongamento com adestradores profissionais e dicas para a caminhada.' },
-    { time: '08:00', title: 'Largada da Cãominhada', desc: 'Início do percurso de 3km com pontos de hidratação exclusivos para cães e tutores.' },
-    { time: '09:30', title: 'Chegada & Entrega de Medalhas', desc: 'Recepção festiva com entrega de medalhas de participação exclusivas para todos os pets.' },
-    { time: '10:00', title: 'Desfile, Brindes & Encerramento', desc: 'Desfile de fantasias e talentos pet, sorteios especiais dos patrocinadores e fotos oficiais.' },
+    { time: '05:30', title: 'Abertura do Evento', desc: 'Abertura dos portões no dia 27 de Setembro e credenciamento dos participantes.' },
+    { time: '05:40', title: 'Aquecimento & Alongamento', desc: 'Sessão divertida de alongamento com adestradores e orientação aos tutores.' },
+    { time: '06:00', title: 'Largada da Cãominhada', desc: 'Início da caminhada de 3km com hidratação e suporte veterinário especializado.' },
+    { time: '07:30', title: 'Chegada & Entrega de Medalhas', desc: 'Recepção festiva e entrega das medalhas de participação para todos os pets.' },
+    { time: '08:00', title: 'Encerramento & Sorteio de Brindes', desc: 'Grande sorteio de brindes dos patrocinadores, fotos oficiais e encerramento.' },
   ];
 
   const benefits = [
@@ -320,8 +320,8 @@ export default function LandingPage() {
 
               {/* Blue Card Footer */}
               <div className="bg-[#003A8C] px-4 py-3.5 text-white flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] font-bold font-poppins">
-                <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4 text-[#8DC63F]" /> 20 de Setembro de 2026</span>
-                <span className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-[#8DC63F]" /> Largada 07h00</span>
+                <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4 text-[#8DC63F]" /> 27 de Setembro de 2026</span>
+                <span className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-[#8DC63F]" /> Abertura 05h30 | Largada 06h00</span>
                 <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#8DC63F]" /> Museu Militar do Forte do Brum - Recife/PE</span>
               </div>
             </div>
@@ -538,13 +538,47 @@ export default function LandingPage() {
       {/* Seção Cronograma */}
       <section id="cronograma" className="py-24 px-4 bg-slate-50 transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
               Cronograma do Evento
             </h2>
             <p className="mt-4 text-slate-600 text-lg">
-              Programação completa de atividades planejadas para manter você e seu pet ativos e entretidos.
+              Programação completa do grande dia <strong>27 de Setembro de 2026</strong>.
             </p>
+          </div>
+
+          {/* Card de Pontos de Apoio / Retirada dos Kits */}
+          <div className="max-w-4xl mx-auto mb-12 bg-white p-6 sm:p-8 rounded-3xl border-2 border-[#8DC63F]/40 shadow-lg shadow-[#8DC63F]/10 flex flex-col md:flex-row items-center justify-between gap-6 text-left">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-[#8DC63F]/15 rounded-2xl text-[#003A8C] shrink-0 mt-1">
+                <Award className="h-8 w-8 text-[#8DC63F]" />
+              </div>
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#8DC63F]">Retirada Antecipada dos Kits</span>
+                <h3 className="text-xl font-extrabold text-[#003A8C] font-poppins mt-0.5">Pontos de Apoio Oficial</h3>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                  Retire seu kit nos dias <strong>19 de Setembro</strong> e <strong>26 de Setembro</strong> em um dos nossos pontos parceiros:
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 font-poppins">
+              <div className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-[#8DC63F]" />
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Zona Sul</span>
+                  <span className="text-xs font-bold text-[#003A8C]">Pet Happy</span>
+                </div>
+              </div>
+
+              <div className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-[#8DC63F]" />
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Zona Norte</span>
+                  <span className="text-xs font-bold text-[#003A8C]">Oh Pet Graças</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 max-w-5xl mx-auto">
@@ -751,7 +785,10 @@ export default function LandingPage() {
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
               <h4 className="font-bold text-slate-900 font-poppins text-sm flex items-center gap-2">🐾 Onde e quando retirar o kit?</h4>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Os kits contendo a camiseta, a bandana do pet e a sacochila serão entregues no **Museu Militar do Forte do Brum**, no sábado (19/09/2026) das 09h às 17h, ou na tenda de credenciamento do evento no domingo (20/09/2026) a partir das 07h00. Apresente seu QR Code de participante.
+                A retirada dos kits (camiseta, bandana do pet e sacochila) será realizada nos dias <strong>19 de Setembro</strong> e <strong>26 de Setembro</strong> em nossos 2 Pontos de Apoio Oficiais:<br />
+                • <strong>Zona Sul</strong>: Pet Happy<br />
+                • <strong>Zona Norte</strong>: Oh Pet Graças<br />
+                Apresente seu QR Code ou comprovante de participante no momento da retirada.
               </p>
             </div>
 
