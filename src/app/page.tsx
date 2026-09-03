@@ -162,9 +162,9 @@ export default function LandingPage() {
             {/* Custom Typography Logo Image replacing raw HTML text title */}
             <div className="relative w-full max-w-[480px] select-none mb-4">
               <img
-                src="/logocorrida.jpeg"
+                src="/logocorrida.png"
                 alt="Cãominhada Petsalut 2026"
-                className="w-full h-auto object-contain mix-blend-multiply contrast-125 brightness-95 filter drop-shadow-sm"
+                className="w-full h-auto object-contain"
               />
             </div>
 

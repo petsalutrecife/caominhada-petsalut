@@ -16,9 +16,9 @@ export default function Logo({ className = '', size = 'md' }: LogoProps) {
   return (
     <div className={`flex items-center select-none ${className}`}>
       <img
-        src="/logo.jpeg"
+        src="/logo.png"
         alt="Logo Pet Salute"
-        className={`${heights[size]} w-auto object-contain mix-blend-multiply contrast-125 brightness-95 transition-transform duration-200 hover:scale-105`}
+        className={`${heights[size]} w-auto object-contain transition-transform duration-200 hover:scale-105`}
       />
     </div>
   );
