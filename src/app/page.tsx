@@ -674,14 +674,13 @@ export default function LandingPage() {
           </div>
 
           {/* Premium Sponsors Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-            {(sponsors && sponsors.length > 0 && !sponsors.some(s => s.name.includes('Royal Canin') || s.name.includes('Petsalut Plano')) ? sponsors : [
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto mb-16">
+            {[
               { id: 'sp-1', name: 'Oh Pet Club', logo: '/sponsors/ohpet.png', category: 'Premium', description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.', website: 'https://ohpet.com.br' },
               { id: 'sp-2', name: 'Amigo Bicho', logo: '/sponsors/amigobicho.png', category: 'Premium', description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.', website: 'https://amigobicho.com.br' },
               { id: 'sp-3', name: 'Metrópole', logo: '/sponsors/metropole.png', category: 'Premium', description: 'Excelência em serviços e grande parceiro da Cãominhada.', website: 'https://metropole.com.br' },
-              { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Premium', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://pethappy.com.br' },
-              { id: 'sp-5', name: 'Eu Pet', logo: '/sponsors/eupet.png', category: 'Premium', description: 'Plano de Saúde Pet completo para a saúde do seu melhor amigo.', website: 'https://eupet.com.br' }
-            ]).map((s) => (
+              { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Premium', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://pethappy.com.br' }
+            ].map((s) => (
               <a
                 key={s.id}
                 href={s.website}
@@ -692,7 +691,7 @@ export default function LandingPage() {
                 {/* Top Premium Tag */}
                 <div className="w-full flex justify-between items-center mb-2">
                   <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8DC63F] bg-[#8DC63F]/10 px-2.5 py-1 rounded-lg">
-                    {s.category || 'Premium'}
+                    Premium
                   </span>
                   <span className="h-2 w-2 rounded-full bg-[#8DC63F] shadow-[0_0_8px_#8DC63F]" />
                 </div>
@@ -717,6 +716,42 @@ export default function LandingPage() {
                 </div>
               </a>
             ))}
+          </div>
+
+          {/* Apoio Section */}
+          <div className="pt-8 border-t border-slate-200 max-w-4xl mx-auto">
+            <h3 className="text-center text-xs uppercase tracking-[0.2em] font-extrabold text-slate-400 mb-8 font-poppins">
+              Apoio
+            </h3>
+            <div className="flex justify-center">
+              <a
+                href="https://eupet.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col sm:flex-row items-center gap-6 bg-white p-6 px-10 rounded-3xl border border-slate-200 shadow-md hover:border-[#003A8C] hover:shadow-xl transition-all duration-300 max-w-lg w-full"
+              >
+                <div className="relative w-36 h-20 shrink-0 flex items-center justify-center">
+                  <img
+                    src="/sponsors/eupet.png"
+                    alt="Eu Pet"
+                    className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div className="text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#003A8C] bg-[#003A8C]/10 px-2 py-0.5 rounded">
+                      Apoio
+                    </span>
+                  </div>
+                  <span className="font-extrabold text-slate-900 text-lg group-hover:text-[#003A8C] transition-colors block font-poppins">
+                    Eu Pet
+                  </span>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Plano de Saúde Pet completo para a saúde do seu melhor amigo.
+                  </p>
+                </div>
+              </a>
+            </div>
           </div>
         </div>
       </section>

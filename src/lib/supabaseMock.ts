@@ -291,7 +291,7 @@ const initialSponsors: Sponsor[] = [
     id: 'sp-5',
     name: 'Eu Pet',
     logo: '/sponsors/eupet.png',
-    category: 'Premium',
+    category: 'Apoio',
     investedValue: 15000,
     description: 'Plano de Saúde Pet completo para a saúde do seu melhor amigo.',
     website: 'https://eupet.com.br'
