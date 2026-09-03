@@ -45,7 +45,7 @@ export default function RootLayout({
             __html: `
               try {
                 document.documentElement.classList.remove('dark');
-                localStorage.removeItem('theme');
+                localStorage.setItem('theme', 'light');
               } catch (_) {}
             `,
           }}

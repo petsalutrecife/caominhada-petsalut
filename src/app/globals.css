@@ -16,7 +16,7 @@
   --radius-3xl: 24px;
 }
 
-:root {
+:root, .dark {
   --background: #FFFFFF;
   --foreground: #1E293B;
   --primary: #003A8C;

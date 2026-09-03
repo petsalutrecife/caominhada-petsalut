@@ -66,9 +66,9 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 transition-colors">
+    <div className="flex-1 flex flex-col bg-white">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-100 dark:border-slate-805 bg-white/95 dark:bg-slate-950/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/">
             <Logo />
@@ -76,30 +76,28 @@ export default function LandingPage() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8 font-poppins">
-            <a href="#inicio" className="text-sm font-bold text-[#003A8C] dark:text-lime-400 transition-colors relative after:content-[''] after:absolute after:bottom-[-29px] after:left-0 after:w-full after:h-[3px] after:bg-[#8DC63F]">Início</a>
-            <a href="#sobre" className="text-sm font-medium text-slate-650 dark:text-slate-350 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Sobre o Evento</a>
-            <a href="#instituicoes" className="text-sm font-medium text-slate-650 dark:text-slate-350 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Instituições Ajudadas</a>
-            <a href="#percurso" className="text-sm font-medium text-slate-650 dark:text-slate-355 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Percurso</a>
-            <a href="#patrocinadores" className="text-sm font-medium text-slate-655 dark:text-slate-355 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Patrocinadores</a>
-            <a href="#informacoes" className="text-sm font-medium text-slate-655 dark:text-slate-355 hover:text-[#003A8C] dark:hover:text-lime-400 transition-colors">Informações</a>
+            <a href="#inicio" className="text-sm font-bold text-[#003A8C] transition-colors relative after:content-[''] after:absolute after:bottom-[-29px] after:left-0 after:w-full after:h-[3px] after:bg-[#8DC63F]">Início</a>
+            <a href="#sobre" className="text-sm font-medium text-slate-650 hover:text-[#003A8C] transition-colors">Sobre o Evento</a>
+            <a href="#instituicoes" className="text-sm font-medium text-slate-650 hover:text-[#003A8C] transition-colors">Instituições Ajudadas</a>
+            <a href="#percurso" className="text-sm font-medium text-slate-650 hover:text-[#003A8C] transition-colors">Percurso</a>
+            <a href="#patrocinadores" className="text-sm font-medium text-slate-655 hover:text-[#003A8C] transition-colors">Patrocinadores</a>
+            <a href="#informacoes" className="text-sm font-medium text-slate-655 hover:text-[#003A8C] transition-colors">Informações</a>
           </nav>
 
           <div className="hidden lg:flex items-center gap-4">
-            <ThemeToggle />
-            <Link href="/login" className="px-6 py-2 rounded-xl text-sm font-bold text-[#003A8C] dark:text-slate-200 border border-[#003A8C] dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+            <Link href="/login" className="px-6 py-2 rounded-xl text-sm font-bold text-[#003A8C] border border-[#003A8C] hover:bg-slate-50 transition-colors">
               Login
             </Link>
-            <Link href="/register" className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#8DC63F] hover:bg-lime-600 text-white dark:text-slate-950 flex items-center gap-2 hover-lift shadow-sm shadow-lime-500/10">
+            <Link href="/register" className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#8DC63F] hover:bg-lime-600 text-white flex items-center gap-2 hover-lift shadow-sm shadow-lime-500/10">
               Inscreva-se Agora 🐾
             </Link>
           </div>
 
           {/* Mobile menu button */}
           <div className="flex items-center gap-3 lg:hidden">
-            <ThemeToggle />
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+              className="p-2.5 rounded-xl bg-slate-100 text-slate-700"
               aria-label="Abrir menu"
             >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -109,7 +107,7 @@ export default function LandingPage() {
 
         {/* Mobile Navigation Dropdown */}
         {menuOpen && (
-          <div className="lg:hidden px-4 pt-2 pb-6 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-5 duration-200">
+          <div className="lg:hidden px-4 pt-2 pb-6 bg-white border-b border-slate-200 animate-in fade-in slide-in-from-top-5 duration-200">
             <div className="flex flex-col gap-4">
               <a href="#inicio" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-bold hover:bg-slate-55">Início</a>
               <a href="#sobre" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Sobre o Evento</a>
@@ -117,11 +115,11 @@ export default function LandingPage() {
               <a href="#percurso" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Percurso</a>
               <a href="#patrocinadores" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Patrocinadores</a>
               <a href="#informacoes" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Informações</a>
-              <hr className="border-slate-100 dark:border-slate-800" />
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-semibold border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+              <hr className="border-slate-100" />
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-semibold border border-slate-200 hover:bg-slate-50 transition-colors">
                 Login
               </Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-bold bg-[#8DC63F] text-white dark:text-slate-950">
+              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-bold bg-[#8DC63F] text-white">
                 Inscreva-se Agora 🐾
               </Link>
             </div>
@@ -130,7 +128,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section id="inicio" className="relative flex flex-col justify-between overflow-hidden bg-white dark:bg-slate-950">
+      <section id="inicio" className="relative flex flex-col justify-between overflow-hidden bg-white">
         
         {/* Full-bleed mockup Image on Desktop - aligns perfectly on right, fades to white on left */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden lg:block select-none z-0">
@@ -141,7 +139,7 @@ export default function LandingPage() {
               className="w-full h-full object-cover object-right"
             />
             {/* Gradient mask to blend nicely on large screens */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/5 to-transparent dark:from-slate-950" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/5 to-transparent" />
           </div>
         </div>
 
@@ -150,7 +148,7 @@ export default function LandingPage() {
           
           {/* Left Column: Title Image, Subtitle, Buttons, Countdown Card */}
           <div className="lg:col-span-6 flex flex-col items-start text-left z-20">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold border border-[#8DC63F] text-[#8DC63F] bg-white dark:bg-slate-900 mb-6 uppercase tracking-wider font-poppins shadow-sm">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold border border-[#8DC63F] text-[#8DC63F] bg-white mb-6 uppercase tracking-wider font-poppins shadow-sm">
               <svg viewBox="0 0 100 100" fill="currentColor" className="h-3.5 w-3.5">
                 <path d="M50,45 C40,45 35,53 35,62 C35,72 42,78 50,78 C58,78 65,72 65,62 C65,53 60,45 50,45 Z" />
                 <circle cx="28" cy="38" r="9" />
@@ -170,26 +168,26 @@ export default function LandingPage() {
               />
             </div>
 
-            <p className="mt-2 text-base sm:text-lg text-slate-650 dark:text-slate-350 max-w-xl font-medium leading-relaxed font-inter">
+            <p className="mt-2 text-base sm:text-lg text-slate-600 max-w-xl font-medium leading-relaxed font-inter">
               Caminhando pela saúde, diversão e bem-estar dos nossos melhores amigos.
             </p>
 
             {/* Mockup Action Buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full sm:w-auto font-poppins">
-              <Link href="/register" className="px-7 py-3.5 rounded-full font-bold bg-[#8DC63F] hover:bg-[#7cb335] text-white dark:text-slate-950 text-center flex items-center justify-center gap-3 shadow-lg shadow-lime-500/10 hover-lift">
+              <Link href="/register" className="px-7 py-3.5 rounded-full font-bold bg-[#8DC63F] hover:bg-[#7cb335] text-white text-center flex items-center justify-center gap-3 shadow-lg shadow-lime-500/10 hover-lift">
                 Inscreva-se Agora
                 <span className="h-5 w-5 rounded-full bg-white flex items-center justify-center">
                   <ArrowRight className="h-3.5 w-3.5 text-[#8DC63F]" />
                 </span>
               </Link>
-              <a href="#sobre" className="px-7 py-3.5 rounded-full font-bold bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#003A8C] dark:text-white border border-[#003A8C] dark:border-slate-600 text-center flex items-center justify-center gap-2 transition-all">
+              <a href="#sobre" className="px-7 py-3.5 rounded-full font-bold bg-white hover:bg-slate-50 text-[#003A8C] border border-[#003A8C] text-center flex items-center justify-center gap-2 transition-all">
                 Saiba Mais
                 <Info className="h-5 w-5 text-[#003A8C] dark:text-white" strokeWidth={1.5} />
               </a>
             </div>
 
             {/* Mockup Floating Countdown Card */}
-            <div className="mt-10 w-full max-w-[430px] bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+            <div className="mt-10 w-full max-w-[430px] bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl overflow-hidden">
               <div className="p-6 flex flex-col items-center">
                 <span className="text-[10px] font-black text-[#8DC63F] uppercase tracking-[0.2em] block mb-4 flex items-center gap-2 font-poppins">
                   <svg viewBox="0 0 100 100" fill="currentColor" className="h-3 w-3">
@@ -212,36 +210,36 @@ export default function LandingPage() {
                 <div className="grid grid-cols-4 w-full text-center relative font-poppins">
                   {/* Days */}
                   <div className="flex flex-col items-center">
-                    <span className="text-3xl sm:text-4xl font-black text-[#003A8C] dark:text-blue-400 leading-none">
+                    <span className="text-3xl sm:text-4xl font-black text-[#003A8C] leading-none">
                       {mounted ? timeLeft.days : '360'}
                     </span>
                     <span className="text-[9px] uppercase font-bold text-slate-400 mt-2">Dias</span>
                   </div>
                   
                   {/* Divider */}
-                  <div className="absolute left-[25%] top-1/4 h-1/2 w-[1.5px] bg-slate-150 dark:bg-slate-800" />
+                  <div className="absolute left-[25%] top-1/4 h-1/2 w-[1.5px] bg-slate-150" />
                   
                   {/* Hours */}
                   <div className="flex flex-col items-center">
-                    <span className="text-3xl sm:text-4xl font-black text-[#003A8C] dark:text-blue-400 leading-none">
+                    <span className="text-3xl sm:text-4xl font-black text-[#003A8C] leading-none">
                       {mounted ? timeLeft.hours : '14'}
                     </span>
                     <span className="text-[9px] uppercase font-bold text-slate-400 mt-2">Horas</span>
                   </div>
                   
                   {/* Divider */}
-                  <div className="absolute left-[50%] top-1/4 h-1/2 w-[1.5px] bg-slate-150 dark:bg-slate-800" />
+                  <div className="absolute left-[50%] top-1/4 h-1/2 w-[1.5px] bg-slate-150" />
 
                   {/* Minutes */}
                   <div className="flex flex-col items-center">
-                    <span className="text-3xl sm:text-4xl font-black text-[#003A8C] dark:text-blue-400 leading-none">
+                    <span className="text-3xl sm:text-4xl font-black text-[#003A8C] leading-none">
                       {mounted ? timeLeft.minutes : '27'}
                     </span>
                     <span className="text-[9px] uppercase font-bold text-slate-400 mt-2">Minutos</span>
                   </div>
                   
                   {/* Divider */}
-                  <div className="absolute left-[75%] top-1/4 h-1/2 w-[1.5px] bg-slate-150 dark:bg-slate-800" />
+                  <div className="absolute left-[75%] top-1/4 h-1/2 w-[1.5px] bg-slate-150" />
 
                   {/* Seconds (Green highlighted) */}
                   <div className="flex flex-col items-center">
@@ -254,7 +252,7 @@ export default function LandingPage() {
               </div>
 
               {/* Blue Card Footer */}
-              <div className="bg-[#003A8C] dark:bg-slate-950 px-4 py-3.5 text-white flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] font-bold font-poppins">
+              <div className="bg-[#003A8C] px-4 py-3.5 text-white flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] font-bold font-poppins">
                 <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4 text-[#8DC63F]" /> 20 de Setembro de 2026</span>
                 <span className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-[#8DC63F]" /> Largada 07h00</span>
                 <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#8DC63F]" /> Museu Militar do Forte do Brum - Recife/PE</span>
@@ -274,7 +272,7 @@ export default function LandingPage() {
 
         {/* Mockup bottom Metrics Bar */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 z-20 relative">
-          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-xl py-6 px-8 sm:px-12 grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl py-6 px-8 sm:px-12 grid grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Metric 1: Inscritos */}
             <div className="flex items-center gap-4 justify-start">
               {/* Green Paw Print Icon */}
@@ -286,8 +284,8 @@ export default function LandingPage() {
                 <circle cx="72" cy="38" r="9" />
               </svg>
               <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] dark:text-white leading-none block">1.245</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 dark:text-slate-400 block mt-1">Inscritos</span>
+                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">1.245</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Inscritos</span>
               </div>
             </div>
 
@@ -295,8 +293,8 @@ export default function LandingPage() {
             <div className="flex items-center gap-4 justify-start">
               <Dog className="h-8 w-8 text-[#8DC63F] shrink-0" strokeWidth={1.5} />
               <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] dark:text-white leading-none block">876</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 dark:text-slate-400 block mt-1">Pets Participantes</span>
+                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">876</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Pets Participantes</span>
               </div>
             </div>
 
@@ -304,8 +302,8 @@ export default function LandingPage() {
             <div className="flex items-center gap-4 justify-start">
               <Heart className="h-8 w-8 text-red-500 shrink-0" strokeWidth={1.5} />
               <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] dark:text-white leading-none block">28</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 dark:text-slate-400 block mt-1">Patrocinadores</span>
+                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">28</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Patrocinadores</span>
               </div>
             </div>
 
@@ -313,8 +311,8 @@ export default function LandingPage() {
             <div className="flex items-center gap-4 justify-start">
               <Route className="h-8 w-8 text-[#8DC63F] shrink-0" strokeWidth={1.5} />
               <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] dark:text-white leading-none block">3 km</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 dark:text-slate-400 block mt-1">Percurso Total</span>
+                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">3 km</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Percurso Total</span>
               </div>
             </div>
           </div>
@@ -323,34 +321,34 @@ export default function LandingPage() {
       </section>
 
       {/* Seção Sobre */}
-      <section id="sobre" className="py-24 px-4 bg-white dark:bg-slate-950 transition-colors scroll-mt-20">
+      <section id="sobre" className="py-24 px-4 bg-white transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] dark:text-white font-poppins">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
               Sobre o Evento
             </h2>
-            <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg">
+            <p className="mt-4 text-slate-600 text-lg">
               A Cãominhada Petsalut é uma iniciativa de lazer e saúde dedicada a reunir pets e tutores em uma manhã cheia de diversão, exercícios ao ar livre e confraternização.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Info Column */}
-            <div className="flex flex-col gap-6 text-slate-700 dark:text-slate-350 text-left">
-              <h3 className="text-2xl font-bold text-[#003A8C] dark:text-blue-400 font-poppins">
+            <div className="flex flex-col gap-6 text-slate-700 text-left">
+              <h3 className="text-2xl font-bold text-[#003A8C] font-poppins">
                 Criando memórias saudáveis com quem te dá amor incondicional
               </h3>
-              <p className="leading-relaxed text-slate-600 dark:text-slate-400">
+              <p className="leading-relaxed text-slate-600">
                 Nosso evento foi projetado com toda a estrutura necessária para que você e seu companheiro canino curtam o trajeto sem preocupações. O percurso de 3km no Museu Militar do Forte do Brum é plano, arborizado e conta com suporte especializado ao longo de todo o caminho.
               </p>
-              <p className="leading-relaxed text-slate-600 dark:text-slate-400">
+              <p className="leading-relaxed text-slate-600">
                 Além de caminhar, o evento é uma oportunidade fantástica para conscientização sobre a saúde animal, alimentação saudável e cuidados preventivos fornecidos pela equipe de veterinários Petsalut.
               </p>
 
-              <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-start gap-4">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex items-start gap-4">
                 <MapPin className="h-6 w-6 text-[#8DC63F] shrink-0 mt-1" />
                 <div className="text-left">
-                  <h4 className="font-bold text-slate-950 dark:text-white">Percurso de 3km no Museu Militar do Forte do Brum</h4>
+                  <h4 className="font-bold text-slate-950">Percurso de 3km no Museu Militar do Forte do Brum</h4>
                   <p className="text-sm text-slate-550 mt-1">
                     Largada e Chegada no Bolsão principal do Museu Militar do Forte do Brum. Pontos de hidratação e refresco a cada 500 metros para os cães.
                   </p>
@@ -361,12 +359,12 @@ export default function LandingPage() {
             {/* Grid of benefits */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {benefits.map((benefit, index) => (
-                <div key={index} className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 hover-lift text-left">
-                  <div className="p-3 bg-white dark:bg-slate-800 rounded-xl w-fit shadow-sm">
+                <div key={index} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover-lift text-left">
+                  <div className="p-3 bg-white rounded-xl w-fit shadow-sm">
                     {benefit.icon}
                   </div>
-                  <h4 className="mt-4 font-bold text-slate-950 dark:text-white font-poppins">{benefit.title}</h4>
-                  <p className="mt-2 text-sm text-slate-605 dark:text-slate-400 leading-relaxed">{benefit.desc}</p>
+                  <h4 className="mt-4 font-bold text-slate-950 font-poppins">{benefit.title}</h4>
+                  <p className="mt-2 text-sm text-slate-605 leading-relaxed">{benefit.desc}</p>
                 </div>
               ))}
             </div>
@@ -375,16 +373,16 @@ export default function LandingPage() {
       </section>
 
       {/* Seção Instituições Ajudadas */}
-      <section id="instituicoes" className="py-24 px-4 bg-slate-50 dark:bg-slate-900/40 transition-colors scroll-mt-20">
+      <section id="instituicoes" className="py-24 px-4 bg-slate-50 transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto text-center">
           <div className="max-w-3xl mx-auto mb-16">
-            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#8DC63F]/10 dark:bg-lime-400/10 text-[#8DC63F] dark:text-lime-400 uppercase tracking-widest font-poppins">
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#8DC63F]/10 text-[#8DC63F] uppercase tracking-widest font-poppins">
               Solidariedade & Cuidado Animal
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] dark:text-white font-poppins mt-3">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins mt-3">
               Instituições Parceiras que Você Ajudará
             </h2>
-            <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
+            <p className="mt-4 text-slate-600 text-lg leading-relaxed">
               O propósito da Cãominhada Petsalut 2026 é apoiar o trabalho incansável de resgate e reabilitação de animais abandonados. 
               Ao se inscrever, a sua doação mínima de <strong>R$ 50,00</strong> vai diretamente para a conta da instituição de sua escolha.
             </p>
@@ -394,7 +392,7 @@ export default function LandingPage() {
             {institutions.filter(inst => inst.status === 'Ativo').map((inst) => (
               <div 
                 key={inst.id} 
-                className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden hover-lift flex flex-col justify-between text-left group"
+                className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden hover-lift flex flex-col justify-between text-left group"
               >
                 <div>
                   {/* Photo Banner with Logo Overlay */}
@@ -407,7 +405,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent" />
                     
                     {/* Floating Logo Badge */}
-                    <div className="absolute top-4 left-4 h-12 w-12 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-2xl shadow-md border border-slate-100 dark:border-slate-700">
+                    <div className="absolute top-4 left-4 h-12 w-12 rounded-2xl bg-white flex items-center justify-center text-2xl shadow-md border border-slate-100">
                       {inst.logo}
                     </div>
 
@@ -420,20 +418,20 @@ export default function LandingPage() {
 
                   {/* Body Content */}
                   <div className="p-6">
-                    <h3 className="font-bold text-slate-900 dark:text-white text-xl font-poppins tracking-tight line-clamp-1">
+                    <h3 className="font-bold text-slate-900 text-xl font-poppins tracking-tight line-clamp-1">
                       {inst.name}
                     </h3>
                     
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-2 h-16 overflow-hidden line-clamp-3 leading-relaxed">
+                    <p className="text-xs font-semibold text-slate-500 mt-2 h-16 overflow-hidden line-clamp-3 leading-relaxed">
                       {inst.description}
                     </p>
 
                     {/* Mission Text box */}
-                    <div className="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80">
-                      <span className="text-[10px] font-bold text-[#003A8C] dark:text-blue-400 uppercase tracking-widest block mb-1">
+                    <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-[#003A8C] uppercase tracking-widest block mb-1">
                         Propósito & Missão
                       </span>
-                      <p className="text-[11px] font-medium text-slate-650 dark:text-slate-300 italic line-clamp-3 leading-relaxed">
+                      <p className="text-[11px] font-medium text-slate-650 italic line-clamp-3 leading-relaxed">
                         "{inst.mission}"
                       </p>
                     </div>
@@ -442,24 +440,24 @@ export default function LandingPage() {
 
                 {/* Counters and Action Button */}
                 <div className="p-6 pt-0">
-                  <div className="grid grid-cols-3 gap-2 border-t border-slate-150 dark:border-slate-800 pt-4 mb-4 text-center">
+                  <div className="grid grid-cols-3 gap-2 border-t border-slate-150 pt-4 mb-4 text-center">
                     <div>
-                      <span className="text-sm font-black text-[#003A8C] dark:text-blue-400 block">{inst.animalsServed}</span>
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Atendidos</span>
+                      <span className="text-sm font-black text-[#003A8C] block">{inst.animalsServed}</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">Atendidos</span>
                     </div>
-                    <div className="border-x border-slate-150 dark:border-slate-800">
+                    <div className="border-x border-slate-150">
                       <span className="text-sm font-black text-[#8DC63F] block">{inst.castrations}</span>
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Castrados</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">Castrados</span>
                     </div>
                     <div>
                       <span className="text-sm font-black text-amber-500 block">{inst.rescues}</span>
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">Resgates</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">Resgates</span>
                     </div>
                   </div>
 
                   <Link 
                     href="/register" 
-                    className="w-full py-3 rounded-2xl bg-[#8DC63F] hover:bg-[#7cb335] text-white dark:text-slate-950 font-bold text-xs flex items-center justify-center gap-2 hover-lift transition-all shadow-sm shadow-lime-500/10"
+                    className="w-full py-3 rounded-2xl bg-[#8DC63F] hover:bg-[#7cb335] text-white font-bold text-xs flex items-center justify-center gap-2 hover-lift transition-all shadow-sm shadow-lime-500/10"
                   >
                     Apoiar esta ONG 🐾
                   </Link>
@@ -471,27 +469,27 @@ export default function LandingPage() {
       </section>
 
       {/* Seção Cronograma */}
-      <section id="cronograma" className="py-24 px-4 bg-slate-50 dark:bg-slate-900/60 transition-colors scroll-mt-20">
+      <section id="cronograma" className="py-24 px-4 bg-slate-50 transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] dark:text-white font-poppins">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
               Cronograma do Evento
             </h2>
-            <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg">
+            <p className="mt-4 text-slate-600 text-lg">
               Programação completa de atividades planejadas para manter você e seu pet ativos e entretidos.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 max-w-5xl mx-auto">
             {scheduleItems.map((item, index) => (
-              <div key={index} className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/50 dark:border-slate-800/50 flex flex-col relative hover-lift text-left">
-                <div className="inline-flex items-center justify-center p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-[#003A8C] dark:text-blue-400 font-bold font-poppins w-fit text-sm mb-4">
+              <div key={index} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/50 flex flex-col relative hover-lift text-left">
+                <div className="inline-flex items-center justify-center p-2 rounded-xl bg-blue-50 text-[#003A8C] font-bold font-poppins w-fit text-sm mb-4">
                   <Clock className="h-4 w-4 mr-1.5" /> {item.time}
                 </div>
-                <h4 className="font-bold text-slate-950 dark:text-white font-poppins text-lg">{item.title}</h4>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed flex-1">{item.desc}</p>
+                <h4 className="font-bold text-slate-950 font-poppins text-lg">{item.title}</h4>
+                <p className="mt-2 text-sm text-slate-500 leading-relaxed flex-1">{item.desc}</p>
                 {index < 4 && (
-                  <div className="hidden md:block absolute top-1/2 -right-3 -translate-y-1/2 z-10 text-slate-305 dark:text-slate-700">
+                  <div className="hidden md:block absolute top-1/2 -right-3 -translate-y-1/2 z-10 text-slate-305">
                     <ChevronRight className="h-6 w-6" />
                   </div>
                 )}
@@ -502,11 +500,11 @@ export default function LandingPage() {
       </section>
 
       {/* Seção Percurso */}
-      <section id="percurso" className="py-24 px-4 bg-white dark:bg-slate-950 transition-colors scroll-mt-20">
+      <section id="percurso" className="py-24 px-4 bg-white transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Map styling */}
-            <div className="bg-slate-100 dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-inner relative overflow-hidden h-[350px] flex items-center justify-center">
+            <div className="bg-slate-100 p-8 rounded-3xl border border-slate-200 shadow-inner relative overflow-hidden h-[350px] flex items-center justify-center">
               <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#003a8c_1px,transparent_1px)] [background-size:16px_16px]" />
               
               <div className="relative z-10 w-full h-full flex flex-col justify-between">
@@ -521,7 +519,7 @@ export default function LandingPage() {
                   />
                 </div>
 
-                <div className="flex justify-between items-center bg-white dark:bg-slate-950 p-4 rounded-2xl shadow-sm border border-slate-200/50 dark:border-slate-800/50">
+                <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200/50">
                   <span className="text-xs font-bold text-slate-550 flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#8DC63F]" /> Extensão: 3.0 km</span>
                   <span className="text-xs font-bold text-slate-550 flex items-center gap-1.5"><Heart className="h-4 w-4 text-red-500" /> Pontos de Hidratação: 3</span>
                 </div>
@@ -529,35 +527,35 @@ export default function LandingPage() {
             </div>
 
             <div className="flex flex-col gap-6 text-left">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] dark:text-white font-poppins">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
                 Estrutura e Segurança no Percurso
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+              <p className="text-slate-600 leading-relaxed">
                 Nossa caminhada foi pensada priorizando a saúde dos cães. O percurso possui pisos confortáveis e áreas de grama para evitar queimar as patinhas. Além disso, as seguintes medidas de segurança serão tomadas:
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex gap-3 items-start">
                   <div className="h-2 w-2 rounded-full bg-[#8DC63F] shrink-0 mt-2.5" />
-                  <p className="text-sm text-slate-600 dark:text-slate-400"><strong>Ponto veterinário móvel</strong>: ambulância veterinária de plantão para qualquer intercorrência.</p>
+                  <p className="text-sm text-slate-600"><strong>Ponto veterinário móvel</strong>: ambulância veterinária de plantão para qualquer intercorrência.</p>
                 </div>
                 <div className="flex gap-3 items-start">
                   <div className="h-2 w-2 rounded-full bg-[#8DC63F] shrink-0 mt-2.5" />
-                  <p className="text-sm text-slate-600 dark:text-slate-400"><strong>Água fresca constante</strong>: recipientes descartáveis com água fresca e gelada nos postos de parada.</p>
+                  <p className="text-sm text-slate-600"><strong>Água fresca constante</strong>: recipientes descartáveis com água fresca e gelada nos postos de parada.</p>
                 </div>
                 <div className="flex gap-3 items-start">
                   <div className="h-2 w-2 rounded-full bg-[#8DC63F] shrink-0 mt-2.5" />
-                  <p className="text-sm text-slate-600 dark:text-slate-400"><strong>Fiscais de percurso</strong>: monitores ao longo do trajeto garantindo que todos façam a caminhada com segurança.</p>
+                  <p className="text-sm text-slate-600"><strong>Fiscais de percurso</strong>: monitores ao longo do trajeto garantindo que todos façam a caminhada com segurança.</p>
                 </div>
                 <div className="flex gap-3 items-start">
                   <div className="h-2 w-2 rounded-full bg-[#8DC63F] shrink-0 mt-2.5" />
-                  <p className="text-sm text-slate-600 dark:text-slate-400"><strong>Descarte ecológico</strong>: fornecimento de saquinhos biodegradáveis para coleta de fezes ao longo do caminho.</p>
+                  <p className="text-sm text-slate-600"><strong>Descarte ecológico</strong>: fornecimento de saquinhos biodegradáveis para coleta de fezes ao longo do caminho.</p>
                 </div>
               </div>
 
-              <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl flex items-start gap-3">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
                 <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                <p className="text-xs text-amber-800 leading-relaxed">
                   <strong>Atenção</strong>: Todos os pets participantes devem, obrigatoriamente, utilizar guia e coleira durante todo o percurso. Cães de grande porte ou raças com obrigatoriedade de focinheira por lei estadual devem usar o equipamento.
                 </p>
               </div>
@@ -567,13 +565,13 @@ export default function LandingPage() {
       </section>
 
       {/* Seção Patrocinadores */}
-      <section id="patrocinadores" className="py-24 px-4 bg-slate-50 dark:bg-slate-900/60 transition-colors scroll-mt-20">
+      <section id="patrocinadores" className="py-24 px-4 bg-slate-50 transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] dark:text-white font-poppins">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
               Nossos Patrocinadores
             </h2>
-            <p className="mt-4 text-slate-650 dark:text-slate-400 text-lg">
+            <p className="mt-4 text-slate-650 text-lg">
               Marcas incríveis que apoiam o bem-estar animal e tornam a Cãominhada possível.
             </p>
           </div>
@@ -589,13 +587,13 @@ export default function LandingPage() {
                     href={s.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col items-center bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md max-w-sm w-full hover-lift transition-all"
+                    className="group flex flex-col items-center bg-white p-8 rounded-3xl border border-slate-200 shadow-md max-w-sm w-full hover-lift transition-all"
                   >
                     <div className="relative w-48 h-24 mb-4">
                       <Image src={s.logo} alt={s.name} fill className="object-contain filter grayscale group-hover:grayscale-0 transition-all" />
                     </div>
-                    <span className="font-bold text-slate-900 dark:text-white text-lg group-hover:text-[#003A8C] dark:group-hover:text-lime-400">{s.name}</span>
-                    <p className="text-xs text-slate-550 dark:text-slate-400 text-center mt-2 px-4">{s.description}</p>
+                    <span className="font-bold text-slate-900 text-lg group-hover:text-[#003A8C]">{s.name}</span>
+                    <p className="text-xs text-slate-550 text-center mt-2 px-4">{s.description}</p>
                   </a>
                 ))}
               </div>
@@ -613,12 +611,12 @@ export default function LandingPage() {
                     href={s.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col items-center bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift transition-all"
+                    className="group flex flex-col items-center bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover-lift transition-all"
                   >
                     <div className="relative w-36 h-20 mb-4">
                       <Image src={s.logo} alt={s.name} fill className="object-contain filter grayscale group-hover:grayscale-0 transition-all" />
                     </div>
-                    <span className="font-bold text-slate-900 dark:text-white group-hover:text-[#003A8C] dark:group-hover:text-lime-400">{s.name}</span>
+                    <span className="font-bold text-slate-900 group-hover:text-[#003A8C]">{s.name}</span>
                   </a>
                 ))}
               </div>
@@ -636,12 +634,12 @@ export default function LandingPage() {
                     href={s.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col items-center bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift transition-all"
+                    className="group flex flex-col items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover-lift transition-all"
                   >
                     <div className="relative w-28 h-16 mb-2">
                       <Image src={s.logo} alt={s.name} fill className="object-contain filter grayscale group-hover:grayscale-0 transition-all" />
                     </div>
-                    <span className="font-bold text-sm text-slate-800 dark:text-slate-200 text-center">{s.name}</span>
+                    <span className="font-bold text-sm text-slate-800 text-center">{s.name}</span>
                   </a>
                 ))}
               </div>
@@ -659,7 +657,7 @@ export default function LandingPage() {
                     href={s.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group bg-white dark:bg-slate-900 py-3 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-slate-700 dark:text-slate-300 font-semibold text-sm hover:text-[#003A8C] dark:hover:text-lime-400 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                    className="group bg-white py-3 px-6 rounded-2xl border border-slate-200 shadow-sm text-slate-700 font-semibold text-sm hover:text-[#003A8C] hover:border-slate-300 transition-colors"
                   >
                     {s.name}
                   </a>
@@ -671,35 +669,35 @@ export default function LandingPage() {
       </section>
 
       {/* Seção Informações (FAQ) */}
-      <section id="informacoes" className="py-24 px-4 bg-white dark:bg-slate-950 transition-colors scroll-mt-20">
+      <section id="informacoes" className="py-24 px-4 bg-white transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] dark:text-white font-poppins">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
               Informações Importantes
             </h2>
-            <p className="mt-4 text-slate-605 dark:text-slate-400 text-sm">
+            <p className="mt-4 text-slate-605 text-sm">
               Prepare-se para o evento consultando as principais diretrizes de segurança e convivência.
             </p>
           </div>
 
           <div className="max-w-3xl mx-auto flex flex-col gap-6 text-left">
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <h4 className="font-bold text-slate-900 dark:text-white font-poppins text-sm flex items-center gap-2">🐾 Onde e quando retirar o kit?</h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <h4 className="font-bold text-slate-900 font-poppins text-sm flex items-center gap-2">🐾 Onde e quando retirar o kit?</h4>
+              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
                 Os kits contendo a camiseta, a bandana do pet e a sacochila serão entregues no **Museu Militar do Forte do Brum**, no sábado (19/09/2026) das 09h às 17h, ou na tenda de credenciamento do evento no domingo (20/09/2026) a partir das 07h00. Apresente seu QR Code de participante.
               </p>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <h4 className="font-bold text-slate-900 dark:text-white font-poppins text-sm flex items-center gap-2">🩺 Como funciona a segurança veterinária?</h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <h4 className="font-bold text-slate-900 font-poppins text-sm flex items-center gap-2">🩺 Como funciona a segurança veterinária?</h4>
+              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
                 Teremos veterinários Petsalut espalhados pelo circuito de 3km e uma ambulância de UTI veterinária posicionada na largada/chegada para dar o suporte necessário ao seu cãozinho se ele cansar ou precisar de cuidados médicos.
               </p>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <h4 className="font-bold text-slate-900 dark:text-white font-poppins text-sm flex items-center gap-2">🐶 Cães de todas as raças e portes podem participar?</h4>
-              <p className="text-xs text-slate-650 dark:text-slate-400 mt-2 leading-relaxed">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <h4 className="font-bold text-slate-900 font-poppins text-sm flex items-center gap-2">🐶 Cães de todas as raças e portes podem participar?</h4>
+              <p className="text-xs text-slate-650 mt-2 leading-relaxed">
                 Sim! Cães de todos os portes e idades são bem-vindos. Exigimos apenas o uso constante de coleira e guia. Para cães de raças consideradas de guarda (como Pitbull, Rottweiler, Mastim, etc.), é obrigatório o uso de focinheira por lei.
               </p>
             </div>
