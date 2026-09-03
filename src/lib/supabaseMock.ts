@@ -253,30 +253,30 @@ const initialInstitutions: Institution[] = [
 const initialSponsors: Sponsor[] = [
   {
     id: 'sp-1',
-    name: 'Euspet Plano de Saúde',
-    logo: '/sponsors/euspet.png',
+    name: 'Oh Pet Club',
+    logo: '/sponsors/ohpet.png',
     category: 'Premium',
     investedValue: 20000,
-    description: 'Plano de Saúde Pet completo para o bem-estar do seu melhor amigo.',
-    website: 'https://euspet.com.br'
+    description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.',
+    website: 'https://ohpet.com.br'
   },
   {
     id: 'sp-2',
+    name: 'Amigo Bicho',
+    logo: '/sponsors/amigobicho.png',
+    category: 'Premium',
+    investedValue: 18000,
+    description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.',
+    website: 'https://amigobicho.com.br'
+  },
+  {
+    id: 'sp-3',
     name: 'Metrópole',
     logo: '/sponsors/metropole.png',
     category: 'Premium',
     investedValue: 18000,
-    description: 'Excelência em serviços e apoio ao projeto Cãominhada.',
+    description: 'Excelência em serviços e grande parceiro da Cãominhada.',
     website: 'https://metropole.com.br'
-  },
-  {
-    id: 'sp-3',
-    name: 'Oh Pet Clínica e Pet',
-    logo: '/sponsors/ohpet.png',
-    category: 'Premium',
-    investedValue: 15000,
-    description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.',
-    website: 'https://ohpet.com.br'
   },
   {
     id: 'sp-4',
@@ -286,6 +286,15 @@ const initialSponsors: Sponsor[] = [
     investedValue: 15000,
     description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.',
     website: 'https://pethappy.com.br'
+  },
+  {
+    id: 'sp-5',
+    name: 'Eu Pet',
+    logo: '/sponsors/eupet.png',
+    category: 'Premium',
+    investedValue: 15000,
+    description: 'Plano de Saúde Pet completo para a saúde do seu melhor amigo.',
+    website: 'https://eupet.com.br'
   }
 ];
 
