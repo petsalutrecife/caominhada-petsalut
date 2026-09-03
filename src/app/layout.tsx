@@ -44,17 +44,14 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                }
+                document.documentElement.classList.remove('dark');
+                localStorage.removeItem('theme');
               } catch (_) {}
             `,
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans selection:bg-lime-500 selection:text-slate-950">
+      <body className="min-h-full flex flex-col bg-white text-slate-800 font-sans selection:bg-lime-500 selection:text-slate-950">
         {children}
       </body>
     </html>

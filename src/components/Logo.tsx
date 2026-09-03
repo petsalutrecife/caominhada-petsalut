@@ -18,7 +18,7 @@ export default function Logo({ className = '', size = 'md' }: LogoProps) {
       <img
         src="/logo.jpeg"
         alt="Logo Pet Salute"
-        className={`${heights[size]} w-auto object-contain`}
+        className={`${heights[size]} w-auto object-contain mix-blend-multiply contrast-125 brightness-95 transition-transform duration-200 hover:scale-105`}
       />
     </div>
   );

@@ -17,7 +17,7 @@
 }
 
 :root {
-  --background: #F8FAFC;
+  --background: #FFFFFF;
   --foreground: #1E293B;
   --primary: #003A8C;
   --primary-green: #8DC63F; /* Mockup Petsalut green */
@@ -30,19 +30,6 @@
   
   --font-poppins: 'Poppins', sans-serif;
   --font-inter: 'Inter', sans-serif;
-}
-
-.dark {
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --primary: #3B82F6;
-  --primary-green: #BCE300; /* slightly brighter for dark mode */
-  --success: #10B981;
-  --warning: #F59E0B;
-  --danger: #F87171;
-  --card-bg: #1E293B;
-  --text-main: #F8FAFC;
-  --text-muted: #94A3B8;
 }
 
 body {

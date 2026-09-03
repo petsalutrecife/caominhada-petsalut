@@ -166,7 +166,7 @@ export default function LandingPage() {
               <img
                 src="/logocorrida.jpeg"
                 alt="Cãominhada Petsalut 2026"
-                className="w-full h-auto object-contain"
+                className="w-full h-auto object-contain mix-blend-multiply contrast-125 brightness-95 filter drop-shadow-sm"
               />
             </div>
 
