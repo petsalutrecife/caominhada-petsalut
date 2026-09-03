@@ -16,7 +16,17 @@ export default function LandingPage() {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState('inicio');
   const [timeLeft, setTimeLeft] = useState({ days: 360, hours: 14, minutes: 27, seconds: 45 });
+
+  const navItems = [
+    { id: 'inicio', label: 'Início', href: '#inicio' },
+    { id: 'sobre', label: 'Sobre o Evento', href: '#sobre' },
+    { id: 'instituicoes', label: 'Instituições Ajudadas', href: '#instituicoes' },
+    { id: 'percurso', label: 'Percurso', href: '#percurso' },
+    { id: 'patrocinadores', label: 'Patrocinadores', href: '#patrocinadores' },
+    { id: 'informacoes', label: 'Informações', href: '#informacoes' },
+  ];
 
   // Event Date: Sept 20, 2026 07:00:00
   const eventDate = new Date('2026-09-20T07:00:00').getTime();
@@ -47,7 +57,23 @@ export default function LandingPage() {
       }
     }, 1000);
 
-    return () => clearInterval(timer);
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 140;
+      for (let i = navItems.length - 1; i >= 0; i--) {
+        const section = document.getElementById(navItems[i].id);
+        if (section && section.offsetTop <= scrollPosition) {
+          setActiveTab(navItems[i].id);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [eventDate]);
 
   const scheduleItems = [
@@ -75,21 +101,47 @@ export default function LandingPage() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8 font-poppins">
-            <a href="#inicio" className="text-sm font-bold text-[#003A8C] transition-colors relative after:content-[''] after:absolute after:bottom-[-29px] after:left-0 after:w-full after:h-[3px] after:bg-[#8DC63F]">Início</a>
-            <a href="#sobre" className="text-sm font-medium text-slate-650 hover:text-[#003A8C] transition-colors">Sobre o Evento</a>
-            <a href="#instituicoes" className="text-sm font-medium text-slate-650 hover:text-[#003A8C] transition-colors">Instituições Ajudadas</a>
-            <a href="#percurso" className="text-sm font-medium text-slate-650 hover:text-[#003A8C] transition-colors">Percurso</a>
-            <a href="#patrocinadores" className="text-sm font-medium text-slate-655 hover:text-[#003A8C] transition-colors">Patrocinadores</a>
-            <a href="#informacoes" className="text-sm font-medium text-slate-655 hover:text-[#003A8C] transition-colors">Informações</a>
+          <nav className="hidden lg:flex items-center gap-1 sm:gap-2 font-poppins">
+            {navItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`px-3.5 py-2 rounded-xl text-sm transition-all duration-300 relative group flex items-center justify-center ${
+                    isActive
+                      ? 'font-bold text-[#003A8C] bg-[#8DC63F]/12'
+                      : 'font-medium text-slate-650 hover:text-[#003A8C] hover:bg-[#8DC63F]/10'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {/* Traço verde com efeito glow ao ativar ou passar o mouse */}
+                  <span
+                    className={`absolute bottom-[-24px] left-2 right-2 h-[3.5px] bg-[#8DC63F] rounded-full shadow-[0_2px_8px_rgba(141,198,63,0.6)] transition-all duration-300 transform origin-center ${
+                      isActive
+                        ? 'scale-x-100 opacity-100'
+                        : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-75'
+                    }`}
+                  />
+                </a>
+              );
+            })}
           </nav>
 
           <div className="hidden lg:flex items-center gap-4">
-            <Link href="/login" className="px-6 py-2 rounded-xl text-sm font-bold text-[#003A8C] border border-[#003A8C] hover:bg-slate-50 transition-colors">
+            <Link
+              href="/login"
+              className="px-6 py-2.5 rounded-xl text-sm font-bold text-[#003A8C] border-2 border-[#003A8C]/20 bg-[#003A8C]/5 hover:bg-[#003A8C] hover:text-white hover:border-[#003A8C] hover:shadow-[0_4px_20px_rgba(0,58,140,0.35)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+            >
               Login
             </Link>
-            <Link href="/register" className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#8DC63F] hover:bg-lime-600 text-white flex items-center gap-2 hover-lift shadow-sm shadow-lime-500/10">
-              Inscreva-se Agora 🐾
+            <Link
+              href="/register"
+              className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#8DC63F] hover:bg-[#7cb335] text-white flex items-center gap-2 shadow-lg shadow-[#8DC63F]/30 hover:shadow-[0_6px_25px_rgba(141,198,63,0.55)] hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 relative overflow-hidden group"
+            >
+              <span className="relative z-10 flex items-center gap-2">Inscreva-se Agora 🐾</span>
+              <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
             </Link>
           </div>
 
@@ -97,7 +149,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3 lg:hidden">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2.5 rounded-xl bg-slate-100 text-slate-700"
+              className="p-2.5 rounded-xl bg-slate-100 hover:bg-[#8DC63F]/15 text-slate-700 transition-colors"
               aria-label="Abrir menu"
             >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -108,18 +160,33 @@ export default function LandingPage() {
         {/* Mobile Navigation Dropdown */}
         {menuOpen && (
           <div className="lg:hidden px-4 pt-2 pb-6 bg-white border-b border-slate-200 animate-in fade-in slide-in-from-top-5 duration-200">
-            <div className="flex flex-col gap-4">
-              <a href="#inicio" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-bold hover:bg-slate-55">Início</a>
-              <a href="#sobre" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Sobre o Evento</a>
-              <a href="#instituicoes" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Instituições Ajudadas</a>
-              <a href="#percurso" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Percurso</a>
-              <a href="#patrocinadores" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Patrocinadores</a>
-              <a href="#informacoes" onClick={() => setMenuOpen(false)} className="px-4 py-2 rounded-xl text-base font-semibold hover:bg-slate-55">Informações</a>
-              <hr className="border-slate-100" />
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-semibold border border-slate-200 hover:bg-slate-50 transition-colors">
+            <div className="flex flex-col gap-2">
+              {navItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <a
+                    key={item.id}
+                    href={item.href}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setMenuOpen(false);
+                    }}
+                    className={`px-4 py-3 rounded-2xl text-base transition-all duration-200 flex items-center justify-between ${
+                      isActive
+                        ? 'font-bold text-[#003A8C] bg-[#8DC63F]/15 border-l-4 border-[#8DC63F]'
+                        : 'font-semibold text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {isActive && <div className="h-2 w-2 rounded-full bg-[#8DC63F] shadow-[0_0_8px_#8DC63F]" />}
+                  </a>
+                );
+              })}
+              <hr className="border-slate-100 my-2" />
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-semibold border-2 border-[#003A8C]/20 bg-[#003A8C]/5 hover:bg-[#003A8C] hover:text-white transition-colors">
                 Login
               </Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-bold bg-[#8DC63F] text-white">
+              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-bold bg-[#8DC63F] text-white shadow-md shadow-[#8DC63F]/30">
                 Inscreva-se Agora 🐾
               </Link>
             </div>
