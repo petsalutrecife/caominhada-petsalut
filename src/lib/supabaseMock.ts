@@ -63,7 +63,7 @@ export interface Sponsor {
   id: string;
   name: string;
   logo: string; // Base64 or URL
-  category: 'Master' | 'Ouro' | 'Prata' | 'Apoio';
+  category: 'Master' | 'Ouro' | 'Prata' | 'Apoio' | 'Premium';
   investedValue: number;
   description: string;
   website: string;
@@ -253,57 +253,39 @@ const initialInstitutions: Institution[] = [
 const initialSponsors: Sponsor[] = [
   {
     id: 'sp-1',
-    name: 'Petsalut Plano de Saúde',
-    logo: 'https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?w=150&h=150&fit=crop&q=80',
-    category: 'Master',
-    investedValue: 15000,
-    description: 'O melhor plano de saúde para o seu melhor amigo.',
-    website: 'https://petsalut.com.br'
+    name: 'Euspet Plano de Saúde',
+    logo: '/sponsors/euspet.png',
+    category: 'Premium',
+    investedValue: 20000,
+    description: 'Plano de Saúde Pet completo para o bem-estar do seu melhor amigo.',
+    website: 'https://euspet.com.br'
   },
   {
     id: 'sp-2',
-    name: 'Royal Canin',
-    logo: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=150&h=150&fit=crop&q=80',
-    category: 'Ouro',
-    investedValue: 8000,
-    description: 'Nutrição para cães de todas as raças.',
-    website: 'https://royalcanin.com'
+    name: 'Metrópole',
+    logo: '/sponsors/metropole.png',
+    category: 'Premium',
+    investedValue: 18000,
+    description: 'Excelência em serviços e apoio ao projeto Cãominhada.',
+    website: 'https://metropole.com.br'
   },
   {
     id: 'sp-3',
-    name: 'PremieRpet',
-    logo: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=150&h=150&fit=crop&q=80',
-    category: 'Ouro',
-    investedValue: 7500,
-    description: 'Alimentos Super Premium de alta qualidade.',
-    website: 'https://premierpet.com.br'
+    name: 'Oh Pet Clínica e Pet',
+    logo: '/sponsors/ohpet.png',
+    category: 'Premium',
+    investedValue: 15000,
+    description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.',
+    website: 'https://ohpet.com.br'
   },
   {
     id: 'sp-4',
-    name: 'Zee.Dog',
-    logo: 'https://images.unsplash.com/photo-1544568100-847a948585b9?w=150&h=150&fit=crop&q=80',
-    category: 'Prata',
-    investedValue: 4000,
-    description: 'Acessórios modernos e cheios de estilo.',
-    website: 'https://zeedog.com.br'
-  },
-  {
-    id: 'sp-5',
-    name: 'Cobasi',
-    logo: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=150&h=150&fit=crop&q=80',
-    category: 'Prata',
-    investedValue: 3500,
-    description: 'Shopping oficial de animais domésticos.',
-    website: 'https://cobasi.com.br'
-  },
-  {
-    id: 'sp-6',
-    name: 'Dog Vibe',
-    logo: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=150&h=150&fit=crop&q=80',
-    category: 'Apoio',
-    investedValue: 1500,
-    description: 'Produtos de estilo de vida pet.',
-    website: 'https://dogvibe.com.br'
+    name: 'Pet Happy',
+    logo: '/sponsors/pethappy.png',
+    category: 'Premium',
+    investedValue: 15000,
+    description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.',
+    website: 'https://pethappy.com.br'
   }
 ];
 

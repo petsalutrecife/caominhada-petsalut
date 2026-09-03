@@ -654,103 +654,56 @@ export default function LandingPage() {
       <section id="patrocinadores" className="py-24 px-4 bg-slate-50 transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="px-4 py-1.5 rounded-full bg-[#8DC63F]/15 text-[#003A8C] font-bold text-xs uppercase tracking-widest inline-block mb-3">
+              Apoio & Parceria
+            </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
-              Nossos Patrocinadores
+              Patrocinadores Premium
             </h2>
-            <p className="mt-4 text-slate-650 text-lg">
-              Marcas incríveis que apoiam o bem-estar animal e tornam a Cãominhada possível.
+            <p className="mt-4 text-slate-600 text-base sm:text-lg">
+              Marcas incríveis que apoiam o bem-estar animal e viabilizam a Cãominhada.
             </p>
           </div>
 
-          {/* Master Category */}
-          {sponsors.filter(s => s.category === 'Master').length > 0 && (
-            <div className="mb-16">
-              <h3 className="text-center text-xs uppercase tracking-[0.2em] font-extrabold text-slate-400 mb-6">Patrocinador Master</h3>
-              <div className="flex justify-center">
-                {sponsors.filter(s => s.category === 'Master').map((s) => (
-                  <a
-                    key={s.id}
-                    href={s.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex flex-col items-center bg-white p-8 rounded-3xl border border-slate-200 shadow-md max-w-sm w-full hover-lift transition-all"
-                  >
-                    <div className="relative w-48 h-24 mb-4">
-                      <Image src={s.logo} alt={s.name} fill className="object-contain filter grayscale group-hover:grayscale-0 transition-all" />
-                    </div>
-                    <span className="font-bold text-slate-900 text-lg group-hover:text-[#003A8C]">{s.name}</span>
-                    <p className="text-xs text-slate-550 text-center mt-2 px-4">{s.description}</p>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Premium Sponsors Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {sponsors.map((s) => (
+              <a
+                key={s.id}
+                href={s.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col items-center justify-between bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-lg shadow-slate-200/50 hover:border-[#8DC63F] hover:shadow-[0_12px_35px_rgba(141,198,63,0.25)] hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden"
+              >
+                {/* Top Premium Tag */}
+                <div className="w-full flex justify-between items-center mb-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8DC63F] bg-[#8DC63F]/10 px-2.5 py-1 rounded-lg">
+                    {s.category || 'Premium'}
+                  </span>
+                  <span className="h-2 w-2 rounded-full bg-[#8DC63F] shadow-[0_0_8px_#8DC63F]" />
+                </div>
 
-          {/* Gold Category */}
-          {sponsors.filter(s => s.category === 'Ouro').length > 0 && (
-            <div className="mb-16">
-              <h3 className="text-center text-xs uppercase tracking-[0.2em] font-extrabold text-slate-400 mb-6">Patrocínio Ouro</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-3xl mx-auto">
-                {sponsors.filter(s => s.category === 'Ouro').map((s) => (
-                  <a
-                    key={s.id}
-                    href={s.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex flex-col items-center bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover-lift transition-all"
-                  >
-                    <div className="relative w-36 h-20 mb-4">
-                      <Image src={s.logo} alt={s.name} fill className="object-contain filter grayscale group-hover:grayscale-0 transition-all" />
-                    </div>
-                    <span className="font-bold text-slate-900 group-hover:text-[#003A8C]">{s.name}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
+                {/* Larger Transparent Logo Container */}
+                <div className="relative w-full h-36 my-4 flex items-center justify-center p-2">
+                  <img
+                    src={s.logo}
+                    alt={s.name}
+                    className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-sm"
+                  />
+                </div>
 
-          {/* Silver Category */}
-          {sponsors.filter(s => s.category === 'Prata').length > 0 && (
-            <div className="mb-16">
-              <h3 className="text-center text-xs uppercase tracking-[0.2em] font-extrabold text-slate-400 mb-6">Patrocínio Prata</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-                {sponsors.filter(s => s.category === 'Prata').map((s) => (
-                  <a
-                    key={s.id}
-                    href={s.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex flex-col items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover-lift transition-all"
-                  >
-                    <div className="relative w-28 h-16 mb-2">
-                      <Image src={s.logo} alt={s.name} fill className="object-contain filter grayscale group-hover:grayscale-0 transition-all" />
-                    </div>
-                    <span className="font-bold text-sm text-slate-800 text-center">{s.name}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Apoio Category */}
-          {sponsors.filter(s => s.category === 'Apoio').length > 0 && (
-            <div>
-              <h3 className="text-center text-xs uppercase tracking-[0.2em] font-extrabold text-slate-400 mb-6">Apoio</h3>
-              <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
-                {sponsors.filter(s => s.category === 'Apoio').map((s) => (
-                  <a
-                    key={s.id}
-                    href={s.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group bg-white py-3 px-6 rounded-2xl border border-slate-200 shadow-sm text-slate-700 font-semibold text-sm hover:text-[#003A8C] hover:border-slate-300 transition-colors"
-                  >
+                {/* Name & Description */}
+                <div className="text-center mt-2 w-full">
+                  <span className="font-extrabold text-slate-900 text-lg group-hover:text-[#003A8C] transition-colors block font-poppins">
                     {s.name}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
+                  </span>
+                  <p className="text-xs text-slate-500 mt-2 leading-relaxed line-clamp-2">
+                    {s.description}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
