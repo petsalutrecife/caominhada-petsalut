@@ -505,23 +505,8 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Counters and Action Button */}
-                <div className="p-6 pt-0">
-                  <div className="grid grid-cols-3 gap-2 border-t border-slate-150 pt-4 mb-4 text-center">
-                    <div>
-                      <span className="text-sm font-black text-[#003A8C] block">{inst.animalsServed}</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Atendidos</span>
-                    </div>
-                    <div className="border-x border-slate-150">
-                      <span className="text-sm font-black text-[#8DC63F] block">{inst.castrations}</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Castrados</span>
-                    </div>
-                    <div>
-                      <span className="text-sm font-black text-amber-500 block">{inst.rescues}</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Resgates</span>
-                    </div>
-                  </div>
-
+                {/* Action Button */}
+                <div className="p-6 pt-2">
                   <Link 
                     href="/register" 
                     className="w-full py-3 rounded-2xl bg-[#8DC63F] hover:bg-[#7cb335] text-white font-bold text-xs flex items-center justify-center gap-2 hover-lift transition-all shadow-sm shadow-lime-500/10"
