@@ -77,7 +77,7 @@ export default function LandingPage() {
   }, [eventDate]);
 
   const scheduleItems = [
-    { time: '05:30', title: 'Abertura do Evento', desc: 'Abertura dos portões no dia 27 de Setembro e credenciamento dos participantes.' },
+    { time: '05:30', title: 'Abertura do Evento', desc: 'Abertura do Evento, apresentação dos patrocinadores e apoios e preparação para saída.' },
     { time: '05:40', title: 'Aquecimento & Alongamento', desc: 'Sessão divertida de alongamento com adestradores e orientação aos tutores.' },
     { time: '06:00', title: 'Largada da Cãominhada', desc: 'Início da caminhada de 3km com hidratação e suporte veterinário especializado.' },
     { time: '07:30', title: 'Chegada & Entrega de Medalhas', desc: 'Recepção festiva e entrega das medalhas de participação para todos os pets.' },
