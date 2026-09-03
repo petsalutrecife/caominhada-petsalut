@@ -79,7 +79,7 @@ export default function LandingPage() {
   const scheduleItems = [
     { time: '05:30', title: 'Abertura do Evento', desc: 'Abertura do Evento, apresentação dos patrocinadores e apoios e preparação para saída.' },
     { time: '05:40', title: 'Aquecimento & Alongamento', desc: 'Sessão divertida de alongamento com adestradores e orientação aos tutores.' },
-    { time: '06:00', title: 'Largada da Cãominhada', desc: 'Início da caminhada de 3km com hidratação e suporte veterinário especializado.' },
+    { time: '06:00', title: 'Largada da Cãominhada', desc: 'Início da Caminhada de 1,12km e 3.4km com hidratação e suporte veterinário especializado.' },
     { time: '07:30', title: 'Chegada & Entrega de Medalhas', desc: 'Recepção festiva e entrega das medalhas de participação para todos os pets.' },
     { time: '08:00', title: 'Encerramento & Sorteio de Brindes', desc: 'Grande sorteio de brindes dos patrocinadores, fotos oficiais e encerramento.' },
   ];
