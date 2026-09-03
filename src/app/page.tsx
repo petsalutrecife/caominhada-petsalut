@@ -456,7 +456,15 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {institutions.filter(inst => inst.status === 'Ativo').map((inst) => (
+            {institutions
+              .filter(inst => inst.status === 'Ativo')
+              .sort((a, b) => {
+                const order = ['Amor sem Fronteiras', 'Guerreiro', 'Alberto'];
+                const indexA = order.findIndex(k => a.name.includes(k));
+                const indexB = order.findIndex(k => b.name.includes(k));
+                return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+              })
+              .map((inst) => (
               <div 
                 key={inst.id} 
                 className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden hover-lift flex flex-col justify-between text-left group"
@@ -751,7 +759,7 @@ export default function LandingPage() {
       <footer className="bg-slate-900 dark:bg-slate-950 text-slate-400 py-16 px-4 border-t border-slate-800">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
           <div className="md:col-span-5 flex flex-col gap-4 text-left">
-            <Logo showText={true} className="text-white" />
+            <Logo showText={true} variant="dark" className="text-white" />
             <p className="text-sm text-slate-500 max-w-sm mt-2 leading-relaxed">
               Incentivando a saúde preventiva e o bem-estar animal através da convivência harmoniosa e da prática de atividades saudáveis em família.
             </p>

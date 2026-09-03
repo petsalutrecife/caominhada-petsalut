@@ -190,25 +190,6 @@ function mapInstitutionToDb(inst: Partial<Institution>): any {
 // Initial fallback mock data seed for institutions
 const initialInstitutions: Institution[] = [
   {
-    id: 'inst-1',
-    name: 'Abrigo de Seu Alberto',
-    logo: '🐕',
-    description: 'Abrigo dedicado ao resgate, cuidado e adoção de animais em situação de rua na região metropolitana do Recife.',
-    mission: 'Resgatar e reabilitar animais abandonados, promovendo adoção responsável e bem-estar animal.',
-    city: 'Recife',
-    state: 'PE',
-    pixKey: '(81) 99201-4838',
-    pixType: 'Telefone',
-    responsiblePhone: '(81) 99201-4838',
-    status: 'Ativo',
-    animalsServed: 312,
-    castrations: 145,
-    rescues: 89,
-    photo: '/institutions/inst-1-abrigo-seu-alberto.png',
-    banner: '/institutions/inst-1-abrigo-seu-alberto.png',
-    totalDonations: 0
-  },
-  {
     id: 'inst-2',
     name: 'Projeto Amor sem Fronteiras',
     logo: '❤️',
@@ -244,6 +225,25 @@ const initialInstitutions: Institution[] = [
     rescues: 53,
     photo: '/institutions/inst-3-todos-por-guerreiro.png',
     banner: '/institutions/inst-3-todos-por-guerreiro.png',
+    totalDonations: 0
+  },
+  {
+    id: 'inst-1',
+    name: 'Abrigo de Seu Alberto',
+    logo: '🐕',
+    description: 'Abrigo dedicado ao resgate, cuidado e adoção de animais em situação de rua na região metropolitana do Recife.',
+    mission: 'Resgatar e reabilitar animais abandonados, promovendo adoção responsável e bem-estar animal.',
+    city: 'Recife',
+    state: 'PE',
+    pixKey: '(81) 99201-4838',
+    pixType: 'Telefone',
+    responsiblePhone: '(81) 99201-4838',
+    status: 'Ativo',
+    animalsServed: 312,
+    castrations: 145,
+    rescues: 89,
+    photo: '/institutions/inst-1-abrigo-seu-alberto.png',
+    banner: '/institutions/inst-1-abrigo-seu-alberto.png',
     totalDonations: 0
   }
 ];
