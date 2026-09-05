@@ -14,7 +14,7 @@ export default function Logo({ className = '', size = 'md', variant = 'light' }:
     lg: 'h-16 sm:h-20',
   };
 
-  const logoSrc = variant === 'dark' ? '/logo-white.png' : '/logo.png';
+  const logoSrc = '/logo.png';
 
   return (
     <div className={`flex items-center select-none ${className}`}>

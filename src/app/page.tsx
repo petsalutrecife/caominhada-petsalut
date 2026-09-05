@@ -847,7 +847,7 @@ export default function LandingPage() {
       <footer className="bg-slate-900 dark:bg-slate-950 text-slate-400 py-16 px-4 border-t border-slate-800">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
           <div className="md:col-span-5 flex flex-col gap-4 text-left">
-            <Logo showText={true} variant="dark" className="text-white" />
+            <Logo showText={true} variant="light" className="text-white" />
             <p className="text-sm text-slate-500 max-w-sm mt-2 leading-relaxed">
               Incentivando a saúde preventiva e o bem-estar animal através da convivência harmoniosa e da prática de atividades saudáveis em família.
             </p>
