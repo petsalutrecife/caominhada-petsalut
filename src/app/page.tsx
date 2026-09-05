@@ -678,7 +678,7 @@ export default function LandingPage() {
             {[
               { id: 'sp-1', name: 'Oh Pet Club', logo: '/sponsors/ohpet.png', category: 'Premium', description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.', website: 'https://ohpet.com.br' },
               { id: 'sp-2', name: 'Amigo Bicho', logo: '/sponsors/amigobicho.png', category: 'Premium', description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.', website: 'https://amigobicho.com.br/' },
-              { id: 'sp-3', name: 'Metrópole', logo: '/sponsors/metropole.png', category: 'Premium', description: 'Excelência em serviços e grande parceiro da Cãominhada.', website: 'https://metropole.com.br' },
+              { id: 'sp-3', name: 'Metrópole', logo: '/sponsors/metropole.png', category: 'Premium', description: 'Excelência em serviços e grande parceiro da Cãominhada.', website: 'https://hoo.be/clubmetropole' },
               { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Premium', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://pethappy.com.br' }
             ].map((s) => (
               <a

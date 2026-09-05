@@ -276,7 +276,7 @@ const initialSponsors: Sponsor[] = [
     category: 'Premium',
     investedValue: 18000,
     description: 'Excelência em serviços e grande parceiro da Cãominhada.',
-    website: 'https://metropole.com.br'
+    website: 'https://hoo.be/clubmetropole'
   },
   {
     id: 'sp-4',
@@ -503,7 +503,11 @@ class SupabaseMockClient {
       this.setStorage('ps_sponsors', initialSponsors);
       return initialSponsors;
     }
-    return list.map(s => (s.id === 'sp-2' || s.name.includes('Amigo Bicho')) ? { ...s, website: 'https://amigobicho.com.br/' } : s);
+    return list.map(s => {
+      if (s.id === 'sp-2' || s.name.includes('Amigo Bicho')) return { ...s, website: 'https://amigobicho.com.br/' };
+      if (s.id === 'sp-3' || s.name.includes('Metrópole')) return { ...s, website: 'https://hoo.be/clubmetropole' };
+      return s;
+    });
   }
 
   saveSponsor(sponsor: Omit<Sponsor, 'id'>): Sponsor {
