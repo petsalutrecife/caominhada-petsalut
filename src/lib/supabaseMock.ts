@@ -267,7 +267,7 @@ const initialSponsors: Sponsor[] = [
     category: 'Premium',
     investedValue: 18000,
     description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.',
-    website: 'https://amigobicho.com.br'
+    website: 'https://amigobicho.com.br/'
   },
   {
     id: 'sp-3',
@@ -503,7 +503,7 @@ class SupabaseMockClient {
       this.setStorage('ps_sponsors', initialSponsors);
       return initialSponsors;
     }
-    return list;
+    return list.map(s => (s.id === 'sp-2' || s.name.includes('Amigo Bicho')) ? { ...s, website: 'https://amigobicho.com.br/' } : s);
   }
 
   saveSponsor(sponsor: Omit<Sponsor, 'id'>): Sponsor {
