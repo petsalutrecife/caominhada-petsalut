@@ -681,7 +681,7 @@ export default function LandingPage() {
                 { id: 'sp-1', name: 'Oh Pet Club', logo: '/sponsors/ohpet.png', category: 'Ouro', description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.', website: 'https://ohpet.com.br' },
                 { id: 'sp-2', name: 'Amigo Bicho', logo: '/sponsors/amigobicho.png', category: 'Ouro', description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.', website: 'https://amigobicho.com.br/' },
                 { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Ouro', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://www.pethappyrecife.com.br/' },
-                { id: 'sp-avne', name: 'AVNE', logo: '/sponsors/avne.png', category: 'Ouro', description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências.', website: 'https://instagram.com/aventuranordeste' }
+                { id: 'sp-avne', name: 'AVNE', logo: '/sponsors/avne.png', category: 'Ouro', description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências.', website: 'https://www.instagram.com/avne_mergulho' }
               ]
             ).map((s) => (
               <a
