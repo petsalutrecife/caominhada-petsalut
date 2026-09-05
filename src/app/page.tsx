@@ -666,33 +666,36 @@ export default function LandingPage() {
               Apoio & Parceria
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
-              Patrocinadores Premium
+              Patrocinadores Ouro
             </h2>
             <p className="mt-4 text-slate-600 text-base sm:text-lg">
               Marcas incríveis que apoiam o bem-estar animal e viabilizam a Cãominhada.
             </p>
           </div>
 
-          {/* Premium Sponsors Grid */}
+          {/* Ouro Sponsors Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto mb-16">
-            {[
-              { id: 'sp-1', name: 'Oh Pet Club', logo: '/sponsors/ohpet.png', category: 'Premium', description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.', website: 'https://ohpet.com.br' },
-              { id: 'sp-2', name: 'Amigo Bicho', logo: '/sponsors/amigobicho.png', category: 'Premium', description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.', website: 'https://amigobicho.com.br/' },
-              { id: 'sp-3', name: 'Metrópole', logo: '/sponsors/metropole.png', category: 'Premium', description: 'Excelência em serviços e grande parceiro da Cãominhada.', website: 'https://hoo.be/clubmetropole' },
-              { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Premium', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://www.pethappyrecife.com.br/' },
-              { id: 'sp-avne', name: 'AVNE', logo: '/sponsors/avne.png', category: 'Premium', description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências.', website: 'https://instagram.com/aventuranordeste' }
-            ].map((s) => (
+            {(sponsors.filter(s => s.category === 'Ouro' || s.category === 'Premium').length > 0
+              ? sponsors.filter(s => s.category === 'Ouro' || s.category === 'Premium')
+              : [
+                { id: 'sp-1', name: 'Oh Pet Club', logo: '/sponsors/ohpet.png', category: 'Ouro', description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.', website: 'https://ohpet.com.br' },
+                { id: 'sp-2', name: 'Amigo Bicho', logo: '/sponsors/amigobicho.png', category: 'Ouro', description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.', website: 'https://amigobicho.com.br/' },
+                { id: 'sp-3', name: 'Metrópole', logo: '/sponsors/metropole.png', category: 'Ouro', description: 'Excelência em serviços e grande parceiro da Cãominhada.', website: 'https://hoo.be/clubmetropole' },
+                { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Ouro', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://www.pethappyrecife.com.br/' },
+                { id: 'sp-avne', name: 'AVNE', logo: '/sponsors/avne.png', category: 'Ouro', description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências.', website: 'https://instagram.com/aventuranordeste' }
+              ]
+            ).map((s) => (
               <a
                 key={s.id}
-                href={s.website}
+                href={s.website || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex flex-col items-center justify-between bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-lg shadow-slate-200/50 hover:border-[#8DC63F] hover:shadow-[0_12px_35px_rgba(141,198,63,0.25)] hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden"
               >
-                {/* Top Premium Tag */}
+                {/* Top Ouro Tag */}
                 <div className="w-full flex justify-between items-center mb-2">
                   <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8DC63F] bg-[#8DC63F]/10 px-2.5 py-1 rounded-lg">
-                    Premium
+                    {s.category === 'Premium' ? 'Ouro' : (s.category || 'Ouro')}
                   </span>
                   <span className="h-2 w-2 rounded-full bg-[#8DC63F] shadow-[0_0_8px_#8DC63F]" />
                 </div>

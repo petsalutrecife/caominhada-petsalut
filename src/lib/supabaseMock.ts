@@ -255,7 +255,7 @@ const initialSponsors: Sponsor[] = [
     id: 'sp-1',
     name: 'Oh Pet Club',
     logo: '/sponsors/ohpet.png',
-    category: 'Premium',
+    category: 'Ouro',
     investedValue: 20000,
     description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.',
     website: 'https://ohpet.com.br'
@@ -264,7 +264,7 @@ const initialSponsors: Sponsor[] = [
     id: 'sp-2',
     name: 'Amigo Bicho',
     logo: '/sponsors/amigobicho.png',
-    category: 'Premium',
+    category: 'Ouro',
     investedValue: 18000,
     description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.',
     website: 'https://amigobicho.com.br/'
@@ -273,7 +273,7 @@ const initialSponsors: Sponsor[] = [
     id: 'sp-3',
     name: 'Metrópole',
     logo: '/sponsors/metropole.png',
-    category: 'Premium',
+    category: 'Ouro',
     investedValue: 18000,
     description: 'Excelência em serviços e grande parceiro da Cãominhada.',
     website: 'https://hoo.be/clubmetropole'
@@ -282,7 +282,7 @@ const initialSponsors: Sponsor[] = [
     id: 'sp-4',
     name: 'Pet Happy',
     logo: '/sponsors/pethappy.png',
-    category: 'Premium',
+    category: 'Ouro',
     investedValue: 15000,
     description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.',
     website: 'https://www.pethappyrecife.com.br/'
@@ -291,7 +291,7 @@ const initialSponsors: Sponsor[] = [
     id: 'sp-avne',
     name: 'AVNE',
     logo: '/sponsors/avne.png',
-    category: 'Premium',
+    category: 'Ouro',
     investedValue: 15000,
     description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências inesquecíveis.',
     website: 'https://instagram.com/aventuranordeste'
@@ -517,7 +517,7 @@ class SupabaseMockClient {
         id: 'sp-avne',
         name: 'AVNE',
         logo: '/sponsors/avne.png',
-        category: 'Premium',
+        category: 'Ouro',
         investedValue: 15000,
         description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências inesquecíveis.',
         website: 'https://instagram.com/aventuranordeste'
@@ -525,11 +525,16 @@ class SupabaseMockClient {
       this.setStorage('ps_sponsors', list);
     }
     return list.map(s => {
-      if (s.id === 'sp-2' || s.name.includes('Amigo Bicho')) return { ...s, website: 'https://amigobicho.com.br/' };
-      if (s.id === 'sp-3' || s.name.includes('Metrópole')) return { ...s, website: 'https://hoo.be/clubmetropole' };
-      if (s.id === 'sp-4' || s.name.includes('Pet Happy')) return { ...s, website: 'https://www.pethappyrecife.com.br/' };
-      if (s.id === 'sp-avne' || s.name.includes('AVNE')) return { ...s, logo: '/sponsors/avne.png', website: s.website || 'https://instagram.com/aventuranordeste' };
-      return s;
+      let item = { ...s };
+      if (item.category === 'Premium') item.category = 'Ouro';
+      if (item.id === 'sp-2' || item.name.includes('Amigo Bicho')) item.website = 'https://amigobicho.com.br/';
+      if (item.id === 'sp-3' || item.name.includes('Metrópole')) item.website = 'https://hoo.be/clubmetropole';
+      if (item.id === 'sp-4' || item.name.includes('Pet Happy')) item.website = 'https://www.pethappyrecife.com.br/';
+      if (item.id === 'sp-avne' || item.name.includes('AVNE')) {
+        item.logo = '/sponsors/avne.png';
+        if (!item.website) item.website = 'https://instagram.com/aventuranordeste';
+      }
+      return item;
     });
   }
 
