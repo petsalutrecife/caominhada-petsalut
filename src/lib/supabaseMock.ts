@@ -273,7 +273,7 @@ const initialSponsors: Sponsor[] = [
     id: 'sp-3',
     name: 'Metrópole',
     logo: '/sponsors/metropole.png',
-    category: 'Ouro',
+    category: 'Prata',
     investedValue: 18000,
     description: 'Excelência em serviços e grande parceiro da Cãominhada.',
     website: 'https://hoo.be/clubmetropole'
@@ -528,7 +528,10 @@ class SupabaseMockClient {
       let item = { ...s };
       if (item.category === 'Premium') item.category = 'Ouro';
       if (item.id === 'sp-2' || item.name.includes('Amigo Bicho')) item.website = 'https://amigobicho.com.br/';
-      if (item.id === 'sp-3' || item.name.includes('Metrópole')) item.website = 'https://hoo.be/clubmetropole';
+      if (item.id === 'sp-3' || item.name.includes('Metrópole')) {
+        item.category = 'Prata';
+        item.website = 'https://hoo.be/clubmetropole';
+      }
       if (item.id === 'sp-4' || item.name.includes('Pet Happy')) item.website = 'https://www.pethappyrecife.com.br/';
       if (item.id === 'sp-avne' || item.name.includes('AVNE')) {
         item.logo = '/sponsors/avne.png';
