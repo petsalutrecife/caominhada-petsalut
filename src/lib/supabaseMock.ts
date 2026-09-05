@@ -285,7 +285,7 @@ const initialSponsors: Sponsor[] = [
     category: 'Premium',
     investedValue: 15000,
     description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.',
-    website: 'https://pethappy.com.br'
+    website: 'https://www.pethappyrecife.com.br/'
   },
   {
     id: 'sp-5',
@@ -506,6 +506,7 @@ class SupabaseMockClient {
     return list.map(s => {
       if (s.id === 'sp-2' || s.name.includes('Amigo Bicho')) return { ...s, website: 'https://amigobicho.com.br/' };
       if (s.id === 'sp-3' || s.name.includes('Metrópole')) return { ...s, website: 'https://hoo.be/clubmetropole' };
+      if (s.id === 'sp-4' || s.name.includes('Pet Happy')) return { ...s, website: 'https://www.pethappyrecife.com.br/' };
       return s;
     });
   }
