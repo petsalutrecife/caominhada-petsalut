@@ -288,6 +288,15 @@ const initialSponsors: Sponsor[] = [
     website: 'https://www.pethappyrecife.com.br/'
   },
   {
+    id: 'sp-avne',
+    name: 'AVNE',
+    logo: '/sponsors/avne.png',
+    category: 'Premium',
+    investedValue: 15000,
+    description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências inesquecíveis.',
+    website: 'https://instagram.com/aventuranordeste'
+  },
+  {
     id: 'sp-5',
     name: 'Eu Pet',
     logo: '/sponsors/eupet.png',
@@ -503,10 +512,23 @@ class SupabaseMockClient {
       this.setStorage('ps_sponsors', initialSponsors);
       return initialSponsors;
     }
+    if (!list.some(s => s.id === 'sp-avne' || s.name.includes('AVNE'))) {
+      list.push({
+        id: 'sp-avne',
+        name: 'AVNE',
+        logo: '/sponsors/avne.png',
+        category: 'Premium',
+        investedValue: 15000,
+        description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências inesquecíveis.',
+        website: 'https://instagram.com/aventuranordeste'
+      });
+      this.setStorage('ps_sponsors', list);
+    }
     return list.map(s => {
       if (s.id === 'sp-2' || s.name.includes('Amigo Bicho')) return { ...s, website: 'https://amigobicho.com.br/' };
       if (s.id === 'sp-3' || s.name.includes('Metrópole')) return { ...s, website: 'https://hoo.be/clubmetropole' };
       if (s.id === 'sp-4' || s.name.includes('Pet Happy')) return { ...s, website: 'https://www.pethappyrecife.com.br/' };
+      if (s.id === 'sp-avne' || s.name.includes('AVNE')) return { ...s, logo: '/sponsors/avne.png', website: s.website || 'https://instagram.com/aventuranordeste' };
       return s;
     });
   }
