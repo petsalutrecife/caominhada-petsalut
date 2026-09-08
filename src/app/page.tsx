@@ -797,19 +797,14 @@ export default function LandingPage() {
               ).map((s) => (
                 <div
                   key={s.id}
-                  className="flex flex-col items-center justify-between bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300 relative overflow-hidden select-none"
+                  className="flex flex-col items-center justify-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300 relative overflow-hidden select-none"
                 >
-                  <div className="relative w-full h-20 flex items-center justify-center p-1 my-1">
+                  <div className="relative w-full h-20 flex items-center justify-center p-1">
                     <img
                       src={s.logo}
                       alt={s.name}
                       className="max-w-full max-h-full object-contain"
                     />
-                  </div>
-                  <div className="text-center mt-1 w-full">
-                    <span className="font-extrabold text-slate-800 text-sm block font-poppins truncate">
-                      {s.name}
-                    </span>
                   </div>
                 </div>
               ))}
