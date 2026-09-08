@@ -258,7 +258,7 @@ const initialSponsors: Sponsor[] = [
     category: 'Ouro',
     investedValue: 20000,
     description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.',
-    website: 'https://ohpet.com.br'
+    website: 'https://linktr.ee/central_OhPet'
   },
   {
     id: 'sp-2',
