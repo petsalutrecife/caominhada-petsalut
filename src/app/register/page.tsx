@@ -1047,22 +1047,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Fake PIX QR Code generation */}
-                <div className="flex flex-col items-center p-6 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3 block">QR Code para Pagamento</span>
-                  
-                  <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm w-44 h-44 flex items-center justify-center">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`00020126580014BR.GOV.BCB.PIX0136${selectedInst.pixKey}5204000053039865405${getFinalDonationValue().toFixed(2)}5802BR5915${selectedInst.name.substring(0, 15)}6009Recife62070503***6304CA12`)}`} 
-                      alt="PIX QR Code" 
-                      className="w-full h-full object-contain" 
-                    />
-                  </div>
-                  
-                  <p className="text-[11px] text-slate-450 dark:text-slate-400 mt-4 text-center max-w-[300px] leading-relaxed">
-                    Abra o app do seu banco, selecione a opção "Pagar via Pix / Copiar e colar" ou aponte a câmera para o QR Code acima.
-                  </p>
-                </div>
+
 
                 {/* Guidance warning */}
                 <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-250 dark:border-amber-900/40 flex items-start gap-3">
