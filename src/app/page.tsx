@@ -774,37 +774,34 @@ export default function LandingPage() {
               {(sponsors.filter(s => s.category === 'Apoio').length > 0
                 ? sponsors.filter(s => s.category === 'Apoio')
                 : [
-                  { id: 'sp-care', name: 'Care', logo: '/sponsors/care.png', category: 'Apoio', description: 'Apoio e parceiro oficial', website: '#' },
-                  { id: 'sp-degusta', name: 'Degusta', logo: '/sponsors/degusta.jpeg', category: 'Apoio', description: 'Alimentação pet', website: '#' },
-                  { id: 'sp-drantonela', name: 'Dra Antonela', logo: '/sponsors/draantonela.jpeg', category: 'Apoio', description: 'Medicina veterinária', website: '#' },
-                  { id: 'sp-5', name: 'Eu Pet', logo: '/sponsors/eupet.jpeg', category: 'Apoio', description: 'Plano de saúde pet', website: 'https://eupet.com.br' },
-                  { id: 'sp-fotop', name: 'Fotop', logo: '/sponsors/fotop.png', category: 'Apoio', description: 'Fotografia oficial', website: 'https://fotop.com.br' },
-                  { id: 'sp-petinho', name: 'Petinho', logo: '/sponsors/petinho.png', category: 'Apoio', description: 'Produtos pet', website: '#' },
-                  { id: 'sp-race', name: 'Race', logo: '/sponsors/race.png', category: 'Apoio', description: 'Acessórios pet', website: '#' },
-                  { id: 'sp-vetec', name: 'Vetec', logo: '/sponsors/Vetec.jpeg', category: 'Apoio', description: 'Cuidados veterinários', website: '#' },
-                  { id: 'sp-zeatacadista', name: 'Zé Atacadista', logo: '/sponsors/zeatacadista.png', category: 'Apoio', description: 'Atacado e suprimentos', website: '#' }
+                  { id: 'sp-care', name: 'Care', logo: '/sponsors/care.png', category: 'Apoio', description: 'Apoio e parceiro oficial' },
+                  { id: 'sp-degusta', name: 'Degusta', logo: '/sponsors/degusta.jpeg', category: 'Apoio', description: 'Alimentação pet' },
+                  { id: 'sp-drantonela', name: 'Dra Antonela', logo: '/sponsors/draantonela.jpeg', category: 'Apoio', description: 'Medicina veterinária' },
+                  { id: 'sp-5', name: 'Eu Pet', logo: '/sponsors/eupet.jpeg', category: 'Apoio', description: 'Plano de saúde pet' },
+                  { id: 'sp-fotop', name: 'Fotop', logo: '/sponsors/fotop.png', category: 'Apoio', description: 'Fotografia oficial' },
+                  { id: 'sp-petinho', name: 'Petinho', logo: '/sponsors/petinho.png', category: 'Apoio', description: 'Produtos pet' },
+                  { id: 'sp-race', name: 'Race', logo: '/sponsors/race.png', category: 'Apoio', description: 'Acessórios pet' },
+                  { id: 'sp-vetec', name: 'Vetec', logo: '/sponsors/Vetec.jpeg', category: 'Apoio', description: 'Cuidados veterinários' },
+                  { id: 'sp-zeatacadista', name: 'Zé Atacadista', logo: '/sponsors/zeatacadista.png', category: 'Apoio', description: 'Atacado e suprimentos' }
                 ]
               ).map((s) => (
-                <a
+                <div
                   key={s.id}
-                  href={s.website && s.website !== '#' ? s.website : undefined}
-                  target={s.website && s.website !== '#' ? "_blank" : undefined}
-                  rel="noopener noreferrer"
-                  className="group flex flex-col items-center justify-between bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-[#003A8C] hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+                  className="flex flex-col items-center justify-between bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300 relative overflow-hidden select-none"
                 >
                   <div className="relative w-full h-20 flex items-center justify-center p-1 my-1">
                     <img
                       src={s.logo}
                       alt={s.name}
-                      className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                      className="max-w-full max-h-full object-contain"
                     />
                   </div>
                   <div className="text-center mt-1 w-full">
-                    <span className="font-extrabold text-slate-800 text-sm group-hover:text-[#003A8C] transition-colors block font-poppins truncate">
+                    <span className="font-extrabold text-slate-800 text-sm block font-poppins truncate">
                       {s.name}
                     </span>
                   </div>
-                </a>
+                </div>
               ))}
             </div>
           </div>
