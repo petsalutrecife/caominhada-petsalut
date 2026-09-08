@@ -126,14 +126,6 @@ export default function InstitutionLoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 border-t border-slate-100 dark:border-slate-900 pt-6 text-center text-xs text-slate-500">
-            <p className="text-[10px] text-slate-400">
-              Contas Demo: <br />
-              <strong>lazaro@abrigo.org</strong> / <strong>password123</strong> <br />
-              <strong>patinhas@projeto.org</strong> / <strong>password123</strong>
-            </p>
-          </div>
-
         </div>
       </main>
     </div>

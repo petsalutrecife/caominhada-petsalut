@@ -9,7 +9,7 @@ import { supabaseMock, Registration, Sponsor, Expense, Institution } from '@/lib
 import { 
   LogOut, ClipboardList, TrendingUp, Users, Award, Landmark, Plus, Trash2, 
   Download, Edit, Search, Filter, ShieldCheck, Check, DollarSign, Upload, Globe, FileText, CheckSquare, RefreshCw,
-  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin
+  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin, Key, Lock, Settings, UserCheck
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -24,8 +24,17 @@ export default function AdminDashboard() {
   // Auth state
   const [adminUser, setAdminUser] = useState<any>(null);
 
-  // Tabs: 'dashboard' | 'participants' | 'institutions' | 'financial' | 'sponsors'
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'participants' | 'institutions' | 'financial' | 'sponsors'>('dashboard');
+  // Tabs: 'dashboard' | 'participants' | 'institutions' | 'financial' | 'sponsors' | 'settings'
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'participants' | 'institutions' | 'financial' | 'sponsors' | 'settings'>('dashboard');
+
+  // Admin Security / Auth states
+  const [securityModalOpen, setSecurityModalOpen] = useState(false);
+  const [adminName, setAdminName] = useState('');
+  const [adminNewEmail, setAdminNewEmail] = useState('');
+  const [adminCurrentPassword, setAdminCurrentPassword] = useState('');
+  const [adminNewPassword, setAdminNewPassword] = useState('');
+  const [adminConfirmPassword, setAdminConfirmPassword] = useState('');
+  const [securityMsg, setSecurityMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Database states
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -118,6 +127,62 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     supabaseMock.signOut();
     router.push('/login');
+  };
+
+  // --- Admin Security Settings Handlers ---
+  const handleOpenSecurityModal = () => {
+    const creds = supabaseMock.getAdminCredentials();
+    setAdminNewEmail(creds.email);
+    setAdminName(creds.name);
+    setAdminCurrentPassword('');
+    setAdminNewPassword('');
+    setAdminConfirmPassword('');
+    setSecurityMsg(null);
+    setSecurityModalOpen(true);
+  };
+
+  const handleSaveAdminSecurity = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecurityMsg(null);
+
+    if (!adminNewEmail.trim()) {
+      setSecurityMsg({ type: 'error', text: 'O e-mail não pode ficar em branco.' });
+      return;
+    }
+
+    if (!adminCurrentPassword) {
+      setSecurityMsg({ type: 'error', text: 'Por segurança, informe a sua senha atual.' });
+      return;
+    }
+
+    if (adminNewPassword) {
+      if (adminNewPassword.length < 6) {
+        setSecurityMsg({ type: 'error', text: 'A nova senha deve possuir no mínimo 6 caracteres.' });
+        return;
+      }
+      if (adminNewPassword !== adminConfirmPassword) {
+        setSecurityMsg({ type: 'error', text: 'A confirmação de senha não coincide com a nova senha digitada.' });
+        return;
+      }
+    }
+
+    const res = supabaseMock.updateAdminCredentials({
+      currentPassword: adminCurrentPassword,
+      newEmail: adminNewEmail,
+      newPassword: adminNewPassword || undefined,
+      name: adminName || undefined
+    });
+
+    if (!res.success) {
+      setSecurityMsg({ type: 'error', text: res.error || 'Erro ao atualizar dados de acesso.' });
+      return;
+    }
+
+    setSecurityMsg({ type: 'success', text: 'Credenciais de login e senha do administrador atualizadas com sucesso!' });
+    setAdminUser(supabaseMock.getCurrentUser());
+    setAdminCurrentPassword('');
+    setAdminNewPassword('');
+    setAdminConfirmPassword('');
   };
 
   // --- Actions ---
@@ -561,7 +626,14 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
         <Link href="/"><Logo /></Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleOpenSecurityModal}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 text-[#003A8C] dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition-colors"
+            title="Alterar e-mail e senha de login do administrador"
+          >
+            <Key className="h-3.5 w-3.5" /> Acesso & Senha
+          </button>
           <ThemeToggle />
           <button
             onClick={handleLogout}
@@ -626,6 +698,19 @@ export default function AdminDashboard() {
             }`}
           >
             <Award className="h-4 w-4" /> Patrocinadores
+          </button>
+          <button
+            onClick={() => {
+              handleOpenSecurityModal();
+              setActiveTab('settings');
+            }}
+            className={`flex-1 md:flex-initial flex items-center justify-center md:justify-start gap-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'settings'
+                ? 'bg-[#003A8C] text-white dark:bg-lime-500 dark:text-slate-950'
+                : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900'
+            }`}
+          >
+            <Key className="h-4 w-4" /> Acesso & Senha
           </button>
         </div>
 
@@ -1447,8 +1532,260 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* TAB 6: ACESSO & SEGURANÇA */}
+          {activeTab === 'settings' && (
+            <div className="flex flex-col gap-6 animate-in fade-in duration-200">
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                {/* Security Settings Form */}
+                <div className="lg:col-span-2 bg-white dark:bg-slate-950 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-900">
+                    <div className="h-10 w-10 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-[#003A8C] dark:text-lime-400 flex items-center justify-center shrink-0">
+                      <Key className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-slate-850 dark:text-slate-100 font-poppins">
+                        Alterar Login e Senha do Administrador
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Defina o novo e-mail e senha que serão utilizados para entrar no painel administrativo.
+                      </p>
+                    </div>
+                  </div>
+
+                  {securityMsg && (
+                    <div className={`p-4 rounded-2xl mb-6 text-xs font-semibold flex items-center gap-2.5 ${
+                      securityMsg.type === 'success'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                        : 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                    }`}>
+                      {securityMsg.type === 'success' ? <Check className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+                      <span>{securityMsg.text}</span>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSaveAdminSecurity} className="flex flex-col gap-5">
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Nome do Administrador
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ex: Administrador Petsalut"
+                          value={adminName}
+                          onChange={(e) => setAdminName(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/20 dark:focus:ring-lime-500/20 text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          E-mail de Login *
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="admin@petsalut.com.br"
+                          value={adminNewEmail}
+                          onChange={(e) => setAdminNewEmail(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/20 dark:focus:ring-lime-500/20 text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/30 flex flex-col gap-1.5 text-left">
+                      <label className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                        Senha Atual (Obrigatória para confirmar) *
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        placeholder="Digite sua senha atual"
+                        value={adminCurrentPassword}
+                        onChange={(e) => setAdminCurrentPassword(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-amber-200 dark:border-amber-800/60 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-800 dark:text-slate-200"
+                      />
+                      <span className="text-[10px] text-amber-700 dark:text-amber-400">
+                        Necessário para comprovar sua identidade antes de salvar alterações.
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Nova Senha (opcional)
+                        </label>
+                        <input
+                          type="password"
+                          placeholder="Mínimo 6 caracteres"
+                          value={adminNewPassword}
+                          onChange={(e) => setAdminNewPassword(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/20 dark:focus:ring-lime-500/20 text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Confirmar Nova Senha
+                        </label>
+                        <input
+                          type="password"
+                          placeholder="Repita a nova senha"
+                          value={adminConfirmPassword}
+                          onChange={(e) => setAdminConfirmPassword(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/20 dark:focus:ring-lime-500/20 text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-2 flex justify-end">
+                      <button
+                        type="submit"
+                        className="px-6 py-3 rounded-2xl bg-[#003A8C] hover:bg-blue-800 text-white dark:bg-lime-500 dark:hover:bg-lime-600 dark:text-slate-950 font-bold text-xs shadow-md transition-colors flex items-center gap-2"
+                      >
+                        <ShieldCheck className="h-4 w-4" /> Salvar Novas Credenciais
+                      </button>
+                    </div>
+
+                  </form>
+                </div>
+
+                {/* Security Tips Card */}
+                <div className="flex flex-col gap-6">
+                  <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm text-left">
+                    <h5 className="font-bold text-sm text-slate-900 dark:text-white font-poppins mb-3 flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-emerald-500" /> Status da Conta
+                    </h5>
+                    <div className="flex flex-col gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <p><strong>Nível:</strong> Administrador Geral</p>
+                      <p><strong>Sessão Atual:</strong> {adminUser?.email || 'admin@petsalut.com.br'}</p>
+                      <p><strong>Permissões:</strong> Acesso total a participantes, doações, parceiros e finanças.</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-100/70 dark:bg-slate-900/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-850 text-left">
+                    <h5 className="font-bold text-xs text-slate-700 dark:text-slate-300 font-poppins mb-2 flex items-center gap-1.5">
+                      <Lock className="h-3.5 w-3.5 text-primary-blue dark:text-lime-400" /> Dicas de Segurança
+                    </h5>
+                    <ul className="list-disc list-inside text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 leading-relaxed">
+                      <li>Use uma senha exclusiva para o painel.</li>
+                      <li>Combine letras maiúsculas, minúsculas e números.</li>
+                      <li>Nunca compartilhe suas credenciais com terceiros.</li>
+                      <li>Após alterar, use as novas credenciais na tela de login.</li>
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
         </div>
       </div>
+
+      {/* ADMIN SECURITY MODAL */}
+      {securityModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-950 max-w-lg w-full rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-850 shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setSecurityModalOpen(false)}
+              className="absolute top-5 right-5 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100 dark:border-slate-900">
+              <div className="h-10 w-10 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-[#003A8C] dark:text-lime-400 flex items-center justify-center shrink-0">
+                <Key className="h-5 w-5" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white font-poppins">Acesso e Senha do Admin</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Atualize suas credenciais de entrada no painel.</p>
+              </div>
+            </div>
+
+            {securityMsg && (
+              <div className={`p-3.5 rounded-2xl mb-5 text-xs font-semibold flex items-center gap-2 ${
+                securityMsg.type === 'success'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                  : 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+              }`}>
+                {securityMsg.type === 'success' ? <Check className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+                <span>{securityMsg.text}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveAdminSecurity} className="flex flex-col gap-4 text-left">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">E-mail de Login *</label>
+                <input
+                  type="email"
+                  required
+                  value={adminNewEmail}
+                  onChange={(e) => setAdminNewEmail(e.target.value)}
+                  placeholder="admin@petsalut.com.br"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none"
+                />
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/30 flex flex-col gap-1">
+                <label className="text-xs font-bold text-amber-900 dark:text-amber-300">Senha Atual *</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Digite sua senha atual"
+                  value={adminCurrentPassword}
+                  onChange={(e) => setAdminCurrentPassword(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-lg border border-amber-200 dark:border-amber-800/60 bg-white dark:bg-slate-900 text-xs focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Nova Senha</label>
+                  <input
+                    type="password"
+                    placeholder="Mínimo 6 dígitos"
+                    value={adminNewPassword}
+                    onChange={(e) => setAdminNewPassword(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Confirmar Senha</label>
+                  <input
+                    type="password"
+                    placeholder="Repita a senha"
+                    value={adminConfirmPassword}
+                    onChange={(e) => setAdminConfirmPassword(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-3">
+                <button
+                  type="button"
+                  onClick={() => setSecurityModalOpen(false)}
+                  className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-200 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-[2] py-3 rounded-xl bg-[#003A8C] hover:bg-blue-800 text-white dark:bg-lime-500 dark:hover:bg-lime-600 dark:text-slate-950 text-xs font-bold shadow-md transition-colors"
+                >
+                  Salvar Alterações
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* COMPROVANTE VIEWER MODAL */}
       {viewReceiptUrl && (

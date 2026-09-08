@@ -664,6 +664,49 @@ class SupabaseMockClient {
 
   // --- Auth & Session API ---
 
+  getAdminCredentials(): { email: string; password?: string; name: string } {
+    if (typeof window === 'undefined') {
+      return { email: 'admin@petsalut.com.br', password: 'admin123', name: 'Administrador Petsalut' };
+    }
+    const item = localStorage.getItem('ps_admin_auth');
+    if (!item) {
+      const defaultAdmin = { email: 'admin@petsalut.com.br', password: 'admin123', name: 'Administrador Petsalut' };
+      localStorage.setItem('ps_admin_auth', JSON.stringify(defaultAdmin));
+      return defaultAdmin;
+    }
+    try {
+      return JSON.parse(item);
+    } catch {
+      return { email: 'admin@petsalut.com.br', password: 'admin123', name: 'Administrador Petsalut' };
+    }
+  }
+
+  updateAdminCredentials(updates: { currentPassword?: string; newEmail?: string; newPassword?: string; name?: string }): { success: boolean; error?: string } {
+    const current = this.getAdminCredentials();
+    
+    if (updates.currentPassword && updates.currentPassword !== current.password) {
+      return { success: false, error: 'A senha atual informada está incorreta.' };
+    }
+
+    const updated = {
+      email: updates.newEmail && updates.newEmail.trim() ? updates.newEmail.trim() : current.email,
+      password: updates.newPassword && updates.newPassword.trim() ? updates.newPassword.trim() : current.password,
+      name: updates.name && updates.name.trim() ? updates.name.trim() : current.name
+    };
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ps_admin_auth', JSON.stringify(updated));
+      
+      const session = this.getCurrentUser();
+      if (session && session.role === 'admin') {
+        const newSession = { ...session, email: updated.email, name: updated.name };
+        localStorage.setItem('ps_session', JSON.stringify(newSession));
+      }
+    }
+
+    return { success: true };
+  }
+
   getCurrentUser() {
     if (typeof window === 'undefined') return null;
     const session = localStorage.getItem('ps_session');
@@ -672,8 +715,12 @@ class SupabaseMockClient {
 
   signIn(email: string, identity: string): { success: boolean; user?: any; error?: string } {
     // Admin check
-    if (email === 'admin@petsalut.com.br' && identity === 'admin123') {
-      const user = { email, role: 'admin', name: 'Administrador Petsalut' };
+    const adminCreds = this.getAdminCredentials();
+    if (
+      email.toLowerCase().trim() === adminCreds.email.toLowerCase().trim() && 
+      identity === adminCreds.password
+    ) {
+      const user = { email: adminCreds.email, role: 'admin', name: adminCreds.name };
       localStorage.setItem('ps_session', JSON.stringify(user));
       return { success: true, user };
     }
@@ -704,7 +751,7 @@ class SupabaseMockClient {
       return { success: true, user };
     }
 
-    return { success: false, error: 'Credenciais inválidas. Participantes devem usar e-mail e CPF cadastrados.' };
+    return { success: false, error: 'Credenciais inválidas. Verifique seu e-mail e senha/CPF.' };
   }
 
   signOut() {

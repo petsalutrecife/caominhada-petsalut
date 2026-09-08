@@ -196,29 +196,17 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Quick Info / Hints */}
-          <div className="mt-8 border-t border-slate-100 dark:border-slate-900 pt-6 text-center text-xs text-slate-500">
-            {activeTab === 'participant' && (
+          {/* Footer Info */}
+          {activeTab === 'participant' && (
+            <div className="mt-8 border-t border-slate-100 dark:border-slate-900 pt-6 text-center text-xs text-slate-500">
               <p>
                 Não tem uma inscrição?{' '}
                 <Link href="/register" className="text-primary-blue dark:text-lime-400 font-bold hover:underline">
                   Inscreva-se aqui
                 </Link>
               </p>
-            )}
-            {activeTab === 'institution' && (
-              <p className="text-[10px] text-slate-400">
-                Acesso para ONGs parceiras. <br />
-                Exemplo: <strong>lazaro@abrigo.org</strong> / <strong>password123</strong>
-              </p>
-            )}
-            {activeTab === 'admin' && (
-              <p className="text-[10px] text-slate-400">
-                Acesso administrativo restrito. <br />
-                Demo Admin: <strong>admin@petsalut.com.br</strong> / <strong>admin123</strong>
-              </p>
-            )}
-          </div>
+            </div>
+          )}
 
         </div>
       </main>
