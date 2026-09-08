@@ -665,19 +665,28 @@ class SupabaseMockClient {
   // --- Auth & Session API ---
 
   getAdminCredentials(): { email: string; password?: string; name: string } {
+    const defaultEmail = 'admin@petsalute.com.br';
+    const defaultName = 'Administrador Petsalute';
+    const defaultAdmin = { email: defaultEmail, password: 'admin123', name: defaultName };
+
     if (typeof window === 'undefined') {
-      return { email: 'admin@petsalut.com.br', password: 'admin123', name: 'Administrador Petsalut' };
+      return defaultAdmin;
     }
     const item = localStorage.getItem('ps_admin_auth');
     if (!item) {
-      const defaultAdmin = { email: 'admin@petsalut.com.br', password: 'admin123', name: 'Administrador Petsalut' };
       localStorage.setItem('ps_admin_auth', JSON.stringify(defaultAdmin));
       return defaultAdmin;
     }
     try {
-      return JSON.parse(item);
+      const parsed = JSON.parse(item);
+      // If still using old default email, migrate to new default
+      if (parsed.email === 'admin@petsalut.com.br') {
+        parsed.email = defaultEmail;
+        localStorage.setItem('ps_admin_auth', JSON.stringify(parsed));
+      }
+      return parsed;
     } catch {
-      return { email: 'admin@petsalut.com.br', password: 'admin123', name: 'Administrador Petsalut' };
+      return defaultAdmin;
     }
   }
 

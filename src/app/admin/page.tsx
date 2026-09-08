@@ -1588,7 +1588,7 @@ export default function AdminDashboard() {
                         <input
                           type="email"
                           required
-                          placeholder="admin@petsalut.com.br"
+                          placeholder="admin@petsalute.com.br"
                           value={adminNewEmail}
                           onChange={(e) => setAdminNewEmail(e.target.value)}
                           className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/20 dark:focus:ring-lime-500/20 text-slate-800 dark:text-slate-200"
@@ -1661,7 +1661,7 @@ export default function AdminDashboard() {
                     </h5>
                     <div className="flex flex-col gap-2 text-xs text-slate-600 dark:text-slate-400">
                       <p><strong>Nível:</strong> Administrador Geral</p>
-                      <p><strong>Sessão Atual:</strong> {adminUser?.email || 'admin@petsalut.com.br'}</p>
+                      <p><strong>Sessão Atual:</strong> {adminUser?.email || 'admin@petsalute.com.br'}</p>
                       <p><strong>Permissões:</strong> Acesso total a participantes, doações, parceiros e finanças.</p>
                     </div>
                   </div>
@@ -1727,7 +1727,7 @@ export default function AdminDashboard() {
                   required
                   value={adminNewEmail}
                   onChange={(e) => setAdminNewEmail(e.target.value)}
-                  placeholder="admin@petsalut.com.br"
+                  placeholder="admin@petsalute.com.br"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none"
                 />
               </div>
