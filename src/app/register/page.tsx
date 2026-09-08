@@ -149,6 +149,13 @@ export default function RegisterPage() {
         newErrors.tutorCpf = 'CPF é obrigatório.';
       } else if (!validateCPF(tutorCpf)) {
         newErrors.tutorCpf = 'CPF inválido. Verifique os dígitos.';
+      } else {
+        const cleanCpf = tutorCpf.replace(/\D/g, '');
+        const existingRegs = supabaseMock.getRegistrations();
+        const duplicate = existingRegs.find(r => r.tutorCpf.replace(/\D/g, '') === cleanCpf);
+        if (duplicate) {
+          newErrors.tutorCpf = `O CPF ${tutorCpf} já possui uma inscrição cadastrada (${duplicate.regNumber}).`;
+        }
       }
       if (!tutorBirthDate) newErrors.tutorBirthDate = 'Data de nascimento é obrigatória.';
       if (!tutorWhatsApp) {
@@ -496,7 +503,19 @@ export default function RegisterPage() {
                         className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/30 dark:focus:ring-lime-500/30 transition-all ${errors.tutorCpf ? 'border-red-400' : 'border-slate-200 dark:border-slate-800'}`}
                       />
                     </div>
-                    {errors.tutorCpf && <span className="text-[10px] font-semibold text-red-500">{errors.tutorCpf}</span>}
+                    {errors.tutorCpf && (
+                      <div className="flex flex-col gap-1 mt-0.5">
+                        <span className="text-[10px] font-semibold text-red-500">{errors.tutorCpf}</span>
+                        {errors.tutorCpf.includes('já possui uma inscrição') && (
+                          <Link 
+                            href="/login" 
+                            className="text-[10px] font-bold text-[#003A8C] dark:text-lime-400 hover:underline flex items-center gap-1 mt-0.5"
+                          >
+                            <ArrowRight className="h-3 w-3" /> Já é inscrito? Acesse a Área do Participante
+                          </Link>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Data Nascimento */}
