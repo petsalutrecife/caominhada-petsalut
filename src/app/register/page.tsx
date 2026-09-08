@@ -50,6 +50,7 @@ function validateCPF(cpf: string): boolean {
 const stepLabels = [
   { label: 'Participante', icon: User },
   { label: 'Pet', icon: PawPrint },
+  { label: 'Retirada', icon: MapPin },
   { label: 'Escolha', icon: Compass },
   { label: 'Instituição', icon: Heart },
   { label: 'PIX', icon: CreditCard },
@@ -79,10 +80,13 @@ export default function RegisterPage() {
   const [petAge, setPetAge] = useState<number>(3);
   const [petPhoto, setPetPhoto] = useState('');
   
-  // Step 3: Institution selection
+  // Step 3: Kit pickup location
+  const [kitPickupLocation, setKitPickupLocation] = useState<'Zona Sul' | 'Zona Norte' | ''>('');
+
+  // Step 4: Institution selection
   const [selectedInstitution, setSelectedInstitution] = useState('');
   
-  // Step 4: Donation Value
+  // Step 5: Donation Value
   const [donationValue, setDonationValue] = useState<number>(50);
   const [customValue, setCustomValue] = useState<string>('');
   
@@ -168,17 +172,21 @@ export default function RegisterPage() {
     }
     
     if (step === 3) {
+      if (!kitPickupLocation) newErrors.kitPickupLocation = 'Escolha o local de retirada do seu kit.';
+    }
+
+    if (step === 4) {
       if (!selectedInstitution) newErrors.selectedInstitution = 'Escolha uma instituição para receber sua doação.';
     }
     
-    if (step === 4) {
+    if (step === 5) {
       const finalValue = donationValue === 0 ? Number(customValue) : donationValue;
       if (!finalValue || isNaN(finalValue) || finalValue < 50) {
         newErrors.donationValue = 'O valor da doação deve ser de no mínimo R$ 50,00.';
       }
     }
 
-    if (step === 6) {
+    if (step === 7) {
       if (!donationReceipt) newErrors.donationReceipt = 'Envie o comprovante de doação PIX.';
       if (!termsAccepted) newErrors.termsAccepted = 'Você deve aceitar os termos do regulamento.';
     }
@@ -189,7 +197,7 @@ export default function RegisterPage() {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 7));
+      setCurrentStep(prev => Math.min(prev + 1, 8));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -203,7 +211,7 @@ export default function RegisterPage() {
   const handleSelectInstitution = (instId: string) => {
     setSelectedInstitution(instId);
     setErrors({});
-    setCurrentStep(4);
+    setCurrentStep(5);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -224,7 +232,7 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = () => {
-    if (!validateStep(6)) return;
+    if (!validateStep(7)) return;
 
     setIsSubmitting(true);
     const finalVal = getFinalDonationValue();
@@ -251,11 +259,12 @@ export default function RegisterPage() {
           donationReceipt,
           donationStatus: 'AGUARDANDO VALIDAÇÃO',
           statusPayment: 'Pendente',
-          statusKit: 'Aguardando'
+          statusKit: 'Aguardando',
+          notes: kitPickupLocation ? `Retirada: ${kitPickupLocation}` : ''
         });
         
         setRegisteredUser(saved);
-        setCurrentStep(7);
+        setCurrentStep(8);
         setIsSubmitting(false);
         
         confetti({
@@ -285,8 +294,8 @@ export default function RegisterPage() {
 
   const selectedInst = institutions.find(i => i.id === selectedInstitution);
 
-  // ===================== STEP 7: CONCLUSION =====================
-  if (currentStep === 7 && registeredUser) {
+  // ===================== STEP 8: CONCLUSION =====================
+  if (currentStep === 8 && registeredUser) {
     const instName = institutions.find(i => i.id === registeredUser.selectedInstitution)?.name || '';
 
     return (
@@ -409,7 +418,7 @@ export default function RegisterPage() {
             <div className="absolute top-5 left-0 right-0 h-0.5 bg-slate-200 dark:bg-slate-800 z-0" />
             <div 
               className="absolute top-5 left-0 h-0.5 bg-[#8DC63F] z-0 transition-all duration-500 ease-out"
-              style={{ width: `${((Math.min(currentStep, 6) - 1) / 5) * 100}%` }}
+              style={{ width: `${((Math.min(currentStep, 7) - 1) / 6) * 100}%` }}
             />
 
             {stepLabels.map((step, index) => {
@@ -689,8 +698,123 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 3: ESCOLHA DA INSTITUIÇÃO (3 Cards) ========== */}
+          {/* ========== STEP 3: ESCOLHA DO PONTO DE RETIRADA ========== */}
           {currentStep === 3 && (
+            <div className="animate-in fade-in slide-in-from-right-5 duration-300">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#8DC63F]/10 border border-[#8DC63F]/30 text-[#003A8C] text-xs font-bold mb-4">
+                  <MapPin className="h-4 w-4 text-[#8DC63F]" /> Retirada do Kit
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#003A8C] dark:text-white font-poppins">
+                  Onde você vai retirar seu kit?
+                </h2>
+                <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+                  Escolha o ponto de retirada mais perto de você. A retirada acontece nos dias <strong>19</strong> e <strong>26 de Setembro</strong>.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                {/* Zona Sul */}
+                <button
+                  type="button"
+                  onClick={() => { setKitPickupLocation('Zona Sul'); if (errors.kitPickupLocation) setErrors(prev => ({ ...prev, kitPickupLocation: '' })); }}
+                  className={`
+                    group relative flex flex-col items-start gap-4 p-6 rounded-3xl border-2 text-left transition-all duration-200 hover-lift shadow-sm
+                    ${kitPickupLocation === 'Zona Sul'
+                      ? 'border-[#8DC63F] bg-[#8DC63F]/5 shadow-[0_0_0_4px_rgba(141,198,63,0.12)]'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-[#8DC63F]/60'
+                    }
+                  `}
+                >
+                  {kitPickupLocation === 'Zona Sul' && (
+                    <div className="absolute top-4 right-4 h-6 w-6 rounded-full bg-[#8DC63F] flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                  <div className="p-3 rounded-2xl bg-[#8DC63F]/10 text-[#8DC63F]">
+                    <MapPin className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8DC63F] block mb-1">Zona Sul</span>
+                    <h3 className="text-lg font-extrabold text-[#003A8C] dark:text-white font-poppins">Pet Happy</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                      Estética e cuidados pet. Ponto de apoio oficial da Zona Sul de Recife.
+                    </p>
+                  </div>
+                  <a
+                    href="https://www.google.com/maps/place/Pet+Happy/@-8.119954,-34.8983033,757m"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-1 inline-flex items-center gap-1.5 text-[10px] font-bold text-[#003A8C] dark:text-blue-400 hover:underline"
+                  >
+                    <MapPin className="h-3 w-3" /> Ver no mapa
+                  </a>
+                </button>
+
+                {/* Zona Norte */}
+                <button
+                  type="button"
+                  onClick={() => { setKitPickupLocation('Zona Norte'); if (errors.kitPickupLocation) setErrors(prev => ({ ...prev, kitPickupLocation: '' })); }}
+                  className={`
+                    group relative flex flex-col items-start gap-4 p-6 rounded-3xl border-2 text-left transition-all duration-200 hover-lift shadow-sm
+                    ${kitPickupLocation === 'Zona Norte'
+                      ? 'border-[#8DC63F] bg-[#8DC63F]/5 shadow-[0_0_0_4px_rgba(141,198,63,0.12)]'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-[#8DC63F]/60'
+                    }
+                  `}
+                >
+                  {kitPickupLocation === 'Zona Norte' && (
+                    <div className="absolute top-4 right-4 h-6 w-6 rounded-full bg-[#8DC63F] flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                  <div className="p-3 rounded-2xl bg-[#003A8C]/10 text-[#003A8C] dark:text-blue-400">
+                    <MapPin className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#003A8C] dark:text-blue-400 block mb-1">Zona Norte</span>
+                    <h3 className="text-lg font-extrabold text-[#003A8C] dark:text-white font-poppins">Oh Pet Graças</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                      Centro Veterinário 24h. Ponto de apoio oficial da Zona Norte de Recife.
+                    </p>
+                  </div>
+                  <a
+                    href="https://www.google.com/maps/place/OhPet!+Centro+Veterin%C3%A1rio+24h+-+Gra%C3%A7as/@-8.043716,-34.8998448,757m"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-1 inline-flex items-center gap-1.5 text-[10px] font-bold text-[#003A8C] dark:text-blue-400 hover:underline"
+                  >
+                    <MapPin className="h-3 w-3" /> Ver no mapa
+                  </a>
+                </button>
+              </div>
+
+              {errors.kitPickupLocation && (
+                <div className="mt-6 text-center">
+                  <span className="text-sm font-semibold text-red-500">{errors.kitPickupLocation}</span>
+                </div>
+              )}
+
+              {/* Navigation */}
+              <div className="flex gap-4 mt-8 max-w-md mx-auto">
+                <button onClick={handleBack}
+                  className="flex-1 py-4 rounded-2xl font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors flex items-center justify-center gap-2"
+                >
+                  <ArrowLeft className="h-5 w-5" /> Voltar
+                </button>
+                <button onClick={handleNext}
+                  className="flex-[2] py-4 rounded-2xl font-bold bg-[#8DC63F] hover:bg-[#7cb335] text-white transition-colors flex items-center justify-center gap-2 hover-lift shadow-lg shadow-lime-500/10"
+                >
+                  Continuar <ArrowRight className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ========== STEP 4: ESCOLHA DA INSTITUIÇÃO (3 Cards) ========== */}
+          {currentStep === 4 && (
             <div className="animate-in fade-in slide-in-from-right-5 duration-300">
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50 text-red-500 text-xs font-bold mb-4">
@@ -767,8 +891,8 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 4: PÁGINA DA INSTITUIÇÃO ESCOLHIDA ========== */}
-          {currentStep === 4 && selectedInst && (
+          {/* ========== STEP 5: PÁGINA DA INSTITUIÇÃO ESCOLHIDA ========== */}
+          {currentStep === 5 && selectedInst && (
             <div className="bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in slide-in-from-right-5 duration-300">
               
               {/* Institution Banner */}
@@ -875,8 +999,8 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 5: PAGAMENTO PIX ========== */}
-          {currentStep === 5 && selectedInst && (
+          {/* ========== STEP 6: PAGAMENTO PIX ========== */}
+          {currentStep === 6 && selectedInst && (
             <div className="bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in slide-in-from-right-5 duration-300">
               <div className="bg-gradient-to-r from-[#003A8C] to-blue-600 p-6 text-white">
                 <h3 className="text-xl font-extrabold font-poppins flex items-center gap-3">
@@ -969,8 +1093,8 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 6: UPLOAD DO COMPROVANTE ========== */}
-          {currentStep === 6 && selectedInst && (
+          {/* ========== STEP 7: UPLOAD DO COMPROVANTE ========== */}
+          {currentStep === 7 && selectedInst && (
             <div className="bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in slide-in-from-right-5 duration-300">
               <div className="bg-gradient-to-r from-[#8DC63F] to-lime-500 p-6 text-white">
                 <h3 className="text-xl font-extrabold font-poppins flex items-center gap-3">
