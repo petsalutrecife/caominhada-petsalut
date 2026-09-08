@@ -522,44 +522,118 @@ export default function AdminDashboard() {
   };
 
   // Exports
-  const handleExportCSV = () => {
-    let csvContent = 'data:text/csv;charset=utf-8,';
-    csvContent += 'Inscricao,Tutor,CPF,Telefone,WhatsApp,Email,Cidade,Estado,Pet,Especie,Raca,Porte,Idade,Instituicao,Ponto de Retirada,Valor Doacao,Status Doacao,Kit,Data Cadastro\n';
-    
-    registrations.forEach(r => {
-      const instName = institutions.find(i => i.id === r.selectedInstitution)?.name || '';
-      const pickupLoc = r.notes?.includes('Zona Sul') ? 'Zona Sul (Pet Happy)' : r.notes?.includes('Zona Norte') ? 'Zona Norte (Oh Pet Graças)' : 'Não informado';
+  const handleExportCSV = (exportAll: boolean | React.MouseEvent = false) => {
+    const isAll = typeof exportAll === 'boolean' ? exportAll : false;
+    const listToExport = isAll ? registrations : filteredRegistrations;
+
+    if (listToExport.length === 0) {
+      alert('Nenhum registro encontrado para exportar com os filtros atuais.');
+      return;
+    }
+
+    const headers = [
+      'Nº Inscrição',
+      'Data de Cadastro',
+      'Nome do Tutor',
+      'CPF do Tutor',
+      'Telefone',
+      'WhatsApp',
+      'E-mail',
+      'Cidade',
+      'UF',
+      'Nome do Pet',
+      'Espécie',
+      'Raça',
+      'Porte',
+      'Idade (anos)',
+      'Instituição Beneficiada',
+      'Ponto de Retirada do Kit',
+      'Valor Doação (R$)',
+      'Status da Doação',
+      'Status do Kit',
+      'Status Geral'
+    ];
+
+    let csvContent = headers.join(';') + '\r\n';
+
+    listToExport.forEach(r => {
+      const instName = institutions.find(i => i.id === r.selectedInstitution)?.name || 'Não informada';
+      const pickupLoc = r.notes?.includes('Zona Sul') 
+        ? 'Zona Sul - Pet Happy (Boa Viagem)' 
+        : r.notes?.includes('Zona Norte') 
+          ? 'Zona Norte - Oh Pet (Graças)' 
+          : (r.notes ? r.notes.replace('Retirada: ', '') : 'Não informado');
+
+      const formattedDate = r.createdAt 
+        ? new Date(r.createdAt).toLocaleString('pt-BR') 
+        : '';
+
       const row = [
         r.regNumber,
+        formattedDate,
         r.tutorName,
         r.tutorCpf,
-        r.tutorPhone,
+        r.tutorPhone || '',
         r.tutorWhatsApp || '',
         r.tutorEmail,
         r.tutorCity || '',
         r.tutorState || '',
         r.petName,
         r.petSpecies || '',
-        r.petBreed,
-        r.petSize,
-        r.petAge,
+        r.petBreed || '',
+        r.petSize || '',
+        r.petAge !== undefined ? String(r.petAge) : '',
         instName,
         pickupLoc,
-        r.donationValue,
+        r.donationValue.toFixed(2).replace('.', ','),
         r.donationStatus || '',
-        r.statusKit,
-        r.createdAt
-      ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(',');
-      csvContent += row + '\n';
+        r.statusKit || '',
+        r.statusPayment || ''
+      ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(';');
+
+      csvContent += row + '\r\n';
     });
 
-    const encodedUri = encodeURI(csvContent);
+    // Use Blob with UTF-8 BOM so Excel opens with proper accents and columns
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.href = url;
     link.setAttribute('download', `Participantes_Caominhada_Petsalut_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportFinancialCSV = () => {
+    let csvContent = 'Tipo;Descrição/Nome;Categoria/Entidade;Valor (R$);Data/Status\r\n';
+
+    // 1. Patrocínios
+    sponsors.forEach(s => {
+      csvContent += `"Receita Patrocínio";"${s.name}";"${s.category}";"${s.investedValue.toFixed(2).replace('.', ',')}";"Confirmado"\r\n`;
+    });
+
+    // 2. Doações
+    registrations.filter(r => r.donationStatus === 'APROVADA').forEach(r => {
+      const instName = institutions.find(i => i.id === r.selectedInstitution)?.name || '';
+      csvContent += `"Doação Participante";"${r.tutorName} (${r.regNumber})";"${instName}";"${r.donationValue.toFixed(2).replace('.', ',')}";"${new Date(r.createdAt).toLocaleDateString('pt-BR')}"\r\n`;
+    });
+
+    // 3. Despesas
+    expenses.forEach(e => {
+      csvContent += `"Despesa Operacional";"${e.title}";"${e.category}";"-${e.value.toFixed(2).replace('.', ',')}";"${e.date}"\r\n`;
+    });
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Relatorio_Financeiro_Caominhada_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleExportPDF = () => {
@@ -974,10 +1048,10 @@ export default function AdminDashboard() {
 
                 <div className="flex gap-3 w-full sm:w-auto">
                   <button
-                    onClick={handleExportCSV}
+                    onClick={() => handleExportCSV(false)}
                     className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                   >
-                    <Download className="h-3.5 w-3.5" /> CSV / Excel
+                    <Download className="h-3.5 w-3.5" /> CSV / Excel ({filteredRegistrations.length})
                   </button>
                   <button
                     onClick={handleExportPDF}
@@ -1309,8 +1383,21 @@ export default function AdminDashboard() {
 
           {/* TAB 4: FINANCEIRO */}
           {activeTab === 'financial' && (
-            <div className="flex flex-col gap-8 animate-in fade-in duration-200">
+            <div className="flex flex-col gap-6 animate-in fade-in duration-200">
               
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins">Balanço & Gestão Financeira</h3>
+                  <p className="text-xs text-slate-500">Controle de patrocínios, doações repassadas e despesas operacionais.</p>
+                </div>
+                <button
+                  onClick={handleExportFinancialCSV}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                >
+                  <Download className="h-3.5 w-3.5" /> Exportar Balanço (CSV / Excel)
+                </button>
+              </div>
+
               {/* Financial Metrics Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 
