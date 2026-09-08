@@ -299,11 +299,83 @@ const initialSponsors: Sponsor[] = [
   {
     id: 'sp-5',
     name: 'Eu Pet',
-    logo: '/sponsors/eupet.png',
+    logo: '/sponsors/eupet.jpeg',
     category: 'Apoio',
-    investedValue: 15000,
+    investedValue: 5000,
     description: 'Plano de Saúde Pet completo para a saúde do seu melhor amigo.',
     website: 'https://eupet.com.br'
+  },
+  {
+    id: 'sp-care',
+    name: 'Care',
+    logo: '/sponsors/care.png',
+    category: 'Apoio',
+    investedValue: 5000,
+    description: 'Apoio e parceiro oficial da Cãominhada PetSalut.',
+    website: '#'
+  },
+  {
+    id: 'sp-degusta',
+    name: 'Degusta',
+    logo: '/sponsors/degusta.jpeg',
+    category: 'Apoio',
+    investedValue: 5000,
+    description: 'Alimentação e nutrição especial para pets.',
+    website: '#'
+  },
+  {
+    id: 'sp-drantonela',
+    name: 'Dra Antonela',
+    logo: '/sponsors/draantonela.jpeg',
+    category: 'Apoio',
+    investedValue: 5000,
+    description: 'Medicina veterinária preventiva e especializada.',
+    website: '#'
+  },
+  {
+    id: 'sp-fotop',
+    name: 'Fotop',
+    logo: '/sponsors/fotop.png',
+    category: 'Apoio',
+    investedValue: 5000,
+    description: 'Fotografia oficial e cobertura de imagens do evento.',
+    website: 'https://fotop.com.br'
+  },
+  {
+    id: 'sp-petinho',
+    name: 'Petinho',
+    logo: '/sponsors/petinho.png',
+    category: 'Apoio',
+    investedValue: 5000,
+    description: 'Produtos e carinho para o seu melhor amigo.',
+    website: '#'
+  },
+  {
+    id: 'sp-race',
+    name: 'Race',
+    logo: '/sponsors/race.png',
+    category: 'Apoio',
+    investedValue: 5000,
+    description: 'Acessórios e esporte para cães e tutores.',
+    website: '#'
+  },
+  {
+    id: 'sp-vetec',
+    name: 'Vetec',
+    logo: '/sponsors/Vetec.jpeg',
+    category: 'Apoio',
+    investedValue: 5000,
+    description: 'Excelência e tecnologia em cuidados veterinários.',
+    website: '#'
+  },
+  {
+    id: 'sp-zeatacadista',
+    name: 'Zé Atacadista',
+    logo: '/sponsors/zeatacadista.png',
+    category: 'Apoio',
+    investedValue: 5000,
+    description: 'Atacado e variedade de suprimentos.',
+    website: '#'
   }
 ];
 
@@ -512,16 +584,15 @@ class SupabaseMockClient {
       this.setStorage('ps_sponsors', initialSponsors);
       return initialSponsors;
     }
-    if (!list.some(s => s.id === 'sp-avne' || s.name.includes('AVNE'))) {
-      list.push({
-        id: 'sp-avne',
-        name: 'AVNE',
-        logo: '/sponsors/avne.png',
-        category: 'Ouro',
-        investedValue: 15000,
-        description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências inesquecíveis.',
-        website: 'https://www.instagram.com/avne_mergulho'
-      });
+    // Ensure all initial sponsors are present
+    let updated = false;
+    for (const initSp of initialSponsors) {
+      if (!list.some(s => s.id === initSp.id || s.name.toLowerCase() === initSp.name.toLowerCase())) {
+        list.push(initSp);
+        updated = true;
+      }
+    }
+    if (updated) {
       this.setStorage('ps_sponsors', list);
     }
     return list.map(s => {

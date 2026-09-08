@@ -766,38 +766,46 @@ export default function LandingPage() {
           </div>
 
           {/* Apoio Section */}
-          <div className="pt-8 border-t border-slate-200 max-w-4xl mx-auto">
+          <div className="pt-10 border-t border-slate-200/80 max-w-6xl mx-auto">
             <h3 className="text-center text-xs uppercase tracking-[0.2em] font-extrabold text-slate-400 mb-8 font-poppins">
-              Apoio
+              Apoiadores
             </h3>
-            <div className="flex justify-center">
-              <a
-                href="https://eupet.com.br"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex flex-col sm:flex-row items-center gap-6 bg-white p-6 px-10 rounded-3xl border border-slate-200 shadow-md hover:border-[#003A8C] hover:shadow-xl transition-all duration-300 max-w-lg w-full"
-              >
-                <div className="relative w-36 h-20 shrink-0 flex items-center justify-center">
-                  <img
-                    src="/sponsors/eupet.png"
-                    alt="Eu Pet"
-                    className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-                <div className="text-center sm:text-left">
-                  <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#003A8C] bg-[#003A8C]/10 px-2 py-0.5 rounded">
-                      Apoio
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {(sponsors.filter(s => s.category === 'Apoio').length > 0
+                ? sponsors.filter(s => s.category === 'Apoio')
+                : [
+                  { id: 'sp-care', name: 'Care', logo: '/sponsors/care.png', category: 'Apoio', description: 'Apoio e parceiro oficial', website: '#' },
+                  { id: 'sp-degusta', name: 'Degusta', logo: '/sponsors/degusta.jpeg', category: 'Apoio', description: 'Alimentação pet', website: '#' },
+                  { id: 'sp-drantonela', name: 'Dra Antonela', logo: '/sponsors/draantonela.jpeg', category: 'Apoio', description: 'Medicina veterinária', website: '#' },
+                  { id: 'sp-5', name: 'Eu Pet', logo: '/sponsors/eupet.jpeg', category: 'Apoio', description: 'Plano de saúde pet', website: 'https://eupet.com.br' },
+                  { id: 'sp-fotop', name: 'Fotop', logo: '/sponsors/fotop.png', category: 'Apoio', description: 'Fotografia oficial', website: 'https://fotop.com.br' },
+                  { id: 'sp-petinho', name: 'Petinho', logo: '/sponsors/petinho.png', category: 'Apoio', description: 'Produtos pet', website: '#' },
+                  { id: 'sp-race', name: 'Race', logo: '/sponsors/race.png', category: 'Apoio', description: 'Acessórios pet', website: '#' },
+                  { id: 'sp-vetec', name: 'Vetec', logo: '/sponsors/Vetec.jpeg', category: 'Apoio', description: 'Cuidados veterinários', website: '#' },
+                  { id: 'sp-zeatacadista', name: 'Zé Atacadista', logo: '/sponsors/zeatacadista.png', category: 'Apoio', description: 'Atacado e suprimentos', website: '#' }
+                ]
+              ).map((s) => (
+                <a
+                  key={s.id}
+                  href={s.website && s.website !== '#' ? s.website : undefined}
+                  target={s.website && s.website !== '#' ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="group flex flex-col items-center justify-between bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-[#003A8C] hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+                >
+                  <div className="relative w-full h-20 flex items-center justify-center p-1 my-1">
+                    <img
+                      src={s.logo}
+                      alt={s.name}
+                      className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="text-center mt-1 w-full">
+                    <span className="font-extrabold text-slate-800 text-sm group-hover:text-[#003A8C] transition-colors block font-poppins truncate">
+                      {s.name}
                     </span>
                   </div>
-                  <span className="font-extrabold text-slate-900 text-lg group-hover:text-[#003A8C] transition-colors block font-poppins">
-                    Eu Pet
-                  </span>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Plano de Saúde Pet completo para a saúde do seu melhor amigo.
-                  </p>
-                </div>
-              </a>
+                </a>
+              ))}
             </div>
           </div>
         </div>
