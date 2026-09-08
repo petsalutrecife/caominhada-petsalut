@@ -7,10 +7,11 @@ import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Registration, Institution } from '@/lib/supabaseMock';
 import { generateRegistrationTicket } from '@/lib/generateTicketPdf';
+import { generateStoriesImage } from '@/lib/generateStoriesImage';
 import { 
   LogOut, Calendar, MapPin, Award, CheckCircle2, Clock, ShieldAlert, 
   CreditCard, ClipboardList, RefreshCw, X, Download, Camera, Upload, 
-  Heart, Check, FileText, AlertTriangle
+  Heart, Check, FileText, AlertTriangle, Sparkles, Share2, Smartphone
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
@@ -28,6 +29,11 @@ export default function ParticipantDashboard() {
   const [newReceipt, setNewReceipt] = useState('');
   const [newReceiptName, setNewReceiptName] = useState('');
   const [isSubmittingReceipt, setIsSubmittingReceipt] = useState(false);
+
+  // Stories Card Modal state
+  const [storiesModalOpen, setStoriesModalOpen] = useState(false);
+  const [storiesImgData, setStoriesImgData] = useState<string | null>(null);
+  const [isGeneratingStories, setIsGeneratingStories] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -95,6 +101,57 @@ export default function ParticipantDashboard() {
         alert('Erro ao reenviar comprovante. Tente novamente.');
       }
     }, 1500);
+  };
+
+  const handleOpenStoriesModal = async () => {
+    if (!registration) return;
+    setStoriesModalOpen(true);
+
+    if (!storiesImgData) {
+      setIsGeneratingStories(true);
+      try {
+        const inst = institutions.find(i => i.id === registration.selectedInstitution);
+        const dataUrl = await generateStoriesImage(registration, inst?.name);
+        setStoriesImgData(dataUrl);
+      } catch (err) {
+        console.error('Erro ao gerar stories card:', err);
+      } finally {
+        setIsGeneratingStories(false);
+      }
+    }
+  };
+
+  const handleDownloadStoriesImage = () => {
+    if (!storiesImgData || !registration) return;
+    const a = document.createElement('a');
+    a.href = storiesImgData;
+    a.download = `caominhada-stories-${registration.petName.toLowerCase().replace(/\s+/g, '-')}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleShareStories = async () => {
+    if (!storiesImgData || !registration) return;
+
+    try {
+      // Check if browser supports Web Share API with files
+      const response = await fetch(storiesImgData);
+      const blob = await response.blob();
+      const file = new File([blob], `caominhada-${registration.petName}.png`, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Cãominhada Petsalut 2026 - ${registration.petName}`,
+          text: `Eu e ${registration.petName} vamos para a Cãominhada Petsalut 2026! 🐾 Venha você também: https://caominhada.petsalut.com.br`
+        });
+      } else {
+        handleDownloadStoriesImage();
+      }
+    } catch (err) {
+      handleDownloadStoriesImage();
+    }
   };
 
   const handleDownloadCertificate = () => {
@@ -469,6 +526,12 @@ export default function ParticipantDashboard() {
                   >
                     <Download className="h-4 w-4" /> Baixar Comprovante (PDF)
                   </button>
+                  <button
+                    onClick={handleOpenStoriesModal}
+                    className="w-full mt-2.5 py-3 px-4 rounded-xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-90 text-white text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+                  >
+                    <Sparkles className="h-4 w-4 text-amber-300" /> Gerar Crachá p/ Stories 📸
+                  </button>
                 </>
               ) : (
                 <div className="py-6 px-4 flex flex-col items-center gap-3 w-full">
@@ -664,6 +727,73 @@ export default function ParticipantDashboard() {
         </div>
       )}
 
+      {/* STORIES CARD MODAL */}
+      {storiesModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-950 max-w-sm w-full rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200 text-center my-auto max-h-[95vh] overflow-y-auto">
+            <button
+              onClick={() => setStoriesModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="flex flex-col items-center gap-1.5 mb-4">
+              <span className="p-2 rounded-2xl bg-pink-500/10 text-pink-500 font-bold text-xs flex items-center gap-1.5">
+                <Sparkles className="h-4 w-4" /> Crachá Oficial do Pet
+              </span>
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white font-poppins">
+                Pronto para os Stories!
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Poste no Instagram/WhatsApp e marque <strong>@petsalutrecife</strong>
+              </p>
+            </div>
+
+            {/* Stories Image Preview (9:16 Aspect Ratio) */}
+            <div className="relative w-full aspect-[9/16] bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner flex items-center justify-center mb-4">
+              {isGeneratingStories ? (
+                <div className="flex flex-col items-center gap-3 p-6 text-slate-400">
+                  <div className="h-8 w-8 border-3 border-pink-500 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs font-semibold">Gerando seu crachá em alta resolução...</span>
+                </div>
+              ) : storiesImgData ? (
+                <img 
+                  src={storiesImgData} 
+                  alt="Crachá Stories Pet" 
+                  className="w-full h-full object-contain select-none"
+                />
+              ) : (
+                <span className="text-xs text-slate-400">Não foi possível carregar a imagem.</span>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleShareStories}
+                disabled={isGeneratingStories || !storiesImgData}
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-90 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 disabled:opacity-50"
+              >
+                <Share2 className="h-4 w-4" /> Compartilhar no Instagram / Celular
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownloadStoriesImage}
+                disabled={isGeneratingStories || !storiesImgData}
+                className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+              >
+                <Download className="h-4 w-4" /> Baixar Imagem PNG (1080x1920)
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
