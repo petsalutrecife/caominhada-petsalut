@@ -9,7 +9,7 @@ import { supabaseMock, Registration, Sponsor, Expense, Institution } from '@/lib
 import { 
   LogOut, ClipboardList, TrendingUp, Users, Award, Landmark, Plus, Trash2, 
   Download, Edit, Search, Filter, ShieldCheck, Check, DollarSign, Upload, Globe, FileText, CheckSquare, RefreshCw,
-  Heart, Building2, X, Eye, ShieldAlert, AlertCircle
+  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -37,6 +37,7 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPayment, setFilterPayment] = useState<string>('All');
   const [filterKit, setFilterKit] = useState<string>('All');
+  const [filterPickup, setFilterPickup] = useState<string>('All');
   const [filterDonation, setFilterDonation] = useState<string>('All');
   const [filterInstitution, setFilterInstitution] = useState<string>('All');
   const [viewReceiptUrl, setViewReceiptUrl] = useState<string | null>(null);
@@ -332,10 +333,11 @@ export default function AdminDashboard() {
   // Exports
   const handleExportCSV = () => {
     let csvContent = 'data:text/csv;charset=utf-8,';
-    csvContent += 'Inscricao,Tutor,CPF,Telefone,WhatsApp,Email,Cidade,Estado,Pet,Especie,Raca,Porte,Idade,Instituicao,Valor Doacao,Status Doacao,Kit,Data Cadastro\n';
+    csvContent += 'Inscricao,Tutor,CPF,Telefone,WhatsApp,Email,Cidade,Estado,Pet,Especie,Raca,Porte,Idade,Instituicao,Ponto de Retirada,Valor Doacao,Status Doacao,Kit,Data Cadastro\n';
     
     registrations.forEach(r => {
       const instName = institutions.find(i => i.id === r.selectedInstitution)?.name || '';
+      const pickupLoc = r.notes?.includes('Zona Sul') ? 'Zona Sul (Pet Happy)' : r.notes?.includes('Zona Norte') ? 'Zona Norte (Oh Pet Graças)' : 'Não informado';
       const row = [
         r.regNumber,
         r.tutorName,
@@ -351,6 +353,7 @@ export default function AdminDashboard() {
         r.petSize,
         r.petAge,
         instName,
+        pickupLoc,
         r.donationValue,
         r.donationStatus || '',
         r.statusKit,
@@ -399,6 +402,7 @@ export default function AdminDashboard() {
       }
       
       const instName = institutions.find(i => i.id === r.selectedInstitution)?.name || '';
+      const pickupLoc = r.notes?.includes('Zona Sul') ? 'Zona Sul' : r.notes?.includes('Zona Norte') ? 'Zona Norte' : 'N/A';
       
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
@@ -407,7 +411,7 @@ export default function AdminDashboard() {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.text(`Pet: ${r.petName} (${r.petBreed}) • Inst: ${instName} (R$ ${r.donationValue.toFixed(2)}) • CPF: ${r.tutorCpf}`, 15, y + 5);
-      doc.text(`Doação: ${r.donationStatus} • Kit: ${r.statusKit}`, 15, y + 10);
+      doc.text(`Doação: ${r.donationStatus} • Kit: ${r.statusKit} • Retirada: ${pickupLoc}`, 15, y + 10);
       
       doc.setDrawColor(226, 232, 240);
       doc.setLineWidth(0.2);
@@ -423,6 +427,8 @@ export default function AdminDashboard() {
   const totalInscritos = registrations.length;
   const totalPagos = registrations.filter(r => r.donationStatus === 'APROVADA').length;
   const totalKitsEntregues = registrations.filter(r => r.statusKit === 'Retirado').length;
+  const totalZonaSul = registrations.filter(r => r.notes?.includes('Zona Sul')).length;
+  const totalZonaNorte = registrations.filter(r => r.notes?.includes('Zona Norte')).length;
   const totalPatrocinadores = sponsors.length;
   const totalDoacoesValidadas = registrations.filter(r => r.donationStatus === 'APROVADA').length;
   const totalDoacoesPendentes = registrations.filter(r => r.donationStatus === 'AGUARDANDO VALIDAÇÃO').length;
@@ -496,8 +502,13 @@ export default function AdminDashboard() {
     const matchesKit = filterKit === 'All' || r.statusKit === filterKit;
     const matchesDonation = filterDonation === 'All' || r.donationStatus === filterDonation;
     const matchesInstitution = filterInstitution === 'All' || r.selectedInstitution === filterInstitution;
+    const matchesPickup = filterPickup === 'All' || (
+      filterPickup === 'Zona Sul' ? (r.notes || '').includes('Zona Sul') :
+      filterPickup === 'Zona Norte' ? (r.notes || '').includes('Zona Norte') :
+      filterPickup === 'Não Informado' ? (!r.notes || (!r.notes.includes('Zona Sul') && !r.notes.includes('Zona Norte'))) : true
+    );
 
-    return matchesSearch && matchesPayment && matchesKit && matchesDonation && matchesInstitution;
+    return matchesSearch && matchesPayment && matchesKit && matchesPickup && matchesDonation && matchesInstitution;
   });
 
   return (
@@ -760,7 +771,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Filters Block */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 p-5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
                 
                 {/* Search */}
                 <div className="relative sm:col-span-2 lg:col-span-1">
@@ -805,6 +816,21 @@ export default function AdminDashboard() {
                   </select>
                 </div>
 
+                {/* Filter Pickup Location */}
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <select
+                    value={filterPickup}
+                    onChange={(e) => setFilterPickup(e.target.value)}
+                    className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none text-slate-650 dark:text-slate-355"
+                  >
+                    <option value="All">Todos os Locais</option>
+                    <option value="Zona Sul">Zona Sul (Pet Happy)</option>
+                    <option value="Zona Norte">Zona Norte (Oh Pet Graças)</option>
+                    <option value="Não Informado">Não Informado</option>
+                  </select>
+                </div>
+
                 {/* Filter Kit */}
                 <div className="flex items-center gap-2">
                   <CheckSquare className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -832,6 +858,7 @@ export default function AdminDashboard() {
                         <th className="p-4">Tutor</th>
                         <th className="p-4">Pet</th>
                         <th className="p-4">Instituição</th>
+                        <th className="p-4">Retirada Kit</th>
                         <th className="p-4">Doação (R$)</th>
                         <th className="p-4">Kit</th>
                         <th className="p-4 text-center">Ações</th>
@@ -851,6 +878,23 @@ export default function AdminDashboard() {
                             <span className="text-[10px] text-slate-400 block mt-0.5">{r.petSpecies} • {r.petBreed} • {r.petSize}</span>
                           </td>
                           <td className="p-4 font-medium">{getInstName(r.selectedInstitution)}</td>
+                          <td className="p-4">
+                            {r.notes?.includes('Zona Sul') ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                <MapPin className="h-3 w-3 text-blue-500 shrink-0" />
+                                Zona Sul
+                              </span>
+                            ) : r.notes?.includes('Zona Norte') ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-bold bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                <MapPin className="h-3 w-3 text-purple-500 shrink-0" />
+                                Zona Norte
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium text-slate-400 bg-slate-100 dark:bg-slate-800">
+                                Não informado
+                              </span>
+                            )}
+                          </td>
                           <td className="p-4">
                             <div className="flex flex-col gap-1.5">
                               <span className="font-bold block text-slate-900 dark:text-white">R$ {r.donationValue.toFixed(2)}</span>
@@ -917,7 +961,7 @@ export default function AdminDashboard() {
                       ))}
                       {filteredRegistrations.length === 0 && (
                         <tr>
-                          <td colSpan={7} className="text-center p-8 text-slate-400 font-semibold">Nenhum participante correspondente aos filtros.</td>
+                          <td colSpan={8} className="text-center p-8 text-slate-400 font-semibold">Nenhum participante correspondente aos filtros.</td>
                         </tr>
                       )}
                     </tbody>
