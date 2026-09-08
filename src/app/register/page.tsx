@@ -10,8 +10,16 @@ import {
   ArrowLeft, ArrowRight, User, Phone, Mail, Award, CheckCircle2, Copy, 
   Calendar, Heart, Shield, Camera, Upload, MapPin, MessageCircle,
   PawPrint, Building2, CreditCard, FileCheck, ChevronRight, Check, X,
-  Compass, DollarSign, FileText
+  Compass, DollarSign, FileText, Share2
 } from 'lucide-react';
+
+const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
 import confetti from 'canvas-confetti';
 
 // Brazilian states
@@ -103,6 +111,7 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registeredUser, setRegisteredUser] = useState<Registration | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedShareLink, setCopiedShareLink] = useState(false);
 
   useEffect(() => {
     // Only display active institutions
@@ -381,6 +390,68 @@ export default function RegisterPage() {
                 Você pode conferir o andamento na sua área de participante a qualquer momento.
               </p>
             </div>
+
+            {/* Social Sharing Section */}
+            {(() => {
+              const shareText = encodeURIComponent('Eu já garanti minha vaga com meu pet na Cãominhada PetSalut 2026! 🐾 Venha caminhar com a gente e apoiar a causa animal!');
+              const shareUrl = encodeURIComponent('https://caominhada-petsalut.vercel.app');
+              const whatsappUrl = `https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`;
+
+              return (
+                <div className="mt-6 bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 dark:from-slate-900 dark:via-slate-900/80 dark:to-slate-850 border border-emerald-200/60 dark:border-emerald-800/40 p-5 rounded-2xl w-full max-w-md text-left flex flex-col gap-3.5 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-emerald-500 text-white rounded-xl shadow-sm shrink-0">
+                      <Share2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-extrabold text-slate-900 dark:text-white font-poppins">
+                        Espalhe essa causa animal! 🐾
+                      </h4>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                        Convide amigos e familiares para caminharem com a gente.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    {/* WhatsApp Button */}
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      <MessageCircle className="h-4 w-4 fill-white" />
+                      Enviar no WhatsApp
+                    </a>
+
+                    {/* Copy Link Button */}
+                    <button
+                      onClick={() => copyToClipboard('https://caominhada-petsalut.vercel.app', setCopiedShareLink)}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      {copiedShareLink ? (
+                        <>
+                          <Check className="h-4 w-4 text-emerald-400" />
+                          Link Copiado!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copiar Link
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Instagram Mention */}
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/70 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-800/60 text-[10px] text-slate-600 dark:text-slate-300">
+                    <InstagramIcon className="h-4 w-4 text-pink-500 shrink-0" />
+                    <span>No Instagram, marque <strong>@petsalutrecife</strong> e use <strong>#CaominhadaPetSalut2026</strong></span>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Action buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-md">
