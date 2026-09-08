@@ -34,6 +34,7 @@ export default function AdminDashboard() {
   const [adminCurrentPassword, setAdminCurrentPassword] = useState('');
   const [adminNewPassword, setAdminNewPassword] = useState('');
   const [adminConfirmPassword, setAdminConfirmPassword] = useState('');
+  const [validatorPinInput, setValidatorPinInput] = useState('2026');
   const [securityMsg, setSecurityMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Database states
@@ -132,8 +133,10 @@ export default function AdminDashboard() {
   // --- Admin Security Settings Handlers ---
   const handleOpenSecurityModal = () => {
     const creds = supabaseMock.getAdminCredentials();
+    const currentPin = supabaseMock.getValidatorPin();
     setAdminNewEmail(creds.email);
     setAdminName(creds.name);
+    setValidatorPinInput(currentPin);
     setAdminCurrentPassword('');
     setAdminNewPassword('');
     setAdminConfirmPassword('');
@@ -166,6 +169,7 @@ export default function AdminDashboard() {
       }
     }
 
+    // Salvar credenciais do Admin
     const res = supabaseMock.updateAdminCredentials({
       currentPassword: adminCurrentPassword,
       newEmail: adminNewEmail,
@@ -178,7 +182,12 @@ export default function AdminDashboard() {
       return;
     }
 
-    setSecurityMsg({ type: 'success', text: 'Credenciais de login e senha do administrador atualizadas com sucesso!' });
+    // Salvar PIN do validador se informado
+    if (validatorPinInput && validatorPinInput.trim().length >= 4) {
+      supabaseMock.updateValidatorPin(validatorPinInput.trim());
+    }
+
+    setSecurityMsg({ type: 'success', text: 'Credenciais de login e PIN do validador atualizados com sucesso!' });
     setAdminUser(supabaseMock.getCurrentUser());
     setAdminCurrentPassword('');
     setAdminNewPassword('');
@@ -1772,6 +1781,26 @@ export default function AdminDashboard() {
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none"
                   />
                 </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-lime-50/60 dark:bg-lime-950/20 border border-lime-200/60 dark:border-lime-900/30 flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-800 dark:text-lime-300 flex items-center gap-1.5">
+                    <QrCode className="h-3.5 w-3.5 text-[#8DC63F]" /> PIN do Validador QR Code (Equipe)
+                  </label>
+                  <span className="text-[10px] text-slate-500 font-mono">/validar</span>
+                </div>
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder="Ex: 2026"
+                  value={validatorPinInput}
+                  onChange={(e) => setValidatorPinInput(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-lg border border-lime-200 dark:border-lime-800/60 bg-white dark:bg-slate-900 text-xs font-mono font-bold focus:outline-none"
+                />
+                <span className="text-[10px] text-slate-500">
+                  Código numérico de 4 a 6 dígitos fornecido aos voluntários/staff nos pontos de entrega dos kits.
+                </span>
               </div>
 
               <div className="flex gap-3 mt-3">

@@ -1,7 +1,3 @@
-# Force Redeploy
-
-This file is intentionally committed to trigger a new build on Vercel.
-
-Timestamp: 2026-09-08T15:58:30-03:00
-
-Any change to this file (e.g., updating the timestamp) will cause Vercel to redeploy the project.
+# Atualização Cãominhada Petsalut 2026
+Deploy do Sistema de Segurança e Proteção com PIN no Validador de QR Code (/validar).
+Timestamp: 2026-09-08 16:24

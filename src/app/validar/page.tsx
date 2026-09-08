@@ -10,7 +10,7 @@ import {
   Camera, QrCode, CheckCircle2, AlertTriangle, XCircle, Search, 
   RotateCcw, Volume2, VolumeX, ArrowLeft, MapPin, Heart, 
   User, ShieldCheck, Check, Package, Sparkles, RefreshCw, Upload,
-  Smartphone, Award, Clock
+  Smartphone, Award, Clock, Lock, KeyRound, LogOut, ArrowRight, ShieldAlert
 } from 'lucide-react';
 
 export default function QrCodeValidatorPage() {
@@ -18,6 +18,12 @@ export default function QrCodeValidatorPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   
+  // Auth / Security state
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
   // Scanner state
   const [scanning, setScanning] = useState(true);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -84,15 +90,75 @@ export default function QrCodeValidatorPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Check if user is already authorized (Staff PIN saved in localStorage or Admin logged in)
+    const authorized = supabaseMock.isValidatorAuthorized();
+    setIsAuthorized(authorized);
+
     loadData();
     supabaseMock.syncFromSupabase().then(() => {
       loadData();
     });
   }, []);
 
+  // Handle PIN authentication
+  const handlePinSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPinError(null);
+    setIsAuthenticating(true);
+
+    const result = supabaseMock.verifyValidatorAccess(pinInput);
+    if (result.success) {
+      setIsAuthorized(true);
+      setPinInput('');
+      playSound('success');
+    } else {
+      setPinError(result.error || 'PIN inválido');
+      playSound('error');
+    }
+    setIsAuthenticating(false);
+  };
+
+  // Quick PIN pad number click
+  const handleKeypadClick = (val: string) => {
+    if (pinInput.length < 8) {
+      const next = pinInput + val;
+      setPinInput(next);
+      setPinError(null);
+      
+      // Auto verify when 4 digits are reached
+      if (next.length === 4) {
+        const result = supabaseMock.verifyValidatorAccess(next);
+        if (result.success) {
+          setIsAuthorized(true);
+          setPinInput('');
+          playSound('success');
+        }
+      }
+    }
+  };
+
+  const handleKeypadBackspace = () => {
+    setPinInput(prev => prev.slice(0, -1));
+    setPinError(null);
+  };
+
+  const handleKeypadClear = () => {
+    setPinInput('');
+    setPinError(null);
+  };
+
+  // Lock validator again
+  const handleLockValidator = () => {
+    supabaseMock.logoutValidator();
+    setIsAuthorized(false);
+    setPinInput('');
+    setPinError(null);
+    handleResetScan();
+  };
+
   // Initialize and manage Html5Qrcode scanner
   useEffect(() => {
-    if (!mounted || searchMode !== 'camera') return;
+    if (!mounted || !isAuthorized || searchMode !== 'camera') return;
 
     let isMounted = true;
     let scannerInstance: any = null;
@@ -156,7 +222,7 @@ export default function QrCodeValidatorPage() {
         } catch (e) {}
       }
     };
-  }, [mounted, searchMode, activeFacingMode]);
+  }, [mounted, isAuthorized, searchMode, activeFacingMode]);
 
   // Process Scanned Code or Manual Query
   const handleCodeScanned = (rawText: string) => {
@@ -305,22 +371,162 @@ export default function QrCodeValidatorPage() {
 
   if (!mounted) return null;
 
+  // -------------------------------------------------------------
+  // LOCKSCREEN / PIN ACCESS SCREEN
+  // -------------------------------------------------------------
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 font-sans p-4 sm:p-6">
+        
+        {/* Top bar with back to home */}
+        <div className="flex items-center justify-between max-w-sm w-full mx-auto pt-2">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="h-4 w-4" /> Voltar ao Início
+          </Link>
+          <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+            <ShieldCheck className="h-3.5 w-3.5 text-[#8DC63F]" /> Acesso Seguro
+          </div>
+        </div>
+
+        {/* Center Card with PIN & Mobile Keypad */}
+        <div className="max-w-sm w-full mx-auto my-auto flex flex-col items-center text-center">
+          
+          <div className="relative mb-4">
+            <div className="h-16 w-16 rounded-3xl bg-slate-900 border-2 border-slate-800 flex items-center justify-center text-[#8DC63F] shadow-2xl">
+              <Lock className="h-8 w-8" />
+            </div>
+            <span className="absolute -bottom-1 -right-1 p-1 bg-[#8DC63F] rounded-full text-slate-950">
+              <QrCode className="h-3.5 w-3.5" />
+            </span>
+          </div>
+
+          <h2 className="text-xl font-black text-white font-poppins tracking-tight">
+            Validador de Inscrição
+          </h2>
+          <p className="text-xs text-slate-400 mt-1 max-w-[280px]">
+            Área de uso exclusivo da organização e pontos de retirada. Insira o PIN da equipe:
+          </p>
+
+          {/* PIN Input / Dots Display */}
+          <form onSubmit={handlePinSubmit} className="w-full mt-5 flex flex-col items-center">
+            
+            <div className="flex items-center justify-center gap-3 mb-4">
+              {[0, 1, 2, 3].map((index) => {
+                const isFilled = pinInput.length > index;
+                return (
+                  <div
+                    key={index}
+                    className={`h-12 w-12 rounded-2xl border-2 flex items-center justify-center text-lg font-black font-mono transition-all ${
+                      isFilled
+                        ? 'border-[#8DC63F] bg-[#8DC63F]/10 text-[#8DC63F] scale-105 shadow-[0_0_15px_rgba(141,198,63,0.3)]'
+                        : 'border-slate-800 bg-slate-900 text-slate-600'
+                    }`}
+                  >
+                    {isFilled ? '●' : ''}
+                  </div>
+                );
+              })}
+            </div>
+
+            {pinError && (
+              <div className="mb-3 px-3 py-1.5 rounded-xl bg-red-950/60 border border-red-500 text-red-300 text-xs font-semibold flex items-center gap-1.5 animate-shake">
+                <ShieldAlert className="h-4 w-4 shrink-0 text-red-400" />
+                <span>{pinError}</span>
+              </div>
+            )}
+
+            {/* Mobile Keypad (0-9) */}
+            <div className="grid grid-cols-3 gap-2 w-full max-w-[280px] my-2">
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
+                <button
+                  key={digit}
+                  type="button"
+                  onClick={() => handleKeypadClick(digit)}
+                  className="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-extrabold text-white hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center"
+                >
+                  {digit}
+                </button>
+              ))}
+              
+              <button
+                type="button"
+                onClick={handleKeypadClear}
+                className="h-14 rounded-2xl bg-slate-900/60 border border-slate-850 text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center"
+              >
+                Limpar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleKeypadClick('0')}
+                className="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-extrabold text-white hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center"
+              >
+                0
+              </button>
+
+              <button
+                type="button"
+                onClick={handleKeypadBackspace}
+                className="h-14 rounded-2xl bg-slate-900/60 border border-slate-850 text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center"
+              >
+                ⌫
+              </button>
+            </div>
+
+            {/* Manual text submit fallback / button */}
+            <button
+              type="submit"
+              disabled={isAuthenticating || pinInput.length === 0}
+              className="w-full max-w-[280px] mt-4 py-3.5 rounded-2xl bg-[#003A8C] hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg"
+            >
+              {isAuthenticating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <>Desbloquear Validador <ArrowRight className="h-4 w-4" /></>}
+            </button>
+
+          </form>
+
+        </div>
+
+        {/* Footer with Admin Login Link */}
+        <div className="max-w-sm w-full mx-auto pb-4 pt-2 text-center flex flex-col gap-2">
+          <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+            <span>É o Administrador ou Entidade?</span>
+            <Link href="/login" className="text-[#8DC63F] font-bold hover:underline">
+              Fazer Login
+            </Link>
+          </div>
+          <span className="text-[10px] text-slate-600">
+            PIN padrão inicial da equipe: <strong>2026</strong> (configurável no painel)
+          </span>
+        </div>
+
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // AUTHORIZED / SCANNER DASHBOARD
+  // -------------------------------------------------------------
   return (
     <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100 font-sans select-none">
       
       {/* Top Header */}
       <header className="h-16 px-4 flex items-center justify-between border-b border-slate-800 bg-slate-950 sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <Link href="/admin" className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-850 transition-colors">
+        <div className="flex items-center gap-2.5">
+          <Link href="/admin" className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-850 transition-colors" title="Painel Admin">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex items-center gap-2">
             <span className="p-1.5 rounded-lg bg-[#8DC63F] text-slate-950 font-black text-xs">
               <QrCode className="h-4 w-4" />
             </span>
-            <span className="font-extrabold text-sm tracking-tight text-white font-poppins">
-              Validador de Inscrição
-            </span>
+            <div className="flex flex-col text-left">
+              <span className="font-extrabold text-xs sm:text-sm tracking-tight text-white font-poppins">
+                Validador de Inscrição
+              </span>
+              <span className="text-[9px] text-[#8DC63F] font-bold uppercase tracking-wider flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#8DC63F] animate-pulse" /> Ativo & Conectado
+              </span>
+            </div>
           </div>
         </div>
 
@@ -333,9 +539,19 @@ export default function QrCodeValidatorPage() {
           >
             {soundEnabled ? <Volume2 className="h-4 w-4 text-emerald-400" /> : <VolumeX className="h-4 w-4 text-slate-500" />}
           </button>
-          <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold">
+          
+          <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold hidden sm:block">
             {totalKitsEntregues}/{totalInscricoes} Kits
           </div>
+
+          <button
+            type="button"
+            onClick={handleLockValidator}
+            className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+            title="Bloquear Validador"
+          >
+            <Lock className="h-4 w-4" />
+          </button>
         </div>
       </header>
 

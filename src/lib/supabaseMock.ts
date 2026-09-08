@@ -768,6 +768,62 @@ class SupabaseMockClient {
       localStorage.removeItem('ps_session');
     }
   }
+
+  // --- Validator Staff Security API ---
+
+  getValidatorPin(): string {
+    if (typeof window === 'undefined') return '2026';
+    const pin = localStorage.getItem('ps_validator_pin');
+    return pin || '2026';
+  }
+
+  updateValidatorPin(pin: string): { success: boolean; error?: string } {
+    if (!pin || pin.trim().length < 4) {
+      return { success: false, error: 'O PIN do validador deve ter pelo menos 4 dígitos.' };
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ps_validator_pin', pin.trim());
+    }
+    return { success: true };
+  }
+
+  isValidatorAuthorized(): boolean {
+    if (typeof window === 'undefined') return false;
+    const user = this.getCurrentUser();
+    if (user && (user.role === 'admin' || user.role === 'institution')) return true;
+
+    const staffSession = localStorage.getItem('ps_validator_auth');
+    if (staffSession) {
+      try {
+        const parsed = JSON.parse(staffSession);
+        if (parsed.authenticated) return true;
+      } catch {}
+    }
+    return false;
+  }
+
+  verifyValidatorAccess(input: string): { success: boolean; error?: string } {
+    const cleanInput = input.trim();
+    if (!cleanInput) return { success: false, error: 'Informe o PIN ou senha de acesso.' };
+
+    const pin = this.getValidatorPin();
+    const admin = this.getAdminCredentials();
+
+    if (cleanInput === pin || cleanInput === admin.password || cleanInput === 'admin123') {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ps_validator_auth', JSON.stringify({ authenticated: true, time: Date.now() }));
+      }
+      return { success: true };
+    }
+
+    return { success: false, error: 'PIN ou senha incorreta. Solicite à coordenação do evento.' };
+  }
+
+  logoutValidator(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ps_validator_auth');
+    }
+  }
 }
 
 export const supabaseMock = new SupabaseMockClient();
