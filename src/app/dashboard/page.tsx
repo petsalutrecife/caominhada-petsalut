@@ -298,16 +298,16 @@ export default function ParticipantDashboard() {
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400">Liberado</span>
                   )}
                   {(registration.statusKit === 'Aguardando' || !isApproved) && (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-400 font-mono">Bloqueado</span>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-400">Aguardando</span>
                   )}
                 </div>
 
                 <div>
                   <h4 className="text-xs uppercase tracking-wider font-bold text-slate-400">Status do Kit</h4>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2">
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2 leading-relaxed">
                     {registration.statusKit === 'Retirado' && 'Kit já retirado. Excelente caminhada!'}
                     {registration.statusKit === 'Liberado' && isApproved && 'Kit liberado para retirada!'}
-                    {(!isApproved || registration.statusKit === 'Aguardando') && 'Será liberado assim que a doação for aprovada.'}
+                    {(registration.statusKit === 'Aguardando' || !isApproved) && 'Aguardando data de liberação, informaremos assim que seu kit estiver disponível no ponto de retirada.'}
                   </p>
                 </div>
 
