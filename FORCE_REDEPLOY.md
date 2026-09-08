@@ -1,3 +1,3 @@
 # Atualização Cãominhada Petsalut 2026
-Deploy do Filtro por Posto de Retirada e Alertas de Divergência no Validador Mobile (/validar).
-Timestamp: 2026-09-08 16:59
+Deploy do Sistema de Disparo Rápido de Mensagens no WhatsApp (/admin).
+Timestamp: 2026-09-08 17:08

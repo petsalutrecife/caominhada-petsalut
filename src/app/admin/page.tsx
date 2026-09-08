@@ -9,7 +9,7 @@ import { supabaseMock, Registration, Sponsor, Expense, Institution } from '@/lib
 import { 
   LogOut, ClipboardList, TrendingUp, Users, Award, Landmark, Plus, Trash2, 
   Download, Edit, Search, Filter, ShieldCheck, Check, DollarSign, Upload, Globe, FileText, CheckSquare, RefreshCw,
-  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin, Key, Lock, Settings, UserCheck, QrCode
+  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin, Key, Lock, Settings, UserCheck, QrCode, MessageCircle, Send, Share2
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -51,6 +51,12 @@ export default function AdminDashboard() {
   const [filterDonation, setFilterDonation] = useState<string>('All');
   const [filterInstitution, setFilterInstitution] = useState<string>('All');
   const [viewReceiptUrl, setViewReceiptUrl] = useState<string | null>(null);
+
+  // WhatsApp Dispatcher Modal states
+  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
+  const [whatsappParticipant, setWhatsappParticipant] = useState<Registration | null>(null);
+  const [whatsappTemplate, setWhatsappTemplate] = useState<'kit' | 'approved' | 'pending' | 'custom'>('kit');
+  const [whatsappCustomText, setWhatsappCustomText] = useState('');
 
   // Institution CRUD states
   const [instModalOpen, setInstModalOpen] = useState(false);
@@ -232,6 +238,73 @@ export default function AdminDashboard() {
       supabaseMock.deleteRegistration(id);
       refreshData();
     }
+  };
+
+  // --- WhatsApp Helpers & Actions ---
+  const getPickupName = (notes?: string) => {
+    if (!notes) return 'Não informado';
+    if (notes.includes('Zona Sul')) return 'Zona Sul - Pet Happy (Boa Viagem)';
+    if (notes.includes('Zona Norte')) return 'Zona Norte - Oh Pet (Graças)';
+    return notes.replace('Retirada: ', '');
+  };
+
+  const buildWhatsAppMessage = (
+    reg: Registration, 
+    template: 'kit' | 'approved' | 'pending' | 'custom',
+    customText?: string
+  ) => {
+    if (template === 'custom') {
+      return customText || '';
+    }
+
+    const instName = institutions.find(i => i.id === reg.selectedInstitution)?.name || 'Instituição Parceira';
+    const pickup = getPickupName(reg.notes);
+
+    if (template === 'kit') {
+      return `Olá, *${reg.tutorName}*! 🐾\n\nSeu *Kit Oficial da Cãominhada Petsalut 2026* já está LIBERADO para retirada no ponto selecionado:\n📍 *${pickup}*\n\n📋 *Inscrição:* ${reg.regNumber}\n🐶 *Pet:* ${reg.petName}\n\nPara retirar, basta apresentar o seu número de inscrição ou o QR Code disponível no painel. Te esperamos lá com muita alegria! 💚🎉`;
+    }
+
+    if (template === 'approved') {
+      return `Olá, *${reg.tutorName}*! 🐾\n\nSua inscrição na *Cãominhada Petsalut 2026* foi confirmada com sucesso!\n\n📋 *Inscrição:* ${reg.regNumber}\n🐶 *Pet:* ${reg.petName}\n💚 *Doação Social:* R$ ${reg.donationValue.toFixed(2)} (${instName})\n📍 *Ponto de Retirada:* ${pickup}\n\nEm breve avisaremos por aqui assim que os kits estiverem liberados para retirada nos pontos de apoio. Obrigado por celebrar a saúde e apoiar a causa pet com a gente! 🐶✨`;
+    }
+
+    if (template === 'pending') {
+      return `Olá, *${reg.tutorName}*! 🐾\n\nIdentificamos sua pré-inscrição na *Cãominhada Petsalut 2026* para o pet *${reg.petName}* (Nº ${reg.regNumber}).\n\nPara garantir sua vaga e a confecção do kit do seu pet, lembre-se de concluir o envio do comprovante da doação social no painel:\n🔗 https://caominhada.petsalut.com.br/login\n\nQualquer dúvida, estamos à disposição por aqui! 💚`;
+    }
+
+    return '';
+  };
+
+  const handleOpenWhatsAppModal = (reg: Registration) => {
+    setWhatsappParticipant(reg);
+    // Auto choose the most suitable template
+    if (reg.statusKit === 'Liberado') {
+      setWhatsappTemplate('kit');
+    } else if (reg.donationStatus === 'APROVADA') {
+      setWhatsappTemplate('approved');
+    } else {
+      setWhatsappTemplate('pending');
+    }
+    setWhatsappCustomText('');
+    setWhatsappModalOpen(true);
+  };
+
+  const handleTriggerWhatsApp = (reg: Registration, template: 'kit' | 'approved' | 'pending' | 'custom', customText?: string) => {
+    if (!reg.tutorWhatsApp) {
+      alert('Esta inscrição não possui número de WhatsApp cadastrado.');
+      return;
+    }
+
+    const rawDigits = reg.tutorWhatsApp.replace(/\D/g, '');
+    let cleanPhone = rawDigits;
+    if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+      cleanPhone = `55${cleanPhone}`;
+    }
+
+    const messageText = buildWhatsAppMessage(reg, template, customText);
+    const encodedText = encodeURIComponent(messageText);
+    const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
+    window.open(url, '_blank');
   };
 
   // CRUD Institutions
@@ -1094,13 +1167,22 @@ export default function AdminDashboard() {
                             </select>
                           </td>
                           <td className="p-4 text-center">
-                            <button
-                              onClick={() => handleDeleteParticipant(r.id)}
-                              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/35 text-slate-450 hover:text-red-500 transition-colors"
-                              title="Excluir Inscrição"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center justify-center gap-1.5">
+                              <button
+                                onClick={() => handleOpenWhatsAppModal(r)}
+                                className="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-colors flex items-center gap-1"
+                                title="Enviar Mensagem WhatsApp"
+                              >
+                                <MessageCircle className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteParticipant(r.id)}
+                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/35 text-slate-400 hover:text-red-500 transition-colors"
+                                title="Excluir Inscrição"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -2056,6 +2138,150 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* WHATSAPP DISPATCHER MODAL */}
+      {whatsappModalOpen && whatsappParticipant && (
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-950 max-w-lg w-full rounded-3xl p-6 border border-slate-200 dark:border-slate-850 shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => { setWhatsappModalOpen(false); setWhatsappParticipant(null); }}
+              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-5 pb-3 border-b border-slate-100 dark:border-slate-900">
+              <div className="h-10 w-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white font-poppins">Enviar Mensagem no WhatsApp</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Para <strong>{whatsappParticipant.tutorName}</strong> ({whatsappParticipant.tutorWhatsApp})
+                </p>
+              </div>
+            </div>
+
+            {/* Target Details Badge */}
+            <div className="bg-slate-50 dark:bg-slate-900/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-850 grid grid-cols-2 gap-2 text-xs mb-4 text-left">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Inscrição & Pet</span>
+                <strong className="text-slate-900 dark:text-white block font-mono text-[11px] mt-0.5">{whatsappParticipant.regNumber}</strong>
+                <span className="text-slate-500 text-[11px] block">{whatsappParticipant.petName} 🐾</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Status Atual</span>
+                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold mt-0.5 ${
+                  whatsappParticipant.statusKit === 'Retirado'
+                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                    : whatsappParticipant.statusKit === 'Liberado'
+                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
+                }`}>
+                  Kit: {whatsappParticipant.statusKit}
+                </span>
+                <span className="text-[10px] text-slate-400 block mt-0.5 truncate">
+                  {getPickupName(whatsappParticipant.notes)}
+                </span>
+              </div>
+            </div>
+
+            {/* Template Selector Pills */}
+            <div className="flex flex-col gap-2 text-left mb-4">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Escolha o Modelo de Mensagem:</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setWhatsappTemplate('kit')}
+                  className={`p-2.5 rounded-xl text-left border text-xs transition-all flex flex-col gap-1 ${
+                    whatsappTemplate === 'kit'
+                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-bold'
+                      : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                  }`}
+                >
+                  <span className="text-[11px] font-bold">📦 Kit Liberado</span>
+                  <span className="text-[9px] opacity-75">Aviso de retirada</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setWhatsappTemplate('approved')}
+                  className={`p-2.5 rounded-xl text-left border text-xs transition-all flex flex-col gap-1 ${
+                    whatsappTemplate === 'approved'
+                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-bold'
+                      : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                  }`}
+                >
+                  <span className="text-[11px] font-bold">✅ Confirmada</span>
+                  <span className="text-[9px] opacity-75">Inscrição e doação</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setWhatsappTemplate('pending')}
+                  className={`p-2.5 rounded-xl text-left border text-xs transition-all flex flex-col gap-1 ${
+                    whatsappTemplate === 'pending'
+                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-bold'
+                      : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                  }`}
+                >
+                  <span className="text-[11px] font-bold">⏳ Pendente</span>
+                  <span className="text-[9px] opacity-75">Lembrete PIX</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Message Preview & Edit Box */}
+            <div className="flex flex-col gap-1.5 text-left mb-5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Prévia da Mensagem (Editável):</label>
+                <span className="text-[10px] text-slate-400">Suporta formatação do WhatsApp (*negrito*)</span>
+              </div>
+              <textarea
+                rows={7}
+                value={
+                  whatsappTemplate === 'custom' 
+                    ? whatsappCustomText 
+                    : (whatsappCustomText || buildWhatsAppMessage(whatsappParticipant, whatsappTemplate))
+                }
+                onChange={(e) => {
+                  setWhatsappTemplate('custom');
+                  setWhatsappCustomText(e.target.value);
+                }}
+                placeholder="Digite a mensagem personalizada..."
+                className="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 leading-relaxed font-sans"
+              />
+            </div>
+
+            {/* Actions: Cancel vs Send WhatsApp */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => { setWhatsappModalOpen(false); setWhatsappParticipant(null); }}
+                className="flex-1 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-200 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleTriggerWhatsApp(
+                    whatsappParticipant, 
+                    whatsappTemplate, 
+                    whatsappCustomText || buildWhatsAppMessage(whatsappParticipant, whatsappTemplate)
+                  );
+                  setWhatsappModalOpen(false);
+                }}
+                className="flex-[2] py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2"
+              >
+                <Send className="h-4 w-4" /> Abrir no WhatsApp Web/App
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
