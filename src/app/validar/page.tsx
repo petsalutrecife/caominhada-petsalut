@@ -10,7 +10,8 @@ import {
   Camera, QrCode, CheckCircle2, AlertTriangle, XCircle, Search, 
   RotateCcw, Volume2, VolumeX, ArrowLeft, MapPin, Heart, 
   User, ShieldCheck, Check, Package, Sparkles, RefreshCw, Upload,
-  Smartphone, Award, Clock, Lock, KeyRound, LogOut, ArrowRight, ShieldAlert
+  Smartphone, Award, Clock, Lock, KeyRound, LogOut, ArrowRight, ShieldAlert,
+  SlidersHorizontal, Building
 } from 'lucide-react';
 
 export default function QrCodeValidatorPage() {
@@ -24,6 +25,9 @@ export default function QrCodeValidatorPage() {
   const [pinError, setPinError] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
+  // Station Filter (Posto de Atendimento)
+  const [stationFilter, setStationFilter] = useState<'ALL' | 'Zona Sul' | 'Zona Norte'>('ALL');
+
   // Scanner state
   const [scanning, setScanning] = useState(true);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -35,7 +39,7 @@ export default function QrCodeValidatorPage() {
   const [foundRegistration, setFoundRegistration] = useState<Registration | null>(null);
   const [notFoundQuery, setNotFoundQuery] = useState<string | null>(null);
   const [isUpdatingKit, setIsUpdatingKit] = useState(false);
-  const [recentScans, setRecentScans] = useState<Array<{ reg: Registration; time: string }>>([]);
+  const [recentScans, setRecentScans] = useState<Array<{ reg: Registration; time: string; stationMatch: boolean }>>([]);
   
   // Manual search
   const [manualQuery, setManualQuery] = useState('');
@@ -94,11 +98,26 @@ export default function QrCodeValidatorPage() {
     const authorized = supabaseMock.isValidatorAuthorized();
     setIsAuthorized(authorized);
 
+    // Load saved station filter
+    if (typeof window !== 'undefined') {
+      const savedStation = localStorage.getItem('ps_validator_station') as any;
+      if (savedStation && ['ALL', 'Zona Sul', 'Zona Norte'].includes(savedStation)) {
+        setStationFilter(savedStation);
+      }
+    }
+
     loadData();
     supabaseMock.syncFromSupabase().then(() => {
       loadData();
     });
   }, []);
+
+  const handleStationChange = (newStation: 'ALL' | 'Zona Sul' | 'Zona Norte') => {
+    setStationFilter(newStation);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ps_validator_station', newStation);
+    }
+  };
 
   // Handle PIN authentication
   const handlePinSubmit = (e: React.FormEvent) => {
@@ -154,6 +173,20 @@ export default function QrCodeValidatorPage() {
     setPinInput('');
     setPinError(null);
     handleResetScan();
+  };
+
+  // Helper to get registration pickup point
+  const getRegStation = (reg: Registration): 'Zona Sul' | 'Zona Norte' | 'Outro' => {
+    if (reg.notes?.includes('Zona Sul')) return 'Zona Sul';
+    if (reg.notes?.includes('Zona Norte')) return 'Zona Norte';
+    return 'Outro';
+  };
+
+  // Check station match
+  const isStationMatch = (reg: Registration): boolean => {
+    if (stationFilter === 'ALL') return true;
+    const regStation = getRegStation(reg);
+    return regStation === stationFilter;
   };
 
   // Initialize and manage Html5Qrcode scanner
@@ -256,7 +289,11 @@ export default function QrCodeValidatorPage() {
       setFoundRegistration(found);
       setNotFoundQuery(null);
       
-      if (found.statusKit === 'Retirado') {
+      const match = isStationMatch(found);
+
+      if (!match) {
+        playSound('warning');
+      } else if (found.statusKit === 'Retirado') {
         playSound('warning');
       } else if (found.donationStatus === 'APROVADA') {
         playSound('success');
@@ -265,7 +302,11 @@ export default function QrCodeValidatorPage() {
       }
 
       // Add to recent scans
-      setRecentScans(prev => [{ reg: found, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }, ...prev.slice(0, 4)]);
+      setRecentScans(prev => [{ 
+        reg: found, 
+        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        stationMatch: match
+      }, ...prev.slice(0, 4)]);
     } else {
       setFoundRegistration(null);
       setNotFoundQuery(rawText);
@@ -292,11 +333,18 @@ export default function QrCodeValidatorPage() {
     if (found) {
       setFoundRegistration(found);
       setNotFoundQuery(null);
-      if (found.statusKit === 'Retirado') playSound('warning');
+      const match = isStationMatch(found);
+
+      if (!match) playSound('warning');
+      else if (found.statusKit === 'Retirado') playSound('warning');
       else if (found.donationStatus === 'APROVADA') playSound('success');
       else playSound('warning');
 
-      setRecentScans(prev => [{ reg: found, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }, ...prev.slice(0, 4)]);
+      setRecentScans(prev => [{ 
+        reg: found, 
+        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        stationMatch: match
+      }, ...prev.slice(0, 4)]);
     } else {
       setFoundRegistration(null);
       setNotFoundQuery(query);
@@ -366,8 +414,13 @@ export default function QrCodeValidatorPage() {
 
   const getInstName = (instId: string) => institutions.find(i => i.id === instId)?.name || 'Instituição Parceira';
 
-  const totalKitsEntregues = registrations.filter(r => r.statusKit === 'Retirado').length;
-  const totalInscricoes = registrations.length;
+  // Metrics based on selected station
+  const filteredRegs = stationFilter === 'ALL' 
+    ? registrations 
+    : registrations.filter(r => getRegStation(r) === stationFilter);
+
+  const totalKitsEntregues = filteredRegs.filter(r => r.statusKit === 'Retirado').length;
+  const totalInscricoes = filteredRegs.length;
 
   if (!mounted) return null;
 
@@ -506,52 +559,101 @@ export default function QrCodeValidatorPage() {
   // -------------------------------------------------------------
   // AUTHORIZED / SCANNER DASHBOARD
   // -------------------------------------------------------------
+  const selectedRegStation = foundRegistration ? getRegStation(foundRegistration) : null;
+  const hasStationDivergence = foundRegistration && stationFilter !== 'ALL' && selectedRegStation !== stationFilter;
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100 font-sans select-none">
       
       {/* Top Header */}
-      <header className="h-16 px-4 flex items-center justify-between border-b border-slate-800 bg-slate-950 sticky top-0 z-50">
-        <div className="flex items-center gap-2.5">
-          <Link href="/admin" className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-850 transition-colors" title="Painel Admin">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-[#8DC63F] text-slate-950 font-black text-xs">
-              <QrCode className="h-4 w-4" />
-            </span>
-            <div className="flex flex-col text-left">
-              <span className="font-extrabold text-xs sm:text-sm tracking-tight text-white font-poppins">
-                Validador de Inscrição
+      <header className="px-4 py-2.5 flex flex-col gap-2 border-b border-slate-800 bg-slate-950 sticky top-0 z-50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Link href="/admin" className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-850 transition-colors" title="Painel Admin">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-[#8DC63F] text-slate-950 font-black text-xs">
+                <QrCode className="h-4 w-4" />
               </span>
-              <span className="text-[9px] text-[#8DC63F] font-bold uppercase tracking-wider flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#8DC63F] animate-pulse" /> Ativo & Conectado
-              </span>
+              <div className="flex flex-col text-left">
+                <span className="font-extrabold text-xs sm:text-sm tracking-tight text-white font-poppins">
+                  Validador de Inscrição
+                </span>
+                <span className="text-[9px] text-[#8DC63F] font-bold uppercase tracking-wider flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#8DC63F] animate-pulse" /> Ativo & Conectado
+                </span>
+              </div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              title={soundEnabled ? 'Silenciar bipes' : 'Ativar bipes'}
+            >
+              {soundEnabled ? <Volume2 className="h-4 w-4 text-emerald-400" /> : <VolumeX className="h-4 w-4 text-slate-500" />}
+            </button>
+            
+            <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold">
+              {totalKitsEntregues}/{totalInscricoes} Kits
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLockValidator}
+              className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+              title="Bloquear Validador"
+            >
+              <Lock className="h-4 w-4" />
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            title={soundEnabled ? 'Silenciar bipes' : 'Ativar bipes'}
-          >
-            {soundEnabled ? <Volume2 className="h-4 w-4 text-emerald-400" /> : <VolumeX className="h-4 w-4 text-slate-500" />}
-          </button>
-          
-          <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold hidden sm:block">
-            {totalKitsEntregues}/{totalInscricoes} Kits
+        {/* Station Selector Pill Bar (Posto de Retirada Atual) */}
+        <div className="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-[11px] font-bold">
+          <span className="text-[10px] uppercase text-slate-500 px-2 flex items-center gap-1">
+            <MapPin className="h-3 w-3 text-[#8DC63F]" /> Posto:
+          </span>
+          <div className="flex-1 grid grid-cols-3 gap-1">
+            <button
+              type="button"
+              onClick={() => handleStationChange('ALL')}
+              className={`py-1 rounded-lg text-[10px] transition-all ${
+                stationFilter === 'ALL'
+                  ? 'bg-slate-800 text-white shadow font-extrabold border border-slate-700'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Geral
+            </button>
+            <button
+              type="button"
+              onClick={() => handleStationChange('Zona Sul')}
+              className={`py-1 rounded-lg text-[10px] transition-all truncate ${
+                stationFilter === 'Zona Sul'
+                  ? 'bg-[#003A8C] text-white shadow font-extrabold border border-blue-600'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Posto Zona Sul - Pet Happy (Boa Viagem)"
+            >
+              Zona Sul
+            </button>
+            <button
+              type="button"
+              onClick={() => handleStationChange('Zona Norte')}
+              className={`py-1 rounded-lg text-[10px] transition-all truncate ${
+                stationFilter === 'Zona Norte'
+                  ? 'bg-[#003A8C] text-white shadow font-extrabold border border-blue-600'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Posto Zona Norte - Oh Pet (Graças)"
+            >
+              Zona Norte
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={handleLockValidator}
-            className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
-            title="Bloquear Validador"
-          >
-            <Lock className="h-4 w-4" />
-          </button>
         </div>
       </header>
 
@@ -674,8 +776,24 @@ export default function QrCodeValidatorPage() {
 
         {/* 3. VERIFICATION RESULT CARD (SUCCESS) */}
         {foundRegistration && (
-          <div className="flex flex-col gap-4 animate-in zoom-in-95 duration-200">
+          <div className="flex flex-col gap-3 animate-in zoom-in-95 duration-200">
             
+            {/* DIVERGENCE WARNING ALERT (If participant selected another pickup point) */}
+            {hasStationDivergence && (
+              <div className="p-4 rounded-3xl bg-amber-500/15 border-2 border-amber-500 text-amber-200 text-left flex flex-col gap-2 animate-pulse">
+                <div className="flex items-center gap-2 font-extrabold text-xs text-amber-400 uppercase tracking-wide">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  Atenção: Posto de Retirada Diferente
+                </div>
+                <p className="text-xs leading-relaxed text-amber-100">
+                  O participante cadastrou a retirada para <strong>{selectedRegStation === 'Zona Sul' ? 'Zona Sul (Pet Happy)' : 'Zona Norte (Oh Pet Graças)'}</strong>, mas este aparelho está operando o posto <strong>{stationFilter}</strong>.
+                </p>
+                <span className="text-[10px] text-amber-300/80">
+                  Verifique a disponibilidade do kit reserva antes de prosseguir com a entrega.
+                </span>
+              </div>
+            )}
+
             {/* Status Header Banner */}
             <div className={`p-5 rounded-3xl border-2 flex items-center gap-4 ${
               foundRegistration.statusKit === 'Retirado'
@@ -748,9 +866,9 @@ export default function QrCodeValidatorPage() {
               <div className="grid grid-cols-2 gap-4 pb-4 border-b border-slate-850 text-xs">
                 <div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase block flex items-center gap-1">
-                    <MapPin className="h-3 w-3 text-[#8DC63F]" /> Ponto de Retirada
+                    <MapPin className="h-3 w-3 text-[#8DC63F]" /> Ponto Selecionado
                   </span>
-                  <strong className="text-xs text-white block mt-1">
+                  <strong className={`text-xs block mt-1 ${hasStationDivergence ? 'text-amber-400 font-black' : 'text-white'}`}>
                     {foundRegistration.notes?.includes('Zona Sul') 
                       ? 'Zona Sul - Pet Happy' 
                       : foundRegistration.notes?.includes('Zona Norte') 
@@ -779,13 +897,18 @@ export default function QrCodeValidatorPage() {
                     type="button"
                     disabled={isUpdatingKit}
                     onClick={() => handleConfirmKitDelivery(foundRegistration.id)}
-                    className="w-full py-4 rounded-2xl bg-[#8DC63F] hover:bg-[#7cb335] text-slate-950 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-lime-500/20 active:scale-95"
+                    className={`w-full py-4 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 ${
+                      hasStationDivergence
+                        ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-amber-500/20'
+                        : 'bg-[#8DC63F] hover:bg-[#7cb335] text-slate-950 shadow-lime-500/20'
+                    }`}
                   >
                     {isUpdatingKit ? (
                       <RefreshCw className="h-5 w-5 animate-spin" />
                     ) : (
                       <>
-                        <Check className="h-5 w-5" /> Entregar Kit do Participante
+                        <Check className="h-5 w-5" /> 
+                        {hasStationDivergence ? 'Entregar Kit (Mesmo com Divergência)' : 'Entregar Kit do Participante'}
                       </>
                     )}
                   </button>
@@ -869,7 +992,14 @@ export default function QrCodeValidatorPage() {
                       🐾
                     </div>
                     <div>
-                      <span className="font-bold text-white block">{item.reg.tutorName}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-white block">{item.reg.tutorName}</span>
+                        {!item.stationMatch && (
+                          <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 text-[9px] font-extrabold">
+                            Outro Posto
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[10px] text-slate-400 font-mono">{item.reg.regNumber} • {item.reg.petName}</span>
                     </div>
                   </div>
