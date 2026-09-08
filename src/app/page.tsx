@@ -556,21 +556,31 @@ export default function LandingPage() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 font-poppins">
-              <div className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-[#8DC63F]" />
+              <a
+                href="https://www.google.com/maps/place/Pet+Happy/@-8.119954,-34.8983033,757m/data=!3m2!1e3!4b1!4m6!3m5!1s0x7ab1fb6b2cabd91:0xc85cdb113d8c7e40!8m2!3d-8.119954!4d-34.8983033!16s%2Fg%2F1ptzjy4gp?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3 hover:border-[#8DC63F] hover:bg-[#8DC63F]/5 hover:shadow-md transition-all duration-200 cursor-pointer group"
+              >
+                <MapPin className="h-5 w-5 text-[#8DC63F] group-hover:scale-110 transition-transform duration-200" />
                 <div>
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Zona Sul</span>
-                  <span className="text-xs font-bold text-[#003A8C]">Pet Happy</span>
+                  <span className="text-xs font-bold text-[#003A8C] group-hover:underline">Pet Happy</span>
                 </div>
-              </div>
+              </a>
 
-              <div className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-[#8DC63F]" />
+              <a
+                href="https://www.google.com/maps/place/OhPet!+Centro+Veterin%C3%A1rio+24h+-+Gra%C3%A7as/@-8.043716,-34.8998448,757m/data=!3m2!1e3!4b1!4m6!3m5!1s0x7ab1957af814ee9:0x78e1a83c7e860c71!8m2!3d-8.043716!4d-34.8998448!16s%2Fg%2F11tfp58sxl?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3 hover:border-[#8DC63F] hover:bg-[#8DC63F]/5 hover:shadow-md transition-all duration-200 cursor-pointer group"
+              >
+                <MapPin className="h-5 w-5 text-[#8DC63F] group-hover:scale-110 transition-transform duration-200" />
                 <div>
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Zona Norte</span>
-                  <span className="text-xs font-bold text-[#003A8C]">Oh Pet Graças</span>
+                  <span className="text-xs font-bold text-[#003A8C] group-hover:underline">Oh Pet Graças</span>
                 </div>
-              </div>
+              </a>
             </div>
           </div>
 
