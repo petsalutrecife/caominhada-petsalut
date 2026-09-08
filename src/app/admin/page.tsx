@@ -68,7 +68,8 @@ export default function AdminDashboard() {
   const [instPhoto, setInstPhoto] = useState('');
   const [instBanner, setInstBanner] = useState('');
 
-  // New Sponsor Form states
+  // Sponsor Form & Edit states
+  const [editingSponsorId, setEditingSponsorId] = useState<string | null>(null);
   const [newSponsorName, setNewSponsorName] = useState('');
   const [newSponsorLogo, setNewSponsorLogo] = useState('');
   const [newSponsorCategory, setNewSponsorCategory] = useState<'Master' | 'Ouro' | 'Prata' | 'Apoio'>('Ouro');
@@ -256,31 +257,71 @@ export default function AdminDashboard() {
     }
   };
 
-  // Add Sponsor
-  const handleAddSponsor = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newSponsorName.trim() || !newSponsorLogo.trim()) {
-      alert('Nome e logo do patrocinador são obrigatórios.');
-      return;
-    }
+  // Sponsor Handlers (Add / Edit / Delete / Quick Value Edit)
+  const handleEditSponsor = (sp: Sponsor) => {
+    setEditingSponsorId(sp.id);
+    setNewSponsorName(sp.name);
+    setNewSponsorLogo(sp.logo);
+    setNewSponsorCategory(sp.category as any);
+    setNewSponsorInvested(sp.investedValue);
+    setNewSponsorDesc(sp.description || '');
+    setNewSponsorWebsite(sp.website === '#' ? '' : sp.website);
+  };
 
-    supabaseMock.saveSponsor({
-      name: newSponsorName,
-      logo: newSponsorLogo,
-      category: newSponsorCategory,
-      investedValue: Number(newSponsorInvested),
-      description: newSponsorDesc,
-      website: newSponsorWebsite || '#'
-    });
-
+  const handleCancelEditSponsor = () => {
+    setEditingSponsorId(null);
     setNewSponsorName('');
     setNewSponsorLogo('');
+    setNewSponsorCategory('Ouro');
     setNewSponsorInvested(0);
     setNewSponsorDesc('');
     setNewSponsorWebsite('');
-    
+  };
+
+  const handleQuickEditValue = (sp: Sponsor) => {
+    const input = prompt(`Editar valor investido para "${sp.name}" (R$):`, String(sp.investedValue));
+    if (input !== null && input.trim() !== '') {
+      const num = parseFloat(input.replace(',', '.'));
+      if (!isNaN(num) && num >= 0) {
+        supabaseMock.updateSponsor(sp.id, { investedValue: num });
+        refreshData();
+      } else {
+        alert('Por favor, informe um valor numérico válido.');
+      }
+    }
+  };
+
+  const handleSaveSponsor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSponsorName.trim()) {
+      alert('O nome do patrocinador é obrigatório.');
+      return;
+    }
+
+    if (editingSponsorId) {
+      supabaseMock.updateSponsor(editingSponsorId, {
+        name: newSponsorName,
+        logo: newSponsorLogo || '',
+        category: newSponsorCategory,
+        investedValue: Number(newSponsorInvested) || 0,
+        description: newSponsorDesc,
+        website: newSponsorWebsite || '#'
+      });
+      alert('Patrocinador/Apoiador atualizado com sucesso!');
+    } else {
+      supabaseMock.saveSponsor({
+        name: newSponsorName,
+        logo: newSponsorLogo || '',
+        category: newSponsorCategory,
+        investedValue: Number(newSponsorInvested) || 0,
+        description: newSponsorDesc,
+        website: newSponsorWebsite || '#'
+      });
+      alert('Patrocinador/Apoiador adicionado com sucesso!');
+    }
+
+    handleCancelEditSponsor();
     refreshData();
-    alert('Patrocinador adicionado!');
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -296,6 +337,9 @@ export default function AdminDashboard() {
 
   const handleDeleteSponsor = (id: string) => {
     if (confirm('Deseja excluir este patrocinador?')) {
+      if (editingSponsorId === id) {
+        handleCancelEditSponsor();
+      }
       supabaseMock.deleteSponsor(id);
       refreshData();
     }
@@ -1230,11 +1274,24 @@ export default function AdminDashboard() {
             <div className="flex flex-col gap-6 animate-in fade-in duration-200">
               
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Form to add sponsor */}
+                {/* Form to add / edit sponsor */}
                 <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm h-fit">
-                  <h4 className="text-sm font-bold text-slate-850 dark:text-slate-200 font-poppins mb-4">Novo Patrocinador</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-bold text-slate-850 dark:text-slate-200 font-poppins">
+                      {editingSponsorId ? 'Editar Patrocinador / Apoiador' : 'Novo Patrocinador'}
+                    </h4>
+                    {editingSponsorId && (
+                      <button
+                        type="button"
+                        onClick={handleCancelEditSponsor}
+                        className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-850 px-2.5 py-1 rounded-lg transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    )}
+                  </div>
                   
-                  <form onSubmit={handleAddSponsor} className="flex flex-col gap-4">
+                  <form onSubmit={handleSaveSponsor} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5 text-left">
                       <label htmlFor="spName" className="text-xs font-bold text-slate-700 dark:text-slate-350">Nome da Empresa</label>
                       <input id="spName" type="text" placeholder="Nome do Patrocinador" value={newSponsorName} onChange={(e) => setNewSponsorName(e.target.value)}
@@ -1254,7 +1311,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex flex-col gap-1.5 text-left">
                       <label htmlFor="spValue" className="text-xs font-bold text-slate-700 dark:text-slate-350">Valor Investido (R$)</label>
-                      <input id="spValue" type="number" placeholder="0,05" value={newSponsorInvested || ''} onChange={(e) => setNewSponsorInvested(Number(e.target.value))}
+                      <input id="spValue" type="number" step="0.01" placeholder="0.00" value={newSponsorInvested || ''} onChange={(e) => setNewSponsorInvested(Number(e.target.value))}
                         className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none"
                       />
                     </div>
@@ -1282,15 +1339,29 @@ export default function AdminDashboard() {
                         </label>
                       </div>
                     </div>
-                    <button type="submit" className="w-full py-3 rounded-2xl bg-[#003A8C] hover:bg-blue-800 text-white dark:bg-lime-500 dark:text-slate-950 font-bold text-xs">
-                      Adicionar Patrocinador
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button type="submit" className="flex-1 py-3 rounded-2xl bg-[#003A8C] hover:bg-blue-800 text-white dark:bg-lime-500 dark:text-slate-950 font-bold text-xs transition-colors">
+                        {editingSponsorId ? 'Salvar Alterações' : 'Adicionar Patrocinador'}
+                      </button>
+                      {editingSponsorId && (
+                        <button
+                          type="button"
+                          onClick={handleCancelEditSponsor}
+                          className="py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                      )}
+                    </div>
                   </form>
                 </div>
 
                 {/* Sponsors List Table */}
                 <div className="lg:col-span-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
-                  <h4 className="p-5 font-bold text-slate-850 dark:text-slate-200 font-poppins border-b border-slate-100 dark:border-slate-900 text-sm text-left">Patrocinadores Cadastrados</h4>
+                  <div className="p-5 border-b border-slate-100 dark:border-slate-900 flex items-center justify-between">
+                    <h4 className="font-bold text-slate-850 dark:text-slate-200 font-poppins text-sm text-left">Patrocinadores Cadastrados</h4>
+                    <span className="text-[11px] text-slate-400 font-medium">Clique no valor ou no ícone de lápis para editar</span>
+                  </div>
                   
                   <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
                     <table className="w-full text-left text-xs border-collapse">
@@ -1304,11 +1375,11 @@ export default function AdminDashboard() {
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-900">
                         {sponsors.map((sp) => (
-                          <tr key={sp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 text-slate-705 dark:text-slate-300">
+                          <tr key={sp.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-900/30 text-slate-705 dark:text-slate-300 transition-colors ${editingSponsorId === sp.id ? 'bg-blue-50/40 dark:bg-blue-950/20' : ''}`}>
                             <td className="p-4">
                               <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center shrink-0">
-                                  {sp.logo.startsWith('http') || sp.logo.startsWith('data:') ? (
+                                  {sp.logo && (sp.logo.startsWith('http') || sp.logo.startsWith('data:') || sp.logo.startsWith('/')) ? (
                                     <img src={sp.logo} alt={sp.name} className="h-full w-full object-contain" />
                                   ) : (
                                     <span className="font-bold text-slate-400 uppercase">{sp.name.substring(0,2)}</span>
@@ -1316,7 +1387,7 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="text-left">
                                   <span className="font-bold text-slate-900 dark:text-white block">{sp.name}</span>
-                                  {sp.website !== '#' && <span className="text-[10px] text-slate-450 block truncate max-w-[160px]">{sp.website}</span>}
+                                  {sp.website && sp.website !== '#' && <span className="text-[10px] text-slate-450 block truncate max-w-[160px]">{sp.website}</span>}
                                 </div>
                               </div>
                             </td>
@@ -1333,15 +1404,36 @@ export default function AdminDashboard() {
                                 {sp.category}
                               </span>
                             </td>
-                            <td className="p-4 font-bold text-emerald-600 dark:text-emerald-450">R$ {sp.investedValue.toFixed(2)}</td>
-                            <td className="p-4 text-center">
+                            <td className="p-4 font-bold text-emerald-600 dark:text-emerald-450">
                               <button
-                                onClick={() => handleDeleteSponsor(sp.id)}
-                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-500 transition-colors"
-                                title="Excluir Patrocinador"
+                                type="button"
+                                onClick={() => handleQuickEditValue(sp)}
+                                className="group flex items-center gap-1.5 hover:underline font-bold text-emerald-600 dark:text-emerald-450 text-xs text-left"
+                                title="Clique para editar o valor rapidamente"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <span>R$ {sp.investedValue.toFixed(2)}</span>
+                                <Edit className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400" />
                               </button>
+                            </td>
+                            <td className="p-4 text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleEditSponsor(sp)}
+                                  className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/30 text-slate-400 hover:text-[#003A8C] dark:hover:text-blue-400 transition-colors"
+                                  title="Editar Patrocinador e Valor"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteSponsor(sp.id)}
+                                  className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-500 transition-colors"
+                                  title="Excluir Patrocinador"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
