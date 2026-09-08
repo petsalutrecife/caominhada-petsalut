@@ -488,50 +488,108 @@ export default function RegisterPage() {
         </div>
       </header>
 
-      {/* Progress Bar */}
-      <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 px-4 py-6">
+      {/* Progress Bar Container */}
+      <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 px-4 py-4 sm:py-6 sticky top-20 z-30 shadow-xs">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between relative">
-            {/* Progress Line */}
-            <div className="absolute top-5 left-0 right-0 h-0.5 bg-slate-200 dark:bg-slate-800 z-0" />
-            <div 
-              className="absolute top-5 left-0 h-0.5 bg-[#8DC63F] z-0 transition-all duration-500 ease-out"
-              style={{ width: `${((Math.min(currentStep, 7) - 1) / 6) * 100}%` }}
-            />
+          
+          {/* Mobile Summary Banner (< sm) */}
+          <div className="sm:hidden flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-[#003A8C] dark:text-lime-400 font-poppins flex items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/80 text-[#003A8C] dark:text-blue-300 text-[10px]">
+                  Etapa {Math.min(currentStep, 7)} de 7
+                </span>
+                <span>{stepLabels[Math.min(currentStep, 7) - 1]?.label}</span>
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">
+                {Math.round(((Math.min(currentStep, 7) - 1) / 6) * 100)}%
+              </span>
+            </div>
 
-            {stepLabels.map((step, index) => {
-              const stepNum = index + 1;
-              const isCompleted = currentStep > stepNum;
-              const isCurrent = currentStep === stepNum;
-              const StepIcon = step.icon;
+            {/* Mobile Progress Bar Line */}
+            <div className="h-2 w-full bg-slate-100 dark:bg-slate-850 rounded-full overflow-hidden p-0.5">
+              <div 
+                className="h-full bg-gradient-to-r from-[#003A8C] to-[#8DC63F] rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${((Math.min(currentStep, 7) - 1) / 6) * 100}%` }}
+              />
+            </div>
 
-              return (
-                <div key={index} className="flex flex-col items-center relative z-10">
-                  <div className={`
-                    w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300
-                    ${isCompleted 
-                      ? 'bg-[#8DC63F] border-[#8DC63F] text-white shadow-lg shadow-lime-500/20' 
-                      : isCurrent 
-                        ? 'bg-[#003A8C] border-[#003A8C] text-white shadow-lg shadow-blue-500/20 scale-110' 
-                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400'
-                    }
-                  `}>
-                    {isCompleted ? (
-                      <Check className="h-5 w-5" />
-                    ) : (
-                      <StepIcon className="h-4 w-4" />
-                    )}
+            {/* Mobile 7 Step Mini Dots */}
+            <div className="flex items-center justify-between pt-1">
+              {stepLabels.map((step, index) => {
+                const stepNum = index + 1;
+                const isCompleted = currentStep > stepNum;
+                const isCurrent = currentStep === stepNum;
+                const StepIcon = step.icon;
+
+                return (
+                  <div key={index} className="flex flex-col items-center">
+                    <div className={`
+                      w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 text-[10px] font-bold
+                      ${isCompleted 
+                        ? 'bg-[#8DC63F] text-white' 
+                        : isCurrent 
+                          ? 'bg-[#003A8C] text-white ring-2 ring-blue-400 ring-offset-1 dark:ring-offset-slate-950 scale-110' 
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                      }
+                    `}>
+                      {isCompleted ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <StepIcon className="h-3 w-3" />
+                      )}
+                    </div>
                   </div>
-                  <span className={`
-                    mt-2 text-[9px] font-bold uppercase tracking-wider transition-colors hidden sm:block
-                    ${isCompleted ? 'text-[#8DC63F]' : isCurrent ? 'text-[#003A8C] dark:text-blue-400' : 'text-slate-400'}
-                  `}>
-                    {step.label}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
+
+          {/* Desktop Full Steps Indicator (>= sm) */}
+          <div className="hidden sm:block">
+            <div className="flex items-center justify-between relative">
+              {/* Progress Line */}
+              <div className="absolute top-5 left-0 right-0 h-0.5 bg-slate-200 dark:bg-slate-800 z-0" />
+              <div 
+                className="absolute top-5 left-0 h-0.5 bg-[#8DC63F] z-0 transition-all duration-500 ease-out"
+                style={{ width: `${((Math.min(currentStep, 7) - 1) / 6) * 100}%` }}
+              />
+
+              {stepLabels.map((step, index) => {
+                const stepNum = index + 1;
+                const isCompleted = currentStep > stepNum;
+                const isCurrent = currentStep === stepNum;
+                const StepIcon = step.icon;
+
+                return (
+                  <div key={index} className="flex flex-col items-center relative z-10">
+                    <div className={`
+                      w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                      ${isCompleted 
+                        ? 'bg-[#8DC63F] border-[#8DC63F] text-white shadow-lg shadow-lime-500/20' 
+                        : isCurrent 
+                          ? 'bg-[#003A8C] border-[#003A8C] text-white shadow-lg shadow-blue-500/20 scale-110' 
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400'
+                      }
+                    `}>
+                      {isCompleted ? (
+                        <Check className="h-5 w-5" />
+                      ) : (
+                        <StepIcon className="h-4 w-4" />
+                      )}
+                    </div>
+                    <span className={`
+                      mt-2 text-[9px] font-bold uppercase tracking-wider transition-colors
+                      ${isCompleted ? 'text-[#8DC63F]' : isCurrent ? 'text-[#003A8C] dark:text-blue-400' : 'text-slate-400'}
+                    `}>
+                      {step.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
         </div>
       </div>
 
