@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Registration, Institution } from '@/lib/supabaseMock';
+import { generateRegistrationTicket } from '@/lib/generateTicketPdf';
 import { 
   LogOut, Calendar, MapPin, Award, CheckCircle2, Clock, ShieldAlert, 
   CreditCard, ClipboardList, RefreshCw, X, Download, Camera, Upload, 
@@ -424,19 +425,28 @@ export default function ParticipantDashboard() {
                   <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm w-44 h-44 flex items-center justify-center">
                     <img src={qrUrl} alt="QR Code Inscrição" className="w-full h-full object-contain" />
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 leading-relaxed">
-                    Apresente este código na tenda de credenciamento para liberar a retirada do seu kit físico e brindes.
-                  </p>
+                  <button
+                    onClick={() => generateRegistrationTicket(registration, inst?.name)}
+                    className="w-full mt-5 py-3 px-4 rounded-xl font-bold bg-[#003A8C] hover:bg-blue-800 text-white dark:bg-lime-500 dark:hover:bg-lime-600 dark:text-slate-950 text-xs flex items-center justify-center gap-2 transition-all hover-lift"
+                  >
+                    <Download className="h-4 w-4" /> Baixar Comprovante (PDF)
+                  </button>
                 </>
               ) : (
-                <div className="py-8 px-4 flex flex-col items-center gap-4">
-                  <div className="h-28 w-28 rounded-2xl bg-slate-100 dark:bg-slate-900 border-2 border-dashed border-slate-350 dark:border-slate-800 flex items-center justify-center text-slate-350">
-                    <ShieldAlert className="h-10 w-10 text-slate-450 dark:text-slate-500" />
+                <div className="py-6 px-4 flex flex-col items-center gap-3 w-full">
+                  <div className="h-24 w-24 rounded-2xl bg-slate-100 dark:bg-slate-900 border-2 border-dashed border-slate-350 dark:border-slate-800 flex items-center justify-center text-slate-350">
+                    <ShieldAlert className="h-8 w-8 text-slate-450 dark:text-slate-500" />
                   </div>
                   <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">Aguardando Validação</h4>
                   <p className="text-[10px] text-slate-400 leading-relaxed max-w-[180px]">
-                    Seu QR Code de credenciamento será ativado assim que a doação for aprovada pela instituição parceira.
+                    Seu QR Code de credenciamento será ativado assim que a doação for aprovada.
                   </p>
+                  <button
+                    onClick={() => generateRegistrationTicket(registration, inst?.name)}
+                    className="w-full mt-2 py-2.5 px-4 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs flex items-center justify-center gap-2 transition-all"
+                  >
+                    <Download className="h-3.5 w-3.5" /> Baixar Comprovante (PDF)
+                  </button>
                 </div>
               )}
             </div>

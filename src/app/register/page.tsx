@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Registration, Institution } from '@/lib/supabaseMock';
+import { generateRegistrationTicket } from '@/lib/generateTicketPdf';
 import { 
   ArrowLeft, ArrowRight, User, Phone, Mail, Award, CheckCircle2, Copy, 
   Calendar, Heart, Shield, Camera, Upload, MapPin, MessageCircle,
   PawPrint, Building2, CreditCard, FileCheck, ChevronRight, Check, X,
-  Compass, DollarSign, FileText, Share2
+  Compass, DollarSign, FileText, Share2, Download
 } from 'lucide-react';
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -453,8 +454,18 @@ export default function RegisterPage() {
               );
             })()}
 
+            {/* Download Ticket PDF button */}
+            <div className="mt-6 w-full max-w-md">
+              <button
+                onClick={() => generateRegistrationTicket(registeredUser, instName)}
+                className="w-full py-3.5 px-5 rounded-2xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover-lift flex items-center justify-center gap-2 text-sm transition-all"
+              >
+                <Download className="h-4 w-4" /> Baixar Comprovante & Ticket (PDF)
+              </button>
+            </div>
+
             {/* Action buttons */}
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-md">
+            <div className="mt-4 flex flex-col sm:flex-row gap-3 w-full max-w-md">
               <button
                 onClick={handleGoToDashboard}
                 className="flex-1 py-3.5 rounded-2xl font-bold bg-[#003A8C] hover:bg-blue-800 text-white dark:bg-lime-500 dark:hover:bg-lime-600 dark:text-slate-950 hover-lift text-center transition-all"
