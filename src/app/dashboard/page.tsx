@@ -311,10 +311,48 @@ export default function ParticipantDashboard() {
                   </p>
                 </div>
 
-                <div className="mt-4 text-[10px] text-slate-500 flex flex-col gap-1">
-                  <span className="flex items-center gap-1"><MapPin className="h-3 w-3 text-slate-400" /> Parque Central (Bolsão A)</span>
-                  <span className="flex items-center gap-1"><Calendar className="h-3 w-3 text-slate-400" /> Sábado 19/09 das 09h às 17h ou no dia 20/09 às 08h</span>
-                </div>
+                {(() => {
+                  const notes = registration.notes || '';
+                  const isZonaSul = notes.includes('Zona Sul');
+                  const isZonaNorte = notes.includes('Zona Norte');
+                  
+                  const pickupTitle = isZonaSul 
+                    ? 'Zona Sul - Pet Happy (Boa Viagem)' 
+                    : isZonaNorte 
+                      ? 'Zona Norte - Oh Pet (Graças)' 
+                      : (notes ? notes.replace(/^Retirada:\s*/i, '') : 'Ponto Oficial a definir');
+
+                  const pickupMapUrl = isZonaSul
+                    ? 'https://www.google.com/maps/place/Pet+Happy/@-8.119954,-34.8983033,757m'
+                    : isZonaNorte
+                      ? 'https://www.google.com/maps/place/OhPet!+Centro+Veterin%C3%A1rio+24h+-+Gra%C3%A7as/@-8.043716,-34.8998448,757m'
+                      : null;
+
+                  return (
+                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-900 text-slate-500 dark:text-slate-400 flex flex-col gap-1.5 text-left">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+                          <MapPin className="h-3.5 w-3.5 text-[#8DC63F] shrink-0" />
+                          {pickupTitle}
+                        </span>
+                        {pickupMapUrl && (
+                          <a
+                            href={pickupMapUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-primary-blue dark:text-lime-400 hover:underline font-bold shrink-0"
+                          >
+                            Ver mapa
+                          </a>
+                        )}
+                      </div>
+                      <span className="flex items-center gap-1 text-[11px] text-slate-450">
+                        <Calendar className="h-3 w-3 text-slate-400 shrink-0" />
+                        Retirada nos dias 19 e 26 de Setembro
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
 
             </div>
