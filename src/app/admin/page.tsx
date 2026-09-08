@@ -9,7 +9,7 @@ import { supabaseMock, Registration, Sponsor, Expense, Institution } from '@/lib
 import { 
   LogOut, ClipboardList, TrendingUp, Users, Award, Landmark, Plus, Trash2, 
   Download, Edit, Search, Filter, ShieldCheck, Check, DollarSign, Upload, Globe, FileText, CheckSquare, RefreshCw,
-  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin, Key, Lock, Settings, UserCheck
+  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin, Key, Lock, Settings, UserCheck, QrCode
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -627,6 +627,13 @@ export default function AdminDashboard() {
       <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
         <Link href="/"><Logo /></Link>
         <div className="flex items-center gap-3">
+          <Link
+            href="/validar"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#8DC63F]/20 hover:bg-[#8DC63F]/30 text-[#003A8C] dark:text-[#8DC63F] border border-[#8DC63F]/40 transition-colors"
+            title="Abrir Validador QR Code no celular ou câmera"
+          >
+            <QrCode className="h-3.5 w-3.5" /> Validador QR Code
+          </Link>
           <button
             onClick={handleOpenSecurityModal}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 text-[#003A8C] dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition-colors"
