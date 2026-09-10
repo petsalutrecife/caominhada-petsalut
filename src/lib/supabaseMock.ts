@@ -291,8 +291,8 @@ const initialSponsors: Sponsor[] = [
     id: 'sp-avne',
     name: 'AVNE',
     logo: '/sponsors/avne.png',
-    category: 'Ouro',
-    investedValue: 15000,
+    category: 'Prata',
+    investedValue: 10000,
     description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências inesquecíveis.',
     website: 'https://www.instagram.com/avne_mergulho'
   },
@@ -605,6 +605,7 @@ class SupabaseMockClient {
       }
       if (item.id === 'sp-4' || item.name.includes('Pet Happy')) item.website = 'https://www.pethappyrecife.com.br/';
       if (item.id === 'sp-avne' || item.name.includes('AVNE')) {
+        item.category = 'Prata';
         item.logo = '/sponsors/avne.png';
         item.website = 'https://www.instagram.com/avne_mergulho';
       }

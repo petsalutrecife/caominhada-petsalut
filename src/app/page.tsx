@@ -706,14 +706,13 @@ export default function LandingPage() {
           </div>
 
           {/* Ouro Sponsors Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
             {(sponsors.filter(s => s.category === 'Ouro').length > 0
               ? sponsors.filter(s => s.category === 'Ouro')
               : [
                 { id: 'sp-1', name: 'Oh Pet Club', logo: '/sponsors/ohpet.png', category: 'Ouro', description: 'Clínica veterinária e petshop especializado. Ponto de apoio Zona Norte.', website: 'https://linktr.ee/central_OhPet' },
                 { id: 'sp-2', name: 'Amigo Bicho', logo: '/sponsors/amigobicho.png', category: 'Ouro', description: 'Cuidado, amor e produtos de alta qualidade para o seu pet.', website: 'https://amigobicho.com.br/' },
-                { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Ouro', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://www.pethappyrecife.com.br/' },
-                { id: 'sp-avne', name: 'AVNE', logo: '/sponsors/avne.png', category: 'Ouro', description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências.', website: 'https://www.instagram.com/avne_mergulho' }
+                { id: 'sp-4', name: 'Pet Happy', logo: '/sponsors/pethappy.png', category: 'Ouro', description: 'Centro de estética e cuidados pet. Ponto de apoio Zona Sul.', website: 'https://www.pethappyrecife.com.br/' }
               ]
             ).map((s) => (
               <a
@@ -758,11 +757,12 @@ export default function LandingPage() {
             <h3 className="text-center text-xs uppercase tracking-[0.2em] font-extrabold text-slate-400 mb-8 font-poppins">
               Patrocinadores Prata
             </h3>
-            <div className="flex justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {(sponsors.filter(s => s.category === 'Prata').length > 0
                 ? sponsors.filter(s => s.category === 'Prata')
                 : [
-                  { id: 'sp-3', name: 'Metrópole', logo: '/sponsors/metropole.png', category: 'Prata', description: 'Excelência em serviços e grande parceiro da Cãominhada.', website: 'https://hoo.be/clubmetropole' }
+                  { id: 'sp-3', name: 'Metrópole', logo: '/sponsors/metropole.png', category: 'Prata', description: 'Excelência em serviços e grande parceiro da Cãominhada.', website: 'https://hoo.be/clubmetropole' },
+                  { id: 'sp-avne', name: 'AVNE', logo: '/sponsors/avne.png', category: 'Prata', description: 'Aventura Nordeste: Turismo de aventura, mergulho e experiências.', website: 'https://www.instagram.com/avne_mergulho' }
                 ]
               ).map((s) => (
                 <a
@@ -770,9 +770,9 @@ export default function LandingPage() {
                   href={s.website || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex flex-col sm:flex-row items-center gap-6 bg-white p-6 px-10 rounded-3xl border border-slate-200 shadow-md hover:border-slate-400 hover:shadow-xl transition-all duration-300 max-w-lg w-full relative overflow-hidden"
+                  className="group flex flex-col sm:flex-row items-center gap-6 bg-white p-6 px-8 rounded-3xl border border-slate-200 shadow-md hover:border-slate-400 hover:shadow-xl transition-all duration-300 w-full relative overflow-hidden"
                 >
-                  <div className="relative w-36 h-24 shrink-0 flex items-center justify-center p-1">
+                  <div className="relative w-32 h-20 shrink-0 flex items-center justify-center p-1">
                     <img
                       src={s.logo}
                       alt={s.name}
