@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -890,8 +891,19 @@ export default function RegisterPage() {
                       <Check className="h-4 w-4 text-white" />
                     </div>
                   )}
-                  <div className="p-3 rounded-2xl bg-[#8DC63F]/10 text-[#8DC63F]">
-                    <MapPin className="h-7 w-7" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 rounded-2xl bg-white p-2 border border-slate-200/80 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                      <Image
+                        src="/sponsors/pethappy.png"
+                        alt="Logo Pet Happy"
+                        width={48}
+                        height={48}
+                        className="object-contain max-h-full max-w-full"
+                      />
+                    </div>
+                    <div className="p-2 rounded-xl bg-[#8DC63F]/10 text-[#8DC63F]">
+                      <MapPin className="h-5 w-5" />
+                    </div>
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8DC63F] block mb-1">Zona Sul</span>
@@ -928,8 +940,19 @@ export default function RegisterPage() {
                       <Check className="h-4 w-4 text-white" />
                     </div>
                   )}
-                  <div className="p-3 rounded-2xl bg-[#003A8C]/10 text-[#003A8C] dark:text-blue-400">
-                    <MapPin className="h-7 w-7" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 rounded-2xl bg-white p-2 border border-slate-200/80 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                      <Image
+                        src="/sponsors/ohpet.png"
+                        alt="Logo Oh Pet"
+                        width={48}
+                        height={48}
+                        className="object-contain max-h-full max-w-full"
+                      />
+                    </div>
+                    <div className="p-2 rounded-xl bg-[#003A8C]/10 text-[#003A8C] dark:text-blue-400">
+                      <MapPin className="h-5 w-5" />
+                    </div>
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#003A8C] dark:text-blue-400 block mb-1">Zona Norte</span>

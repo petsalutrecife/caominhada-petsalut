@@ -562,10 +562,21 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3 hover:border-[#8DC63F] hover:bg-[#8DC63F]/5 hover:shadow-md transition-all duration-200 cursor-pointer group"
               >
-                <MapPin className="h-5 w-5 text-[#8DC63F] group-hover:scale-110 transition-transform duration-200" />
+                <div className="w-11 h-11 rounded-xl bg-white p-1.5 border border-slate-200/80 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                  <Image
+                    src="/sponsors/pethappy.png"
+                    alt="Logo Pet Happy"
+                    width={40}
+                    height={40}
+                    className="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-200"
+                  />
+                </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Zona Sul</span>
-                  <span className="text-xs font-bold text-[#003A8C] group-hover:underline">Pet Happy</span>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5 text-[#8DC63F]" />
+                    <span className="text-[10px] font-bold uppercase text-slate-400">Zona Sul</span>
+                  </div>
+                  <span className="text-xs font-bold text-[#003A8C] group-hover:underline block">Pet Happy</span>
                 </div>
               </a>
 
@@ -575,10 +586,21 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3 hover:border-[#8DC63F] hover:bg-[#8DC63F]/5 hover:shadow-md transition-all duration-200 cursor-pointer group"
               >
-                <MapPin className="h-5 w-5 text-[#8DC63F] group-hover:scale-110 transition-transform duration-200" />
+                <div className="w-11 h-11 rounded-xl bg-white p-1.5 border border-slate-200/80 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                  <Image
+                    src="/sponsors/ohpet.png"
+                    alt="Logo Oh Pet"
+                    width={40}
+                    height={40}
+                    className="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-200"
+                  />
+                </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Zona Norte</span>
-                  <span className="text-xs font-bold text-[#003A8C] group-hover:underline">Oh Pet Graças</span>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5 text-[#8DC63F]" />
+                    <span className="text-[10px] font-bold uppercase text-slate-400">Zona Norte</span>
+                  </div>
+                  <span className="text-xs font-bold text-[#003A8C] group-hover:underline block">Oh Pet Graças</span>
                 </div>
               </a>
             </div>
