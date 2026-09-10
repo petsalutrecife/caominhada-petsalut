@@ -447,7 +447,7 @@ export default function LandingPage() {
               Solidariedade & Cuidado Animal
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins mt-3">
-              Instituições Parceiras que Você Ajudará
+              ONGs que receberão a sua doação
             </h2>
             <p className="mt-4 text-slate-600 text-lg leading-relaxed">
               O propósito da Cãominhada Petsalut 2026 é apoiar o trabalho incansável de resgate e reabilitação de animais abandonados. 
