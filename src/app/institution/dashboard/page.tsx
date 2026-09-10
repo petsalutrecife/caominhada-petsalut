@@ -432,7 +432,7 @@ export default function InstitutionDashboard() {
             <form onSubmit={handleReject} className="flex flex-col gap-4">
               <textarea
                 required
-                placeholder="Ex: Valor inferior ao mínimo de R$ 50,00 ou Comprovante inválido / ilegível."
+                placeholder="Ex: Valor inferior ao mínimo de R$ 80,00 ou Comprovante inválido / ilegível."
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-xs focus:outline-none focus:ring-2 focus:ring-red-500/30 h-24"

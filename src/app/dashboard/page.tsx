@@ -659,7 +659,7 @@ export default function ParticipantDashboard() {
             <div className="text-center mb-6">
               <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-primary-blue dark:text-blue-400 uppercase tracking-widest inline-block mb-3">Reenviar Comprovante</span>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins">Substituir comprovante de doação</h3>
-              <p className="text-xs text-slate-500 mt-1">O seu comprovante anterior foi rejeitado. Por favor, faça o upload de um comprovante válido de doação PIX mínima de R$ 50,00.</p>
+              <p className="text-xs text-slate-500 mt-1">O seu comprovante anterior foi rejeitado. Por favor, faça o upload de um comprovante válido de doação PIX mínima de R$ 80,00.</p>
             </div>
 
             <form onSubmit={handleReuploadReceipt} className="flex flex-col gap-4">

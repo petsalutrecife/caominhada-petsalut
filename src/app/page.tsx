@@ -451,7 +451,7 @@ export default function LandingPage() {
             </h2>
             <p className="mt-4 text-slate-600 text-lg leading-relaxed">
               O propósito da Cãominhada Petsalut 2026 é apoiar o trabalho incansável de resgate e reabilitação de animais abandonados. 
-              Ao se inscrever, a sua doação mínima de <strong>R$ 50,00</strong> vai diretamente para a conta da instituição de sua escolha.
+              Ao se inscrever, a sua doação mínima de <strong>R$ 80,00</strong> vai diretamente para a conta da instituição de sua escolha.
             </p>
           </div>
 

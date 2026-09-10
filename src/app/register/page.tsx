@@ -97,7 +97,7 @@ export default function RegisterPage() {
   const [selectedInstitution, setSelectedInstitution] = useState('');
   
   // Step 5: Donation Value
-  const [donationValue, setDonationValue] = useState<number>(50);
+  const [donationValue, setDonationValue] = useState<number>(80);
   const [customValue, setCustomValue] = useState<string>('');
   
   // Step 5: PIX Donation
@@ -199,8 +199,8 @@ export default function RegisterPage() {
     
     if (step === 5) {
       const finalValue = donationValue === 0 ? Number(customValue) : donationValue;
-      if (!finalValue || isNaN(finalValue) || finalValue < 50) {
-        newErrors.donationValue = 'O valor da doação deve ser de no mínimo R$ 50,00.';
+      if (!finalValue || isNaN(finalValue) || finalValue < 80) {
+        newErrors.donationValue = 'O valor da doação deve ser de no mínimo R$ 80,00.';
       }
     }
 
@@ -1121,46 +1121,78 @@ export default function RegisterPage() {
                 <hr className="border-slate-100 dark:border-slate-900" />
 
                 {/* Donation Value Selection */}
-                <div className="flex flex-col gap-3">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Selecione o valor da sua contribuição *</label>
-                  <p className="text-[11px] text-slate-400">Doação mínima obrigatória de R$ 50,00 para garantir a inscrição.</p>
-                  
-                  {/* Preset Suggestions */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-1">
-                    {[50, 75, 100, 150].map((val) => (
-                      <button
-                        key={val}
-                        type="button"
-                        onClick={() => handleValueSelection(val)}
-                        className={`
-                          py-3 rounded-xl font-extrabold text-sm border-2 transition-all flex items-center justify-center gap-1
-                          ${donationValue === val 
-                            ? 'bg-[#8DC63F] border-[#8DC63F] text-white shadow-md shadow-lime-500/10' 
-                            : 'border-slate-200 dark:border-slate-850 hover:border-slate-300 dark:hover:border-slate-700 bg-transparent text-slate-700 dark:text-slate-350'
-                          }
-                        `}
-                      >
-                        R$ {val}
-                      </button>
-                    ))}
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Selecione o valor da sua contribuição *</label>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Doação mínima obrigatória de R$ 80,00 para garantir a inscrição.</p>
                   </div>
+                  
+                  {/* Cards de Opções: R$ 80 Sugerido + Digitar Valor Maior */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Botão Valor Mínimo Sugerido R$ 80 */}
+                    <button
+                      type="button"
+                      onClick={() => handleValueSelection(80)}
+                      className={`
+                        relative p-4 rounded-2xl font-poppins border-2 transition-all duration-200 flex flex-col text-left group
+                        ${donationValue === 80 && !customValue
+                          ? 'bg-[#8DC63F]/10 border-[#8DC63F] shadow-md shadow-lime-500/10' 
+                          : 'border-slate-200 dark:border-slate-800 hover:border-[#8DC63F]/50 bg-white dark:bg-slate-950'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8DC63F]">Valor Mínimo Sugerido</span>
+                        {donationValue === 80 && !customValue && (
+                          <div className="h-5 w-5 rounded-full bg-[#8DC63F] flex items-center justify-center text-white text-xs">
+                            <Check className="h-3 w-3" />
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-2xl font-black text-[#003A8C] dark:text-white mt-1.5">R$ 80,00</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Taxa mínima para kit e apoio à causa</span>
+                    </button>
 
-                  {/* Custom Value input */}
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-xs font-bold text-slate-500">Outro valor:</span>
-                    <div className="relative flex-1">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">R$</span>
-                      <input
-                        type="number"
-                        min="50"
-                        placeholder="Ex: 200,00"
-                        value={customValue}
-                        onChange={handleCustomValueChange}
-                        className={`w-full pl-9 pr-4 py-2.5 rounded-xl border bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#8DC63F]/30 transition-all ${donationValue === 0 && customValue ? 'border-[#8DC63F] focus:ring-[#8DC63F]/30' : 'border-slate-200 dark:border-slate-850'}`}
-                      />
+                    {/* Card Digitar Outro Valor Maior */}
+                    <div 
+                      onClick={() => {
+                        const inputEl = document.getElementById('custom-donation-input');
+                        if (inputEl) inputEl.focus();
+                      }}
+                      className={`
+                        relative p-4 rounded-2xl font-poppins border-2 transition-all duration-200 flex flex-col text-left cursor-pointer
+                        ${donationValue === 0 && customValue
+                          ? 'bg-[#8DC63F]/10 border-[#8DC63F] shadow-md shadow-lime-500/10' 
+                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-950'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quer doar mais?</span>
+                        {donationValue === 0 && customValue && Number(customValue) >= 80 && (
+                          <div className="h-5 w-5 rounded-full bg-[#8DC63F] flex items-center justify-center text-white text-xs">
+                            <Check className="h-3 w-3" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="relative mt-2 flex items-center">
+                        <span className="absolute left-3 text-sm font-bold text-slate-400">R$</span>
+                        <input
+                          id="custom-donation-input"
+                          type="number"
+                          min="80"
+                          placeholder="Digite um valor maior"
+                          value={customValue}
+                          onChange={handleCustomValueChange}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-[#8DC63F] focus:ring-2 focus:ring-[#8DC63F]/20 transition-all"
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-400 mt-1">Qualquer valor acima de R$ 80,00</span>
                     </div>
                   </div>
-                  {errors.donationValue && <span className="text-[10px] font-semibold text-red-500 mt-1">{errors.donationValue}</span>}
+
+                  {errors.donationValue && <span className="text-[11px] font-semibold text-red-500">{errors.donationValue}</span>}
                 </div>
 
                 {/* Navigation */}
