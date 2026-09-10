@@ -378,8 +378,8 @@ export default function LandingPage() {
             <div className="flex items-center gap-4 justify-start">
               <Route className="h-8 w-8 text-[#8DC63F] shrink-0" strokeWidth={1.5} />
               <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">3 km</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Percurso Total</span>
+                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">3,4 e 1 km</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">2 Opções de Percurso</span>
               </div>
             </div>
           </div>
@@ -394,8 +394,8 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#003A8C] font-poppins">
               Sobre o Evento
             </h2>
-            <p className="mt-4 text-slate-600 text-lg">
-              A Cãominhada Petsalut é uma iniciativa de lazer e saúde dedicada a reunir pets e tutores em uma manhã cheia de diversão, exercícios ao ar livre e confraternização.
+            <p className="mt-4 text-slate-600 text-lg leading-relaxed">
+              A Cãominhada Pet Salute 2026 vai muito além de uma caminhada: é um evento de amor, solidariedade e cuidado com os animais. Teremos dois percursos, e ambos têm o mesmo propósito: ajudar uma causa nobre.
             </p>
           </div>
 
@@ -406,20 +406,50 @@ export default function LandingPage() {
                 Criando memórias saudáveis com quem te dá amor incondicional
               </h3>
               <p className="leading-relaxed text-slate-600">
-                Nosso evento foi projetado com toda a estrutura necessária para que você e seu companheiro canino curtam o trajeto sem preocupações. O percurso de 3km no Museu Militar do Forte do Brum é plano, arborizado e conta com suporte especializado ao longo de todo o caminho.
+                O evento é <strong>100% beneficente</strong>, e toda a iniciativa é voltada para apoiar ONGs e instituições que atuam na proteção, acolhimento e cuidado de animais.
               </p>
               <p className="leading-relaxed text-slate-600">
-                Além de caminhar, o evento é uma oportunidade fantástica para conscientização sobre a saúde animal, alimentação saudável e cuidados preventivos fornecidos pela equipe de veterinários Petsalut.
+                Além de proporcionar um momento especial de lazer, saúde e integração entre os pets e seus tutores, a Cãominhada busca conscientizar sobre saúde animal, alimentação saudável, cuidados preventivos e responsabilidade com a causa animal.
               </p>
 
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex items-start gap-4">
-                <MapPin className="h-6 w-6 text-[#8DC63F] shrink-0 mt-1" />
-                <div className="text-left">
-                  <h4 className="font-bold text-slate-950">Percurso de 3km no Museu Militar do Forte do Brum</h4>
-                  <p className="text-sm text-slate-550 mt-1">
-                    Largada e Chegada no Bolsão principal do Museu Militar do Forte do Brum. Pontos de hidratação e refresco a cada 500 metros para os cães.
-                  </p>
+              {/* Detalhes dos 2 Percursos */}
+              <div className="flex flex-col gap-3">
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 flex items-start gap-4">
+                  <div className="p-2.5 bg-[#003A8C]/10 text-[#003A8C] rounded-xl shrink-0 mt-0.5">
+                    <Route className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#003A8C] bg-[#003A8C]/10 px-2 py-0.5 rounded-md">Completo</span>
+                      <h4 className="font-bold text-slate-950 font-poppins text-sm">🐾 Percurso 1 – 3,4 km</h4>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                      O primeiro grupo sairá do Forte do Brum para realizar o percurso completo, passando pelo <strong>Marco Zero</strong>, <strong>Prefeitura do Recife</strong> e retornando ao <strong>Forte do Brum</strong>.
+                    </p>
+                  </div>
                 </div>
+
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 flex items-start gap-4">
+                  <div className="p-2.5 bg-[#8DC63F]/15 text-[#8DC63F] rounded-xl shrink-0 mt-0.5">
+                    <Route className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8DC63F] bg-[#8DC63F]/15 px-2 py-0.5 rounded-md">Reduzido</span>
+                      <h4 className="font-bold text-slate-950 font-poppins text-sm">🐾 Percurso 2 – 1 km</h4>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                      Logo após a saída do primeiro grupo, teremos o percurso reduzido. Os participantes sairão do Forte do Brum, seguirão em direção ao <strong>Leão do Norte</strong> e retornarão pelo mesmo trajeto, totalizando aproximadamente 1 km.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start gap-3">
+                <span className="text-xl shrink-0 mt-0.5">💚🐾</span>
+                <p className="text-xs text-emerald-900 leading-relaxed">
+                  <strong>Independentemente do percurso escolhido, cada passo será por uma causa.</strong> Participar da Cãominhada é também contribuir diretamente para quem dedica todos os dias ao cuidado e à proteção dos animais.
+                </p>
               </div>
             </div>
 
@@ -645,9 +675,9 @@ export default function LandingPage() {
                   />
                 </div>
 
-                <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200/50">
-                  <span className="text-xs font-bold text-slate-550 flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#8DC63F]" /> Extensão: 3.0 km</span>
-                  <span className="text-xs font-bold text-slate-550 flex items-center gap-1.5"><Heart className="h-4 w-4 text-red-500" /> Pontos de Hidratação: 3</span>
+                <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200/50 gap-2">
+                  <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#8DC63F]" /> Percursos: 3,4 km (Completo) e 1 km (Reduzido)</span>
+                  <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5"><Heart className="h-4 w-4 text-red-500" /> Pontos de Hidratação & UTI Móvel</span>
                 </div>
               </div>
             </div>
