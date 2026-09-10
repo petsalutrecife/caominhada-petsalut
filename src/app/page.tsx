@@ -660,25 +660,34 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Map styling */}
-            <div className="bg-slate-100 p-8 rounded-3xl border border-slate-200 shadow-inner relative overflow-hidden h-[350px] flex items-center justify-center">
-              <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#003a8c_1px,transparent_1px)] [background-size:16px_16px]" />
-              
-              <div className="relative z-10 w-full h-full flex flex-col justify-between">
-                <span className="px-3 py-1.5 rounded-xl bg-[#003A8C] text-white text-xs font-bold w-fit">Mapa Ilustrativo do Percurso</span>
+            <div className="flex flex-col gap-4">
+              <div className="bg-white rounded-3xl border-2 border-slate-200/80 shadow-xl overflow-hidden relative group hover:border-[#8DC63F] transition-all duration-300">
+                {/* Badge sobreposto */}
+                <div className="absolute top-4 left-4 z-10">
+                  <span className="px-3.5 py-1.5 rounded-xl bg-[#003A8C]/90 text-white text-xs font-bold font-poppins shadow-md backdrop-blur-sm flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-[#8DC63F]" /> Mapa Ilustrativo do Percurso
+                  </span>
+                </div>
                 
-                {/* Visual Image representing the 3km walk map */}
-                <div className="w-full max-w-sm mx-auto my-auto h-36 relative flex items-center justify-center overflow-hidden rounded-2xl">
+                {/* Imagem preenchendo a área total */}
+                <div className="w-full relative aspect-[3/2] flex items-center justify-center bg-slate-50 overflow-hidden">
                   <img
                     src="/mapa.png"
-                    alt="Mapa do Percurso"
-                    className="max-w-full max-h-full object-contain rounded-xl"
+                    alt="Mapa Ilustrativo do Percurso da Cãominhada"
+                    className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500"
                   />
                 </div>
+              </div>
 
-                <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200/50 gap-2">
-                  <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#8DC63F]" /> Percursos: 3,4 km (Completo) e 1 km (Reduzido)</span>
-                  <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5"><Heart className="h-4 w-4 text-red-500" /> Pontos de Hidratação & UTI Móvel</span>
-                </div>
+              {/* Informações dos Percursos embaixo da imagem */}
+              <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 gap-3 font-poppins">
+                <span className="text-xs font-bold text-[#003A8C] flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-[#8DC63F] shadow-[0_0_6px_#8DC63F]" />
+                  Percursos: 3,4 km (Completo) e 1 km (Reduzido)
+                </span>
+                <span className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                  <Heart className="h-4 w-4 text-red-500" /> Pontos de Hidratação & UTI Móvel
+                </span>
               </div>
             </div>
 
