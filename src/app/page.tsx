@@ -562,12 +562,12 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3 hover:border-[#8DC63F] hover:bg-[#8DC63F]/5 hover:shadow-md transition-all duration-200 cursor-pointer group"
               >
-                <div className="w-11 h-11 rounded-xl bg-white p-1.5 border border-slate-200/80 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                <div className="w-13 h-13 rounded-xl bg-white p-1 border border-slate-200/80 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
                   <Image
                     src="/sponsors/pethappy.png"
                     alt="Logo Pet Happy"
-                    width={40}
-                    height={40}
+                    width={52}
+                    height={52}
                     className="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-200"
                   />
                 </div>
@@ -586,12 +586,12 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3 hover:border-[#8DC63F] hover:bg-[#8DC63F]/5 hover:shadow-md transition-all duration-200 cursor-pointer group"
               >
-                <div className="w-11 h-11 rounded-xl bg-white p-1.5 border border-slate-200/80 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                <div className="w-13 h-13 rounded-xl bg-white p-1 border border-slate-200/80 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
                   <Image
                     src="/sponsors/ohpet.png"
                     alt="Logo Oh Pet"
-                    width={40}
-                    height={40}
+                    width={52}
+                    height={52}
                     className="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-200"
                   />
                 </div>
