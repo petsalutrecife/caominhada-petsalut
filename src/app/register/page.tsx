@@ -758,20 +758,6 @@ export default function RegisterPage() {
                     {errors.petName && <span className="text-[10px] font-semibold text-red-500">{errors.petName}</span>}
                   </div>
 
-                  {/* Pet Species */}
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="petSpecies" className="text-xs font-bold text-slate-700 dark:text-slate-300">Espécie *</label>
-                    <select id="petSpecies" value={petSpecies} onChange={(e) => setPetSpecies(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:outline-none focus:ring-2 focus:ring-[#8DC63F]/30 transition-all"
-                    >
-                      <option value="Cachorro">🐶 Cachorro</option>
-                      <option value="Gato">🐱 Gato</option>
-                      <option value="Outro">🐾 Outro</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Pet Breed */}
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="petBreed" className="text-xs font-bold text-slate-700 dark:text-slate-300">Raça *</label>
@@ -781,7 +767,9 @@ export default function RegisterPage() {
                     />
                     {errors.petBreed && <span className="text-[10px] font-semibold text-red-500">{errors.petBreed}</span>}
                   </div>
+                </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Pet Size */}
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="petSize" className="text-xs font-bold text-slate-700 dark:text-slate-300">Porte *</label>
@@ -793,16 +781,16 @@ export default function RegisterPage() {
                       <option value="Grande">Grande (Acima de 25kg)</option>
                     </select>
                   </div>
-                </div>
 
-                {/* Pet Age */}
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="petAge" className="text-xs font-bold text-slate-700 dark:text-slate-300">Idade (anos) *</label>
-                  <input id="petAge" type="number" min="0" max="30" value={petAge}
-                    onChange={(e) => { setPetAge(Number(e.target.value)); if (errors.petAge) setErrors(prev => ({ ...prev, petAge: '' })); }}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#8DC63F]/30 transition-all"
-                  />
-                  {errors.petAge && <span className="text-[10px] font-semibold text-red-500">{errors.petAge}</span>}
+                  {/* Pet Age */}
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="petAge" className="text-xs font-bold text-slate-700 dark:text-slate-300">Idade (anos) *</label>
+                    <input id="petAge" type="number" min="0" max="30" value={petAge}
+                      onChange={(e) => { setPetAge(Number(e.target.value)); if (errors.petAge) setErrors(prev => ({ ...prev, petAge: '' })); }}
+                      className={`w-full px-4 py-3 rounded-xl border bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#8DC63F]/30 transition-all ${errors.petAge ? 'border-red-400' : 'border-slate-200 dark:border-slate-800'}`}
+                    />
+                    {errors.petAge && <span className="text-[10px] font-semibold text-red-500">{errors.petAge}</span>}
+                  </div>
                 </div>
 
                 {/* Pet Photo Upload */}
