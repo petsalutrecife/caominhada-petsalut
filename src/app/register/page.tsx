@@ -857,7 +857,7 @@ export default function RegisterPage() {
                   Onde você vai retirar seu kit?
                 </h2>
                 <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
-                  Escolha o ponto de retirada mais perto de você. A retirada acontece nos dias <strong>19</strong> e <strong>26 de Setembro</strong>.
+                  Escolha o ponto de apoio oficial mais perto de você para a retirada do seu kit.
                 </p>
               </div>
 

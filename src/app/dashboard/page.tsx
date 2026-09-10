@@ -404,8 +404,8 @@ export default function ParticipantDashboard() {
                         )}
                       </div>
                       <span className="flex items-center gap-1 text-[11px] text-slate-450">
-                        <Calendar className="h-3 w-3 text-slate-400 shrink-0" />
-                        Retirada nos dias 19 e 26 de Setembro
+                        <MapPin className="h-3 w-3 text-[#8DC63F] shrink-0" />
+                        Ponto Oficial de Apoio para Retirada
                       </span>
                     </div>
                   );

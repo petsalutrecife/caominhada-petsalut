@@ -577,10 +577,10 @@ export default function LandingPage() {
                 <Award className="h-8 w-8 text-[#8DC63F]" />
               </div>
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[#8DC63F]">Retirada Antecipada dos Kits</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#8DC63F]">Retirada dos Kits</span>
                 <h3 className="text-xl font-extrabold text-[#003A8C] font-poppins mt-0.5">Pontos de Apoio Oficial</h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Retire seu kit nos dias <strong>19 de Setembro</strong> e <strong>26 de Setembro</strong> em um dos nossos pontos parceiros:
+                  Retire seu kit em um dos nossos pontos de apoio parceiros:
                 </p>
               </div>
             </div>
@@ -888,9 +888,9 @@ export default function LandingPage() {
 
           <div className="max-w-3xl mx-auto flex flex-col gap-6 text-left">
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-              <h4 className="font-bold text-slate-900 font-poppins text-sm flex items-center gap-2">🐾 Onde e quando retirar o kit?</h4>
+              <h4 className="font-bold text-slate-900 font-poppins text-sm flex items-center gap-2">🐾 Onde retirar o kit?</h4>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                A retirada dos kits (camiseta, bandana do pet e sacochila) será realizada nos dias <strong>19 de Setembro</strong> e <strong>26 de Setembro</strong> em nossos 2 Pontos de Apoio Oficiais:<br />
+                A retirada dos kits (camiseta, bandana do pet e sacochila) será realizada em nossos 2 Pontos de Apoio Oficiais:<br />
                 • <strong>Zona Sul</strong>: Pet Happy<br />
                 • <strong>Zona Norte</strong>: Oh Pet Graças<br />
                 Apresente seu QR Code ou comprovante de participante no momento da retirada.
