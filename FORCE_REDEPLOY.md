@@ -1,6 +1,6 @@
 # Atualização Cãominhada Pet Salute 2026
-Deploy: Padronização exclusiva no domínio oficial caominhadapetsalute.com.br e redirecionamento de vercel.app
-Timestamp: 2026-09-11 12:00
+Deploy: Inclusão de QR Code real e escaneável no Comprovante Oficial (PDF) de retirada do kit
+Timestamp: 2026-09-11 13:40
 
 
 

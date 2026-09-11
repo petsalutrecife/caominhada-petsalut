@@ -1,7 +1,48 @@
 import { jsPDF } from 'jspdf';
 import { Registration } from './supabaseMock';
 
-export function generateRegistrationTicket(reg: Registration, instName?: string) {
+async function getQrCodeDataUrl(data: string): Promise<string | null> {
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=2&data=${encodeURIComponent(data)}`;
+  try {
+    const res = await fetch(qrUrl);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const blob = await res.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (err) {
+    try {
+      return await new Promise<string>((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || 350;
+          canvas.height = img.naturalHeight || 350;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          } else {
+            resolve(qrUrl);
+          }
+        };
+        img.onerror = reject;
+        img.src = qrUrl;
+      });
+    } catch (e) {
+      console.warn('Erro ao carregar imagem do QR Code para o PDF:', e);
+      return null;
+    }
+  }
+}
+
+export async function generateRegistrationTicket(reg: Registration, instName?: string): Promise<void> {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -134,18 +175,34 @@ export function generateRegistrationTicket(reg: Registration, instName?: string)
   doc.setFillColor(248, 250, 252);
   doc.roundedRect(15, 184, 180, 65, 3, 3, 'FD');
 
-  // Mock QR Code Box
-  doc.setFillColor(255, 255, 255);
-  doc.setDrawColor(0, 58, 140);
-  doc.rect(22, 189, 45, 45, 'FD');
+  // Load and embed real QR Code image
+  const qrPayload = reg.qrCode || `${reg.regNumber}|${reg.tutorName}|${reg.petName}|${reg.statusPayment || 'Pendente'}`;
+  const qrDataUrl = await getQrCodeDataUrl(qrPayload);
+
+  if (qrDataUrl) {
+    doc.setFillColor(255, 255, 255);
+    doc.rect(22, 189, 45, 45, 'F');
+    doc.addImage(qrDataUrl, 'PNG', 22, 189, 45, 45);
+    doc.setDrawColor(0, 58, 140);
+    doc.setLineWidth(0.4);
+    doc.rect(22, 189, 45, 45, 'D');
+  } else {
+    // Fallback if image fails to load
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(0, 58, 140);
+    doc.rect(22, 189, 45, 45, 'FD');
+    doc.setTextColor(0, 58, 140);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('QR CODE', 44.5, 211, { align: 'center' });
+    doc.text('RETIRADA', 44.5, 216, { align: 'center' });
+  }
   
+  // Registration label under QR code
   doc.setTextColor(0, 58, 140);
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
-  doc.text('QR CODE', 44, 208, { align: 'center' });
-  doc.text('RETIRADA', 44, 213, { align: 'center' });
-  doc.setFontSize(6);
-  doc.text(reg.regNumber, 44, 220, { align: 'center' });
+  doc.text(reg.regNumber, 44.5, 239, { align: 'center' });
 
   // Instructions Text
   doc.setTextColor(30, 41, 59);
