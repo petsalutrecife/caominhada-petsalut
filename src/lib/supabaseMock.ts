@@ -408,7 +408,18 @@ class SupabaseMockClient {
 
   private setStorage<T>(key: string, data: T[]) {
     if (typeof window !== 'undefined') {
-      localStorage.setItem(key, JSON.stringify(data));
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch (e) {
+        // QuotaExceededError: clear old data and retry once
+        console.warn('localStorage quota exceeded, clearing old registrations cache', e);
+        try {
+          localStorage.removeItem(key);
+          localStorage.setItem(key, JSON.stringify(data));
+        } catch {
+          // If still fails, operate in-memory only
+        }
+      }
     }
   }
 
@@ -528,12 +539,20 @@ class SupabaseMockClient {
       qrCode: `${regNumber}|${reg.tutorName}|${reg.petName}|${reg.statusPayment}`
     };
 
-    // Synchronous optimistic update
-    list.push(newReg);
+    // For localStorage: strip base64 receipt to avoid QuotaExceededError
+    // (images can be several MB as base64). Keep a marker so we know it was uploaded.
+    const regForStorage: Registration = {
+      ...newReg,
+      donationReceipt: newReg.donationReceipt ? '[receipt_uploaded]' : undefined,
+      petPhoto: newReg.petPhoto ? '[photo_uploaded]' : undefined,
+    };
+
+    // Synchronous optimistic update (without large base64 blobs)
+    list.push(regForStorage);
     this.registrations = list;
     this.setStorage('ps_registrations', this.registrations);
 
-    // Async server insert
+    // Async server insert — send full object including receipt
     supabase.from('registrations').insert([mapRegistrationToDb(newReg)]).then(({ error }) => {
       if (error) console.error('Error creating registration in Supabase:', error);
     });

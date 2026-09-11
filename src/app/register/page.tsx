@@ -290,9 +290,15 @@ export default function RegisterPage() {
           spread: 80,
           origin: { y: 0.6 }
         });
-      } catch {
+      } catch (err: unknown) {
         setIsSubmitting(false);
-        alert('Erro ao realizar a inscrição. Tente novamente.');
+        const isQuota = err instanceof DOMException && (err.name === 'QuotaExceededError' || err.code === 22);
+        if (isQuota) {
+          alert('Erro de armazenamento local. Seus dados foram registrados, mas o cache local está cheio. Tente limpar o histórico do navegador se o problema persistir.');
+        } else {
+          console.error('Registration error:', err);
+          alert('Erro ao realizar a inscrição. Tente novamente.');
+        }
       }
     }, 1500);
   };
