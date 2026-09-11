@@ -261,15 +261,15 @@ export default function AdminDashboard() {
     const pickup = getPickupName(reg.notes);
 
     if (template === 'kit') {
-      return `Olá, *${reg.tutorName}*! 🐾\n\nSeu *Kit Oficial da Cãominhada Petsalut 2026* já está LIBERADO para retirada no ponto selecionado:\n📍 *${pickup}*\n\n📋 *Inscrição:* ${reg.regNumber}\n🐶 *Pet:* ${reg.petName}\n\nPara retirar, basta apresentar o seu número de inscrição ou o QR Code disponível no painel. Te esperamos lá com muita alegria! 💚🎉`;
+      return `Olá, *${reg.tutorName}*! 🐾\n\nSeu *Kit Oficial da Cãominhada PetSalute 2026* já está LIBERADO para retirada no ponto selecionado:\n📍 *${pickup}*\n\n📋 *Inscrição:* ${reg.regNumber}\n🐶 *Pet:* ${reg.petName}\n\nPara retirar, basta apresentar o seu número de inscrição ou o QR Code disponível no painel. Te esperamos lá com muita alegria! 💚🎉`;
     }
 
     if (template === 'approved') {
-      return `Olá, *${reg.tutorName}*! 🐾\n\nSua inscrição na *Cãominhada Petsalut 2026* foi confirmada com sucesso!\n\n📋 *Inscrição:* ${reg.regNumber}\n🐶 *Pet:* ${reg.petName}\n💚 *Doação Social:* R$ ${reg.donationValue.toFixed(2)} (${instName})\n📍 *Ponto de Retirada:* ${pickup}\n\nEm breve avisaremos por aqui assim que os kits estiverem liberados para retirada nos pontos de apoio. Obrigado por celebrar a saúde e apoiar a causa pet com a gente! 🐶✨`;
+      return `Olá, *${reg.tutorName}*! 🐾\n\nSua inscrição na *Cãominhada PetSalute 2026* foi confirmada com sucesso!\n\n📋 *Inscrição:* ${reg.regNumber}\n🐶 *Pet:* ${reg.petName}\n💚 *Doação Social:* R$ ${reg.donationValue.toFixed(2)} (${instName})\n📍 *Ponto de Retirada:* ${pickup}\n\nEm breve avisaremos por aqui assim que os kits estiverem liberados para retirada nos pontos de apoio. Obrigado por celebrar a saúde e apoiar a causa pet com a gente! 🐶✨`;
     }
 
     if (template === 'pending') {
-      return `Olá, *${reg.tutorName}*! 🐾\n\nIdentificamos sua pré-inscrição na *Cãominhada Petsalut 2026* para o pet *${reg.petName}* (Nº ${reg.regNumber}).\n\nPara garantir sua vaga e a confecção do kit do seu pet, lembre-se de concluir o envio do comprovante da doação social no painel:\n🔗 https://caominhada.petsalut.com.br/login\n\nQualquer dúvida, estamos à disposição por aqui! 💚`;
+      return `Olá, *${reg.tutorName}*! 🐾\n\nIdentificamos sua pré-inscrição na *Cãominhada PetSalute 2026* para o pet *${reg.petName}* (Nº ${reg.regNumber}).\n\nPara garantir sua vaga e a confecção do kit do seu pet, lembre-se de concluir o envio do comprovante da doação social no painel:\n🔗 https://caominhada.petsalute.com.br/login\n\nQualquer dúvida, estamos à disposição por aqui! 💚`;
     }
 
     return '';
@@ -599,7 +599,7 @@ export default function AdminDashboard() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `Participantes_Caominhada_Petsalut_${Date.now()}.csv`);
+    link.setAttribute('download', `Participantes_Caominhada_PetSalute_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -651,7 +651,7 @@ export default function AdminDashboard() {
     doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    doc.text(`Cãominhada Petsalut 2026 • Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 15, 26);
+    doc.text(`Cãominhada PetSalute 2026 • Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 15, 26);
     
     doc.setDrawColor(0, 58, 140);
     doc.setLineWidth(0.5);
@@ -1759,7 +1759,7 @@ export default function AdminDashboard() {
                         </label>
                         <input
                           type="text"
-                          placeholder="Ex: Administrador Petsalut"
+                          placeholder="Ex: Administrador PetSalute"
                           value={adminName}
                           onChange={(e) => setAdminName(e.target.value)}
                           className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#003A8C]/20 dark:focus:ring-lime-500/20 text-slate-800 dark:text-slate-200"

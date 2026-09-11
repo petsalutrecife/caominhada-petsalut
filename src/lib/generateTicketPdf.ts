@@ -26,7 +26,7 @@ export function generateRegistrationTicket(reg: Registration, instName?: string)
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
-  doc.text('CÃOMINHADA PETSALUT 2026', 105, 18, { align: 'center' });
+  doc.text('CÃOMINHADA PETSALUTE 2026', 105, 18, { align: 'center' });
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -167,7 +167,7 @@ export function generateRegistrationTicket(reg: Registration, instName?: string)
 
   doc.setFontSize(8);
   doc.setTextColor(148, 163, 184);
-  doc.text('Cãominhada PetSalut 2026 • Juntos pela Causa Animal em Recife/PE', 105, 268, { align: 'center' });
+  doc.text('Cãominhada PetSalute 2026 • Juntos pela Causa Animal em Recife/PE', 105, 268, { align: 'center' });
   doc.text(`Comprovante gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`, 105, 273, { align: 'center' });
 
   // Save PDF file

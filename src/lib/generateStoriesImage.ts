@@ -41,7 +41,7 @@ export async function generateStoriesImage(
     ctx.fillStyle = '#8DC63F';
     ctx.font = 'bold 32px Poppins, Montserrat, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🐾 CÃOMINHADA PETSALUT 2026 🐾', 540, 140);
+    ctx.fillText('🐾 CÃOMINHADA PETSALUTE 2026 🐾', 540, 140);
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '900 68px Poppins, Montserrat, sans-serif';
@@ -218,7 +218,7 @@ export async function generateStoriesImage(
 
       ctx.fillStyle = '#8DC63F';
       ctx.font = 'bold 24px Montserrat, sans-serif';
-      ctx.fillText('www.petsalut.com.br', 540, 1830);
+      ctx.fillText('www.petsalute.com.br', 540, 1830);
       ctx.restore();
 
       resolve(canvas.toDataURL('image/png', 1.0));

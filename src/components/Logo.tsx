@@ -20,7 +20,7 @@ export default function Logo({ className = '', size = 'md', variant = 'light' }:
     <div className={`flex items-center select-none ${className}`}>
       <img
         src={logoSrc}
-        alt="Logo Pet Salute"
+        alt="Logo PetSalute"
         className={`${heights[size]} w-auto object-contain transition-transform duration-200 hover:scale-105`}
       />
     </div>

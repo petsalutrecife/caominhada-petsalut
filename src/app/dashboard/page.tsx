@@ -143,8 +143,8 @@ export default function ParticipantDashboard() {
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: `Cãominhada Petsalut 2026 - ${registration.petName}`,
-          text: `Eu e ${registration.petName} vamos para a Cãominhada Petsalut 2026! 🐾 Venha você também: https://caominhada.petsalut.com.br`
+          title: `Cãominhada PetSalute 2026 - ${registration.petName}`,
+          text: `Eu e ${registration.petName} vamos para a Cãominhada PetSalute 2026! 🐾 Venha você também: https://caominhada.petsalut.com.br`,
         });
       } else {
         handleDownloadStoriesImage();
@@ -177,7 +177,7 @@ export default function ParticipantDashboard() {
     doc.setTextColor(0, 58, 140);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(26);
-    doc.text('Petsalut', 148, 32, { align: 'center' });
+    doc.text('PetSalute', 148, 32, { align: 'center' });
     
     doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
@@ -212,7 +212,7 @@ export default function ParticipantDashboard() {
     doc.text(`e seu fiel pet ${registration.petName} (${registration.petBreed})`, 148, 118, { align: 'center' });
     
     doc.text('completaram com sucesso o circuito oficial da', 148, 130, { align: 'center' });
-    doc.text('Cãominhada Petsalut 2026 no Parque Central.', 148, 140, { align: 'center' });
+    doc.text('Cãominhada PetSalute 2026 no Parque Central.', 148, 140, { align: 'center' });
 
     // Registration metadata
     doc.setFont('helvetica', 'italic');
@@ -226,7 +226,7 @@ export default function ParticipantDashboard() {
     doc.setLineWidth(0.5);
     doc.line(100, 180, 197, 180);
     doc.setFontSize(9);
-    doc.text('DIRETORIA DE PROJETOS E EVENTOS PETSALUT', 148, 186, { align: 'center' });
+    doc.text('DIRETORIA DE PROJETOS E EVENTOS PETSALUTE', 148, 186, { align: 'center' });
 
     // Save
     doc.save(`Certificado_Caominhada_${registration.regNumber}.pdf`);
