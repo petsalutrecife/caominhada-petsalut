@@ -693,7 +693,7 @@ export default function LandingPage() {
             <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
               <h4 className="font-bold text-slate-900 dark:text-white font-poppins text-sm flex items-center gap-2">🩺 Como funciona a segurança veterinária?</h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
-                Teremos veterinários Pet Salute espalhados pelo circuito de 3km e uma ambulância de UTI veterinária posicionada na largada/chegada para dar o suporte necessário ao seu cãozinho se ele cansar ou precisar de cuidados médicos.
+                Teremos veterinários no local e uma ambulância de UTI veterinária posicionada na largada/chegada para dar o suporte necessário ao seu cãozinho se ele cansar ou precisar de cuidados médicos.
               </p>
             </div>
 
