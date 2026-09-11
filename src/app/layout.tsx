@@ -17,6 +17,10 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://caominhadapetsalute.com.br"),
+  alternates: {
+    canonical: "https://caominhadapetsalute.com.br",
+  },
   title: "Cãominhada Pet Salute 2026 - Celebrando a Saúde e Felicidade Pet",
   description: "Inscreva-se na Cãominhada Pet Salute 2026! Um evento incrível para tutores e pets celebrarem a saúde, o bem-estar e a felicidade juntos.",
   keywords: ["Cãominhada", "Pet Salute", "evento pet", "saúde animal", "caminhada com cães", "inscrição cãominhada"],
@@ -24,6 +28,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Cãominhada Pet Salute 2026",
     description: "Inscreva-se no maior evento pet do ano! Saúde, bem-estar e diversão para você e seu melhor amigo.",
+    url: "https://caominhadapetsalute.com.br",
+    siteName: "Cãominhada Pet Salute",
     type: "website",
     locale: "pt_BR",
   },

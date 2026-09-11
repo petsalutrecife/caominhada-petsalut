@@ -409,7 +409,7 @@ export default function RegisterPage() {
             {/* Social Sharing Section */}
             {(() => {
               const shareText = encodeURIComponent('Eu já garanti minha vaga com meu pet na Cãominhada Pet Salute 2026! 🐾 Venha caminhar com a gente e apoiar a causa animal!');
-              const shareUrl = encodeURIComponent('https://caominhada-petsalut.vercel.app');
+              const shareUrl = encodeURIComponent('https://caominhadapetsalute.com.br');
               const whatsappUrl = `https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`;
 
               return (
@@ -442,7 +442,7 @@ export default function RegisterPage() {
 
                     {/* Copy Link Button */}
                     <button
-                      onClick={() => copyToClipboard('https://caominhada-petsalut.vercel.app', setCopiedShareLink)}
+                      onClick={() => copyToClipboard('https://caominhadapetsalute.com.br', setCopiedShareLink)}
                       className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                     >
                       {copiedShareLink ? (

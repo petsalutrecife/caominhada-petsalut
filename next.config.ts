@@ -10,6 +10,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'caominhada-petsalut.vercel.app',
+          },
+        ],
+        destination: 'https://caominhadapetsalute.com.br/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
