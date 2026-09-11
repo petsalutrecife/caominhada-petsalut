@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = 'https://ldmuvkyfazodfhjwebvy.supabase.co';
-const supabaseAnonKey = 'sb_publishable_o7oux2I190WEMcMe5KLAvw_ltcJmaQI';
+const supabaseUrl = 'https://fgzbpypmqpcthrpvywjd.supabase.co';
+const supabaseAnonKey = 'sb_publishable_u2rNfEfDo4y-MkOung-o4w_rODhzttz';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function testRegistration() {
