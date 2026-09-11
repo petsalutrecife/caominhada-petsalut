@@ -311,7 +311,7 @@ const initialSponsors: Sponsor[] = [
     logo: '/sponsors/care.png',
     category: 'Apoio',
     investedValue: 5000,
-    description: 'Apoio e parceiro oficial da Cãominhada PetSalute.',
+    description: 'Apoio e parceiro oficial da Cãominhada Pet Salute.',
     website: '#'
   },
   {
@@ -382,7 +382,7 @@ const initialSponsors: Sponsor[] = [
 const initialExpenses: Expense[] = [
   { id: 'ex-1', title: 'Tendas e Palco principal', category: 'Estrutura', value: 4200, date: '2026-06-01' },
   { id: 'ex-2', title: 'Medalhas e Troféus de participação', category: 'Brindes', value: 2500, date: '2026-06-02' },
-  { id: 'ex-3', title: 'Camisetas personalizadas PetSalute', category: 'Brindes', value: 3800, date: '2026-06-03' },
+  { id: 'ex-3', title: 'Camisetas personalizadas Pet Salute', category: 'Brindes', value: 3800, date: '2026-06-03' },
   { id: 'ex-4', title: 'Anúncios Instagram & Facebook', category: 'Marketing', value: 1500, date: '2026-06-04' },
   { id: 'ex-5', title: 'Contratação Equipe de Apoio e Vet', category: 'Equipe', value: 2800, date: '2026-06-05' },
   { id: 'ex-6', title: 'Copos de água biodegradáveis', category: 'Alimentação', value: 600, date: '2026-06-06' }
@@ -580,7 +580,7 @@ class SupabaseMockClient {
 
   getSponsors(): Sponsor[] {
     const list = this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
-    if (list.some(s => s.name.includes('Royal Canin') || s.name.includes('PetSalute Plano') || s.name.includes('PremieRpet'))) {
+    if (list.some(s => s.name.includes('Royal Canin') || s.name.includes('Pet Salute Plano') || s.name.includes('PremieRpet'))) {
       this.setStorage('ps_sponsors', initialSponsors);
       return initialSponsors;
     }
@@ -667,7 +667,7 @@ class SupabaseMockClient {
 
   getAdminCredentials(): { email: string; password?: string; name: string } {
     const defaultEmail = 'admin@petsalute.com.br';
-    const defaultName = 'Administrador Petsalute';
+    const defaultName = 'Administrador Pet Salute';
     const defaultAdmin = { email: defaultEmail, password: 'admin123', name: defaultName };
 
     if (typeof window === 'undefined') {

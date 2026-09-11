@@ -395,7 +395,7 @@ export default function RegisterPage() {
 
             {/* Social Sharing Section */}
             {(() => {
-              const shareText = encodeURIComponent('Eu já garanti minha vaga com meu pet na Cãominhada PetSalute 2026! 🐾 Venha caminhar com a gente e apoiar a causa animal!');
+              const shareText = encodeURIComponent('Eu já garanti minha vaga com meu pet na Cãominhada Pet Salute 2026! 🐾 Venha caminhar com a gente e apoiar a causa animal!');
               const shareUrl = encodeURIComponent('https://caominhada-petsalut.vercel.app');
               const whatsappUrl = `https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`;
 

@@ -17,12 +17,12 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Cãominhada PetSalute 2026 - Celebrando a Saúde e Felicidade Pet",
-  description: "Inscreva-se na Cãominhada PetSalute 2026! Um evento incrível para tutores e pets celebrarem a saúde, o bem-estar e a felicidade juntos.",
-  keywords: ["Cãominhada", "PetSalute", "evento pet", "saúde animal", "caminhada com cães", "inscrição cãominhada"],
-  authors: [{ name: "PetSalute" }],
+  title: "Cãominhada Pet Salute 2026 - Celebrando a Saúde e Felicidade Pet",
+  description: "Inscreva-se na Cãominhada Pet Salute 2026! Um evento incrível para tutores e pets celebrarem a saúde, o bem-estar e a felicidade juntos.",
+  keywords: ["Cãominhada", "Pet Salute", "evento pet", "saúde animal", "caminhada com cães", "inscrição cãominhada"],
+  authors: [{ name: "Pet Salute" }],
   openGraph: {
-    title: "Cãominhada PetSalute 2026",
+    title: "Cãominhada Pet Salute 2026",
     description: "Inscreva-se no maior evento pet do ano! Saúde, bem-estar e diversão para você e seu melhor amigo.",
     type: "website",
     locale: "pt_BR",

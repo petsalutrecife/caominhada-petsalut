@@ -86,7 +86,7 @@ export default function LandingPage() {
 
   const benefits = [
     { icon: <Heart className="h-6 w-6 text-red-500" />, title: 'Saúde & Exercício', desc: 'Uma caminhada de 3km com ritmo leve, ideal para exercitar e divertir cães de todas as idades.' },
-    { icon: <Award className="h-6 w-6 text-[#8DC63F]" />, title: 'Kit Exclusivo', desc: 'Cada inscrição inclui camiseta PetSalute para o tutor, bandana para o pet, sacochila e medalha.' },
+    { icon: <Award className="h-6 w-6 text-[#8DC63F]" />, title: 'Kit Exclusivo', desc: 'Cada inscrição inclui camiseta Pet Salute para o tutor, bandana para o pet, sacochila e medalha.' },
     { icon: <Users className="h-6 w-6 text-blue-500" />, title: 'Socialização Pet', desc: 'Oportunidade perfeita para o seu cão interagir com outros pets em um ambiente amigável e seguro.' },
     { icon: <Trophy className="h-6 w-6 text-amber-500" />, title: 'Brindes & Sorteios', desc: 'Desfiles interativos com premiações e sorteio de kits completos oferecidos por nossos patrocinadores.' },
   ];
@@ -202,7 +202,7 @@ export default function LandingPage() {
           <div className="relative w-full h-full">
             <img
               src="/hero-dogs.png"
-              alt="Cãominhada PetSalute Evento"
+              alt="Cãominhada Pet Salute Evento"
               className="w-full h-full object-cover object-right"
             />
             {/* Gradient mask to blend nicely on large screens */}
@@ -230,7 +230,7 @@ export default function LandingPage() {
             <div className="relative w-full max-w-[480px] select-none mb-4">
               <img
                 src="/logocorrida.png"
-                alt="Cãominhada PetSalute 2026"
+                alt="Cãominhada Pet Salute 2026"
                 className="w-full h-auto object-contain"
               />
             </div>
@@ -331,7 +331,7 @@ export default function LandingPage() {
           <div className="lg:hidden relative h-[280px] w-full rounded-3xl overflow-hidden shadow-lg border border-slate-150 mt-4">
             <img
               src="/hero-dogs.png"
-              alt="Cãominhada PetSalute Evento"
+              alt="Cãominhada Pet Salute Evento"
               className="w-full h-full object-cover"
             />
           </div>
@@ -395,7 +395,7 @@ export default function LandingPage() {
               Sobre o Evento
             </h2>
             <p className="mt-4 text-slate-600 text-lg leading-relaxed">
-              A Cãominhada PetSalute 2026 vai muito além de uma caminhada: é um evento de amor, solidariedade e cuidado com os animais. Teremos dois percursos, e ambos têm o mesmo propósito: ajudar uma causa nobre.
+              A Cãominhada Pet Salute 2026 vai muito além de uma caminhada: é um evento de amor, solidariedade e cuidado com os animais. Teremos dois percursos, e ambos têm o mesmo propósito: ajudar uma causa nobre.
             </p>
           </div>
 
@@ -480,7 +480,7 @@ export default function LandingPage() {
               ONGs que receberão a sua doação
             </h2>
             <p className="mt-4 text-slate-600 text-lg leading-relaxed">
-              O propósito da Cãominhada PetSalute 2026 é apoiar o trabalho incansável de resgate e reabilitação de animais abandonados. 
+              O propósito da Cãominhada Pet Salute 2026 é apoiar o trabalho incansável de resgate e reabilitação de animais abandonados. 
               Ao se inscrever, a sua doação mínima de <strong>R$ 80,00</strong> vai diretamente para a conta da instituição de sua escolha.
             </p>
           </div>
@@ -900,7 +900,7 @@ export default function LandingPage() {
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
               <h4 className="font-bold text-slate-900 font-poppins text-sm flex items-center gap-2">🩺 Como funciona a segurança veterinária?</h4>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Teremos veterinários PetSalute espalhados pelo circuito de 3km e uma ambulância de UTI veterinária posicionada na largada/chegada para dar o suporte necessário ao seu cãozinho se ele cansar ou precisar de cuidados médicos.
+                Teremos veterinários Pet Salute espalhados pelo circuito de 3km e uma ambulância de UTI veterinária posicionada na largada/chegada para dar o suporte necessário ao seu cãozinho se ele cansar ou precisar de cuidados médicos.
               </p>
             </div>
 
@@ -948,7 +948,7 @@ export default function LandingPage() {
         <hr className="border-slate-800 my-8" />
 
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-550">
-          <p>Copyright © 2026 PetSalute. Todos os direitos reservados. CNPJ: 12.345.678/0001-90</p>
+          <p>Copyright © 2026 Pet Salute. Todos os direitos reservados. CNPJ: 12.345.678/0001-90</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-slate-400 transition-colors">Instagram</a>
             <a href="#" className="hover:text-slate-400 transition-colors">Facebook</a>

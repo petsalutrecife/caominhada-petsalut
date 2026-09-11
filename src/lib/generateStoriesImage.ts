@@ -41,7 +41,7 @@ export async function generateStoriesImage(
     ctx.fillStyle = '#8DC63F';
     ctx.font = 'bold 32px Poppins, Montserrat, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🐾 CÃOMINHADA PETSALUTE 2026 🐾', 540, 140);
+    ctx.fillText('🐾 CÃOMINHADA PET SALUTE 2026 🐾', 540, 140);
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '900 68px Poppins, Montserrat, sans-serif';

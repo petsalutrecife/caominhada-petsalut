@@ -60,7 +60,7 @@ export default function LandingPage() {
 
   const benefits = [
     { icon: <Heart className="h-6 w-6 text-red-500" />, title: 'Saúde & Exercício', desc: 'Uma caminhada de 3km com ritmo leve, ideal para exercitar e divertir cães de todas as idades.' },
-    { icon: <Award className="h-6 w-6 text-[#8DC63F]" />, title: 'Kit Exclusivo', desc: 'Cada inscrição inclui camiseta PetSalute para o tutor, bandana para o pet, sacochila e medalha.' },
+    { icon: <Award className="h-6 w-6 text-[#8DC63F]" />, title: 'Kit Exclusivo', desc: 'Cada inscrição inclui camiseta Pet Salute para o tutor, bandana para o pet, sacochila e medalha.' },
     { icon: <Users className="h-6 w-6 text-blue-500" />, title: 'Socialização Pet', desc: 'Oportunidade perfeita para o seu cão interagir com outros pets em um ambiente amigável e seguro.' },
     { icon: <Trophy className="h-6 w-6 text-amber-500" />, title: 'Brindes & Sorteios', desc: 'Desfiles interativos com premiações e sorteio de kits completos oferecidos por nossos patrocinadores.' },
   ];
@@ -137,7 +137,7 @@ export default function LandingPage() {
           <div className="relative w-full h-full">
             <img
               src="/hero-dogs.png"
-              alt="Cãominhada PetSalute Evento"
+              alt="Cãominhada Pet Salute Evento"
               className="w-full h-full object-cover object-right"
             />
             {/* Gradient mask to blend nicely on large screens */}
@@ -165,7 +165,7 @@ export default function LandingPage() {
             <div className="relative w-full max-w-[480px] select-none mb-4">
               <img
                 src="/logocorrida.jpeg"
-                alt="Cãominhada PetSalute 2026"
+                alt="Cãominhada Pet Salute 2026"
                 className="w-full h-auto object-contain"
               />
             </div>
@@ -266,7 +266,7 @@ export default function LandingPage() {
           <div className="lg:hidden relative h-[280px] w-full rounded-3xl overflow-hidden shadow-lg border border-slate-150 mt-4">
             <img
               src="/hero-dogs.png"
-              alt="Cãominhada PetSalute Evento"
+              alt="Cãominhada Pet Salute Evento"
               className="w-full h-full object-cover"
             />
           </div>
@@ -330,7 +330,7 @@ export default function LandingPage() {
               Sobre o Evento
             </h2>
             <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg">
-              A Cãominhada PetSalute é uma iniciativa de lazer e saúde dedicada a reunir pets e tutores em uma manhã cheia de diversão, exercícios ao ar livre e confraternização.
+              A Cãominhada Pet Salute é uma iniciativa de lazer e saúde dedicada a reunir pets e tutores em uma manhã cheia de diversão, exercícios ao ar livre e confraternização.
             </p>
           </div>
 
@@ -344,7 +344,7 @@ export default function LandingPage() {
                 Nosso evento foi projetado com toda a estrutura necessária para que você e seu companheiro canino curtam o trajeto sem preocupações. O percurso de 3km no Museu Militar do Forte do Brum é plano, arborizado e conta com suporte especializado ao longo de todo o caminho.
               </p>
               <p className="leading-relaxed text-slate-600 dark:text-slate-400">
-                Além de caminhar, o evento é uma oportunidade fantástica para conscientização sobre a saúde animal, alimentação saudável e cuidados preventivos fornecidos pela equipe de veterinários PetSalute.
+                Além de caminhar, o evento é uma oportunidade fantástica para conscientização sobre a saúde animal, alimentação saudável e cuidados preventivos fornecidos pela equipe de veterinários Pet Salute.
               </p>
 
               <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-start gap-4">
@@ -385,7 +385,7 @@ export default function LandingPage() {
               Instituições Parceiras que Você Ajudará
             </h2>
             <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-              O propósito da Cãominhada PetSalute 2026 é apoiar o trabalho incansável de resgate e reabilitação de animais abandonados. 
+              O propósito da Cãominhada Pet Salute 2026 é apoiar o trabalho incansável de resgate e reabilitação de animais abandonados. 
               Ao se inscrever, a sua doação mínima de <strong>R$ 50,00</strong> vai diretamente para a conta da instituição de sua escolha.
             </p>
           </div>
@@ -693,7 +693,7 @@ export default function LandingPage() {
             <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
               <h4 className="font-bold text-slate-900 dark:text-white font-poppins text-sm flex items-center gap-2">🩺 Como funciona a segurança veterinária?</h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
-                Teremos veterinários PetSalute espalhados pelo circuito de 3km e uma ambulância de UTI veterinária posicionada na largada/chegada para dar o suporte necessário ao seu cãozinho se ele cansar ou precisar de cuidados médicos.
+                Teremos veterinários Pet Salute espalhados pelo circuito de 3km e uma ambulância de UTI veterinária posicionada na largada/chegada para dar o suporte necessário ao seu cãozinho se ele cansar ou precisar de cuidados médicos.
               </p>
             </div>
 
@@ -741,7 +741,7 @@ export default function LandingPage() {
         <hr className="border-slate-800 my-8" />
 
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-550">
-          <p>Copyright © 2026 PetSalute. Todos os direitos reservados. CNPJ: 12.345.678/0001-90</p>
+          <p>Copyright © 2026 Pet Salute. Todos os direitos reservados. CNPJ: 12.345.678/0001-90</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-slate-400 transition-colors">Instagram</a>
             <a href="#" className="hover:text-slate-400 transition-colors">Facebook</a>
