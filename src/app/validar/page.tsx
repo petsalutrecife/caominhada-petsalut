@@ -890,16 +890,6 @@ export default function QrCodeValidatorPage() {
                 </div>
               </div>
 
-              {/* Kit Shirt Size Banner */}
-              <div className="p-3.5 rounded-2xl bg-blue-950/70 border border-blue-800/80 flex items-center justify-between">
-                <span className="text-xs font-bold text-blue-200 flex items-center gap-2">
-                  <Award className="h-4 w-4 text-[#8DC63F]" /> Camisa Oficial do Kit:
-                </span>
-                <span className="px-3.5 py-1 rounded-xl bg-[#8DC63F] text-white text-xs font-black tracking-wider shadow-sm">
-                  Tamanho {foundRegistration.shirtSize || 'M'}
-                </span>
-              </div>
-
               {/* Primary Action: Deliver Kit Button */}
               <div className="flex flex-col gap-2 pt-2">
                 {foundRegistration.statusKit !== 'Retirado' ? (

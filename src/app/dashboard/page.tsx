@@ -366,12 +366,6 @@ export default function ParticipantDashboard() {
                     {registration.statusKit === 'Liberado' && isApproved && 'Kit liberado para retirada!'}
                     {(registration.statusKit === 'Aguardando' || !isApproved) && 'Aguardando data de liberação, informaremos assim que seu kit estiver disponível no ponto de retirada.'}
                   </p>
-                  <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 text-xs font-bold text-[#003A8C] dark:text-blue-300">
-                    <span>Camisa do Kit:</span>
-                    <span className="px-2 py-0.5 rounded-md bg-[#8DC63F] text-white text-[11px] font-black">
-                      Tamanho {registration.shirtSize || 'M'}
-                    </span>
-                  </div>
                 </div>
 
                 {(() => {

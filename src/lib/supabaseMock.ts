@@ -134,11 +134,7 @@ function mapRegistrationToDb(reg: Partial<Registration>): any {
   if (reg.donationReceipt !== undefined) db.donation_receipt = reg.donationReceipt;
   if (reg.donationStatus !== undefined) db.donation_status = reg.donationStatus;
   if (reg.rejectionReason !== undefined) db.rejection_reason = reg.rejectionReason;
-  let computedNotes = reg.notes || '';
-  if (reg.shirtSize && !computedNotes.includes('Camisa:')) {
-    computedNotes = computedNotes ? `${computedNotes} | Camisa: ${reg.shirtSize}` : `Camisa: ${reg.shirtSize}`;
-  }
-  if (computedNotes) db.notes = computedNotes;
+  if (reg.notes !== undefined) db.notes = reg.notes;
   if (reg.regNumber !== undefined) db.reg_number = reg.regNumber;
   if (reg.statusPayment !== undefined) db.status_payment = reg.statusPayment;
   if (reg.statusKit !== undefined) db.status_kit = reg.statusKit;

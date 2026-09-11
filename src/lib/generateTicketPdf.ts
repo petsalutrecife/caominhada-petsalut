@@ -117,22 +117,17 @@ export function generateRegistrationTicket(reg: Registration, instName?: string)
   doc.setTextColor(30, 41, 59);
   doc.setFontSize(9);
 
-  doc.setFont('helvetica', 'bold'); doc.text('Ponto de Retirada:', 20, 158);
+  doc.setFont('helvetica', 'bold'); doc.text('Ponto de Retirada:', 20, 160);
   doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 58, 140);
-  doc.text(pickupLocation, 55, 158);
+  doc.text(pickupLocation, 55, 160);
 
   doc.setTextColor(30, 41, 59);
-  doc.setFont('helvetica', 'bold'); doc.text('Camisa Oficial (Kit):', 20, 165);
-  doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 58, 140);
-  doc.text(`Tamanho ${reg.shirtSize || 'M'}`, 55, 165);
+  doc.setFont('helvetica', 'bold'); doc.text('Instituição Parceira:', 20, 167);
+  doc.setFont('helvetica', 'normal'); doc.text(instName || 'Instituição Selecionada', 55, 167);
 
-  doc.setTextColor(30, 41, 59);
-  doc.setFont('helvetica', 'bold'); doc.text('Instituição Parceira:', 20, 171);
-  doc.setFont('helvetica', 'normal'); doc.text(instName || 'Instituição Selecionada', 55, 171);
-
-  doc.setFont('helvetica', 'bold'); doc.text('Valor da Doação:', 20, 177);
+  doc.setFont('helvetica', 'bold'); doc.text('Valor da Doação:', 20, 174);
   doc.setFont('helvetica', 'bold'); doc.setTextColor(16, 185, 129);
-  doc.text(`R$ ${reg.donationValue.toFixed(2)} (PIX Direct)`, 55, 177);
+  doc.text(`R$ ${reg.donationValue.toFixed(2)} (PIX Direct)`, 55, 174);
 
   // Section 4: QR Code & Instruções
   doc.setDrawColor(226, 232, 240);
