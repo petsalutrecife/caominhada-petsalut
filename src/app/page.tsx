@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
-import { supabaseMock, Sponsor, Institution } from '@/lib/supabaseMock';
+import { supabaseMock, Sponsor, Institution, Registration } from '@/lib/supabaseMock';
 import { 
   Calendar, MapPin, Clock, Award, ShieldAlert, Heart, Trophy, Users, 
   ChevronRight, Menu, X, ArrowRight, Info, Compass, Dog, Route
@@ -14,6 +14,7 @@ import {
 export default function LandingPage() {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('inicio');
@@ -35,10 +36,12 @@ export default function LandingPage() {
     setMounted(true);
     setSponsors(supabaseMock.getSponsors());
     setInstitutions(supabaseMock.getInstitutions());
+    setRegistrations(supabaseMock.getRegistrations());
 
     // Fetch from Supabase and refresh data
     supabaseMock.syncFromSupabase().then(() => {
       setInstitutions(supabaseMock.getInstitutions());
+      setRegistrations(supabaseMock.getRegistrations());
     });
 
     const timer = setInterval(() => {
@@ -351,7 +354,9 @@ export default function LandingPage() {
                 <circle cx="72" cy="38" r="9" />
               </svg>
               <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">1.245</span>
+                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">
+                  {mounted ? registrations.length : 0}
+                </span>
                 <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Inscritos</span>
               </div>
             </div>
@@ -360,7 +365,9 @@ export default function LandingPage() {
             <div className="flex items-center gap-4 justify-start">
               <Dog className="h-8 w-8 text-[#8DC63F] shrink-0" strokeWidth={1.5} />
               <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">876</span>
+                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">
+                  {mounted ? registrations.filter(r => r.petName).length : 0}
+                </span>
                 <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Pets Participantes</span>
               </div>
             </div>
