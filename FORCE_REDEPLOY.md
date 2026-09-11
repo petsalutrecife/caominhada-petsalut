@@ -1,6 +1,7 @@
 # Atualização Cãominhada Pet Salute 2026
-Deploy: Inclusão de QR Code real e escaneável no Comprovante Oficial (PDF) de retirada do kit
-Timestamp: 2026-09-11 13:40
+Deploy: Inclusão da tag oficial do Google Analytics (G-FG7TQ4BCEG) no layout
+Timestamp: 2026-09-11 19:33:30
+
 
 
 
