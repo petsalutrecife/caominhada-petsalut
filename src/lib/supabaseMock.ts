@@ -30,6 +30,7 @@ export interface Registration {
   regNumber: string;
   statusPayment: 'Pendente' | 'Aprovado';
   statusKit: 'Aguardando' | 'Liberado' | 'Retirado';
+  shirtSize?: 'M' | 'G' | 'GG' | string;
   createdAt: string;
   qrCode: string;
 }
@@ -105,6 +106,7 @@ function mapDbToRegistration(db: any): Registration {
     regNumber: db.reg_number || '',
     statusPayment: db.status_payment || 'Pendente',
     statusKit: db.status_kit || 'Aguardando',
+    shirtSize: db.shirt_size || db.shirtSize || db.notes?.match(/Camisa:\s*([A-Z0-9]+)/i)?.[1] || 'M',
     createdAt: db.created_at || new Date().toISOString(),
     qrCode: db.qr_code || ''
   };
@@ -132,7 +134,11 @@ function mapRegistrationToDb(reg: Partial<Registration>): any {
   if (reg.donationReceipt !== undefined) db.donation_receipt = reg.donationReceipt;
   if (reg.donationStatus !== undefined) db.donation_status = reg.donationStatus;
   if (reg.rejectionReason !== undefined) db.rejection_reason = reg.rejectionReason;
-  if (reg.notes !== undefined) db.notes = reg.notes;
+  let computedNotes = reg.notes || '';
+  if (reg.shirtSize && !computedNotes.includes('Camisa:')) {
+    computedNotes = computedNotes ? `${computedNotes} | Camisa: ${reg.shirtSize}` : `Camisa: ${reg.shirtSize}`;
+  }
+  if (computedNotes) db.notes = computedNotes;
   if (reg.regNumber !== undefined) db.reg_number = reg.regNumber;
   if (reg.statusPayment !== undefined) db.status_payment = reg.statusPayment;
   if (reg.statusKit !== undefined) db.status_kit = reg.statusKit;

@@ -1171,21 +1171,26 @@ export default function AdminDashboard() {
                           </td>
                           <td className="p-4 font-medium">{getInstName(r.selectedInstitution)}</td>
                           <td className="p-4">
-                            {r.notes?.includes('Zona Sul') ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                <MapPin className="h-3 w-3 text-blue-500 shrink-0" />
-                                Zona Sul
+                            <div className="flex flex-col gap-1.5">
+                              {r.notes?.includes('Zona Sul') ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 w-fit">
+                                  <MapPin className="h-3 w-3 text-blue-500 shrink-0" />
+                                  Zona Sul
+                                </span>
+                              ) : r.notes?.includes('Zona Norte') ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-bold bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 w-fit">
+                                  <MapPin className="h-3 w-3 text-purple-500 shrink-0" />
+                                  Zona Norte
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium text-slate-400 bg-slate-100 dark:bg-slate-800 w-fit">
+                                  Não informado
+                                </span>
+                              )}
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold border border-emerald-200 dark:border-emerald-800 w-fit">
+                                Camisa {r.shirtSize || 'M'}
                               </span>
-                            ) : r.notes?.includes('Zona Norte') ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-bold bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                                <MapPin className="h-3 w-3 text-purple-500 shrink-0" />
-                                Zona Norte
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium text-slate-400 bg-slate-100 dark:bg-slate-800">
-                                Não informado
-                              </span>
-                            )}
+                            </div>
                           </td>
                           <td className="p-4">
                             <div className="flex flex-col gap-1.5">

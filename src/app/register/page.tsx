@@ -60,7 +60,7 @@ function validateCPF(cpf: string): boolean {
 const stepLabels = [
   { label: 'Participante', icon: User },
   { label: 'Pet', icon: PawPrint },
-  { label: 'Retirada', icon: MapPin },
+  { label: 'Kit & Retirada', icon: Award },
   { label: 'Escolha', icon: Compass },
   { label: 'Instituição', icon: Heart },
   { label: 'PIX', icon: CreditCard },
@@ -90,8 +90,9 @@ export default function RegisterPage() {
   const [petAge, setPetAge] = useState<number>(3);
   const [petPhoto, setPetPhoto] = useState('');
   
-  // Step 3: Kit pickup location
+  // Step 3: Kit pickup location & shirt size
   const [kitPickupLocation, setKitPickupLocation] = useState<'Zona Sul' | 'Zona Norte' | ''>('');
+  const [shirtSize, setShirtSize] = useState<'M' | 'G' | 'GG' | ''>('');
 
   // Step 4: Institution selection
   const [selectedInstitution, setSelectedInstitution] = useState('');
@@ -190,6 +191,7 @@ export default function RegisterPage() {
     }
     
     if (step === 3) {
+      if (!shirtSize) newErrors.shirtSize = 'Selecione o tamanho da camisa oficial do kit (M, G ou GG).';
       if (!kitPickupLocation) newErrors.kitPickupLocation = 'Escolha o local de retirada do seu kit.';
     }
 
@@ -266,6 +268,7 @@ export default function RegisterPage() {
           tutorEmail,
           tutorCity,
           tutorState,
+          shirtSize: (shirtSize as 'M' | 'G' | 'GG') || 'M',
           petName,
           petSpecies,
           petBreed,
@@ -278,7 +281,7 @@ export default function RegisterPage() {
           donationStatus: 'AGUARDANDO VALIDAÇÃO',
           statusPayment: 'Pendente',
           statusKit: 'Aguardando',
-          notes: kitPickupLocation ? `Retirada: ${kitPickupLocation}` : ''
+          notes: [kitPickupLocation ? `Retirada: ${kitPickupLocation}` : '', shirtSize ? `Camisa: ${shirtSize}` : ''].filter(Boolean).join(' | ')
         });
         
         setRegisteredUser(saved);
@@ -372,6 +375,20 @@ export default function RegisterPage() {
               <div className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-slate-800/50">
                 <span className="text-xs text-slate-400 font-semibold">Instituição Escolhida</span>
                 <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{instName}</span>
+              </div>
+
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-slate-800/50">
+                <span className="text-xs text-slate-400 font-semibold">Camisa do Kit</span>
+                <span className="text-xs font-extrabold text-[#003A8C] dark:text-lime-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-900">
+                  Tamanho {registeredUser.shirtSize || shirtSize || 'M'}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-slate-800/50">
+                <span className="text-xs text-slate-400 font-semibold">Ponto de Retirada</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  {kitPickupLocation ? `${kitPickupLocation} (${kitPickupLocation === 'Zona Sul' ? 'Pet Happy' : 'Oh Pet'})` : 'Ponto Oficial'}
+                </span>
               </div>
 
               <div className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-slate-800/50">
@@ -852,19 +869,90 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 3: ESCOLHA DO PONTO DE RETIRADA ========== */}
+          {/* ========== STEP 3: PERSONALIZAÇÃO DO KIT & PONTO DE RETIRADA ========== */}
           {currentStep === 3 && (
             <div className="animate-in fade-in slide-in-from-right-5 duration-300">
               <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#8DC63F]/10 border border-[#8DC63F]/30 text-[#003A8C] text-xs font-bold mb-4">
-                  <MapPin className="h-4 w-4 text-[#8DC63F]" /> Retirada do Kit
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#8DC63F]/10 border border-[#8DC63F]/30 text-[#003A8C] dark:text-lime-400 text-xs font-bold mb-4">
+                  <Award className="h-4 w-4 text-[#8DC63F]" /> Personalização & Retirada do Kit
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-[#003A8C] dark:text-white font-poppins">
-                  Onde você vai retirar seu kit?
+                  Personalize seu Kit & Local de Retirada
                 </h2>
                 <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
-                  Escolha o ponto de apoio oficial mais perto de você para a retirada do seu kit.
+                  Escolha o tamanho da sua camiseta oficial e o ponto de apoio mais perto de você para a retirada.
                 </p>
+              </div>
+
+              {/* Seção 1: Escolha do Tamanho da Camisa */}
+              <div className="max-w-2xl mx-auto mb-8 bg-white dark:bg-slate-950 p-6 sm:p-7 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-5">
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8DC63F] block">Camiseta Oficial</span>
+                    <h3 className="text-base sm:text-lg font-extrabold text-[#003A8C] dark:text-white font-poppins">
+                      Escolha o Tamanho da sua Camisa *
+                    </h3>
+                  </div>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full w-fit">
+                    Unissex • 100% Poliamida Dry
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                  {[
+                    { size: 'M', label: 'Médio', desc: 'Padrão tradicional' },
+                    { size: 'G', label: 'Grande', desc: 'Mais confortável' },
+                    { size: 'GG', label: 'Extra Grande', desc: 'Corte mais amplo' },
+                  ].map((item) => {
+                    const isSelected = shirtSize === item.size;
+                    return (
+                      <button
+                        key={item.size}
+                        type="button"
+                        onClick={() => {
+                          setShirtSize(item.size as 'M' | 'G' | 'GG');
+                          if (errors.shirtSize) setErrors(prev => ({ ...prev, shirtSize: '' }));
+                        }}
+                        className={`
+                          group relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl border-2 transition-all duration-200 hover-lift text-center cursor-pointer
+                          ${isSelected
+                            ? 'border-[#8DC63F] bg-[#8DC63F]/10 dark:bg-[#8DC63F]/15 shadow-md shadow-lime-500/15 ring-2 ring-[#8DC63F]/30'
+                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 hover:border-[#8DC63F]/50 hover:bg-white dark:hover:bg-slate-900'
+                          }
+                        `}
+                      >
+                        {isSelected && (
+                          <div className="absolute top-2.5 right-2.5 h-5 w-5 rounded-full bg-[#8DC63F] flex items-center justify-center shadow-xs">
+                            <Check className="h-3 w-3 text-white stroke-[3]" />
+                          </div>
+                        )}
+                        <span className={`text-2xl sm:text-4xl font-black font-poppins transition-colors ${isSelected ? 'text-[#003A8C] dark:text-lime-400' : 'text-slate-700 dark:text-slate-200 group-hover:text-[#003A8C] dark:group-hover:text-white'}`}>
+                          {item.size}
+                        </span>
+                        <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 sm:mt-1.5">
+                          {item.label}
+                        </span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 hidden sm:block mt-0.5">
+                          {item.desc}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {errors.shirtSize && (
+                  <div className="mt-3 text-center">
+                    <span className="text-xs font-semibold text-red-500">{errors.shirtSize}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Seção 2: Escolha do Ponto de Retirada */}
+              <div className="max-w-2xl mx-auto mb-3 text-left">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8DC63F] block">Ponto de Coleta</span>
+                <h3 className="text-base sm:text-lg font-extrabold text-[#003A8C] dark:text-white font-poppins">
+                  Onde você vai retirar seu kit? *
+                </h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">

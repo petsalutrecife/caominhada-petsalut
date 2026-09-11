@@ -287,7 +287,12 @@ export default function InstitutionDashboard() {
                       <td className="p-4">
                         <span className="font-bold text-slate-900 dark:text-white block">{reg.tutorName}</span>
                         <span className="text-[10px] text-slate-400 block mt-0.5">{reg.tutorEmail}</span>
-                        <span className="text-[10px] text-slate-400 block font-mono">{reg.regNumber}</span>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="text-[10px] text-slate-400 font-mono">{reg.regNumber}</span>
+                          <span className="px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-950 text-[#003A8C] dark:text-blue-300 text-[9px] font-bold">
+                            Camisa {reg.shirtSize || 'M'}
+                          </span>
+                        </div>
                       </td>
                       <td className="p-4">
                         <span className="font-semibold block">{reg.petName}</span>
