@@ -4,7 +4,7 @@ interface LogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   showText?: boolean;
-  variant?: 'light' | 'dark';
+  variant?: 'light' | 'dark' | 'white';
 }
 
 export default function Logo({ className = '', size = 'md', variant = 'light' }: LogoProps) {
@@ -14,7 +14,7 @@ export default function Logo({ className = '', size = 'md', variant = 'light' }:
     lg: 'h-16 sm:h-20',
   };
 
-  const logoSrc = '/logo.png';
+  const logoSrc = variant === 'dark' || variant === 'white' ? '/logo-white.png' : '/logo.png';
 
   return (
     <div className={`flex items-center select-none ${className}`}>
