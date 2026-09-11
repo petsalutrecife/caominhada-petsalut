@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import Script from "next/script";
+import WhatsAppSupport from "@/components/WhatsAppSupport";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "G-FG7TQ4BCEG";
@@ -79,6 +80,7 @@ export default function RootLayout({
           </>
         )}
         {children}
+        <WhatsAppSupport />
       </body>
     </html>
   );

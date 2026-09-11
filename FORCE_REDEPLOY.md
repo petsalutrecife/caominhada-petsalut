@@ -1,6 +1,7 @@
 # Atualização Cãominhada Pet Salute 2026
-Deploy: Atualização da logo oficial da ONG Abrigo do Seu Alberto
-Timestamp: 2026-09-11 19:57:00
+Deploy: Inclusão do botão flutuante de suporte via WhatsApp (98 98417-4878)
+Timestamp: 2026-09-11 20:02:30
+
 
 
 
