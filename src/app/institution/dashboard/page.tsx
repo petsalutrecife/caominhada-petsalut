@@ -102,10 +102,10 @@ export default function InstitutionDashboard() {
       supabaseMock.updateRegistration(id, {
         donationStatus: 'APROVADA',
         statusPayment: 'Aprovado',
-        statusKit: 'Liberado'
+        statusKit: 'Aguardando'
       });
       refreshData();
-      alert('Doação validada com sucesso! O participante recebeu um e-mail de confirmação e a sua inscrição com QR Code está liberada.');
+      alert('Doação validada com sucesso! A inscrição foi confirmada e o kit ficará aguardando a liberação (que ocorre 2 dias antes do evento).');
     } catch {
       alert('Erro ao aprovar doação.');
     }

@@ -207,7 +207,7 @@ export default function AdminDashboard() {
     supabaseMock.updateRegistration(id, {
       donationStatus: 'APROVADA',
       statusPayment: 'Aprovado',
-      statusKit: 'Liberado'
+      statusKit: 'Aguardando'
     });
     refreshData();
   };

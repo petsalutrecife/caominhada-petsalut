@@ -216,7 +216,7 @@ export async function generateRegistrationTicket(reg: Registration, instName?: s
   doc.text('• Apresente este documento (impresso ou no celular) no ponto de retirada selecionado.', 75, 203);
   doc.text('• Traga um documento oficial com foto do tutor responsável inscrito.', 75, 210);
   doc.text('• O kit contém a camiseta oficial, bandana para o pet e brindes dos patrocinadores.', 75, 217);
-  doc.text('• A validação da doação será verificada no momento da entrega.', 75, 224);
+  doc.text('• A liberação dos kits ocorre 2 dias antes do evento nos pontos de apoio.', 75, 224);
 
   // Footer Line
   doc.setDrawColor(203, 213, 225);
