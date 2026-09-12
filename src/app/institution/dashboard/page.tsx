@@ -9,7 +9,7 @@ import { supabaseMock, Registration, Institution } from '@/lib/supabaseMock';
 import { 
   LogOut, Heart, DollarSign, Users, Award, ShieldCheck, Check, 
   X, Eye, ClipboardList, RefreshCw, MessageSquare, AlertCircle, 
-  FileText, Search, Phone, Mail, CheckCircle2, ChevronDown, Filter, Sparkles
+  FileText, Search, Phone, Mail, CheckCircle2
 } from 'lucide-react';
 
 export default function InstitutionDashboard() {
@@ -28,8 +28,6 @@ export default function InstitutionDashboard() {
     if (typeof window !== 'undefined') return supabaseMock.getInstitutions();
     return [];
   });
-
-  const [selectedInstId, setSelectedInstId] = useState<string>('inst-1');
   
   const [registrations, setRegistrations] = useState<Registration[]>(() => {
     if (typeof window !== 'undefined') return supabaseMock.getRegistrations();
@@ -67,7 +65,7 @@ export default function InstitutionDashboard() {
       await supabaseMock.syncFromSupabase();
       refreshData();
     } finally {
-      setTimeout(() => setIsSyncing(false), 500);
+      setTimeout(() => setIsSyncing(false), 400);
     }
   };
 
@@ -79,21 +77,6 @@ export default function InstitutionDashboard() {
       return;
     }
     setInstitutionUser(user);
-    
-    const insts = supabaseMock.getInstitutions();
-    setAllInstitutions(insts);
-
-    // Initial selected institution based on user session if institution
-    if (user.role === 'institution' && user.id) {
-      const match = insts.find(i => i.id === user.id || (i.email && user.email && i.email.toLowerCase() === user.email.toLowerCase()));
-      if (match) {
-        setSelectedInstId(match.id);
-      } else {
-        setSelectedInstId('inst-1');
-      }
-    } else {
-      setSelectedInstId('all'); // Admin defaults to view all
-    }
 
     refreshData();
 
@@ -123,40 +106,50 @@ export default function InstitutionDashboard() {
     router.push('/institution/login');
   };
 
-  // Find active institution object
-  const currentInst = useMemo(() => {
-    if (selectedInstId === 'all') return null;
-    return allInstitutions.find(i => i.id === selectedInstId) || allInstitutions[0] || null;
-  }, [selectedInstId, allInstitutions]);
+  // Find the exact institution of the logged-in user
+  const currentInst = useMemo<Institution | null>(() => {
+    if (!institutionUser) return null;
+    const insts = allInstitutions.length > 0 ? allInstitutions : supabaseMock.getInstitutions();
+    const userEmail = (institutionUser.email || '').toLowerCase().trim();
+    const userId = (institutionUser.id || '').toLowerCase().trim();
+    const userName = (institutionUser.name || '').toLowerCase().trim();
 
-  // Filter registrations for this institution (matches by ID, name, or slug)
+    return insts.find(i => 
+      (i.id && i.id.toLowerCase() === userId) ||
+      (i.email && i.email.toLowerCase().trim() === userEmail) ||
+      (i.name && i.name.toLowerCase().trim() === userName) ||
+      (userEmail.includes('alberto') && i.id === 'inst-1') ||
+      (userEmail.includes('amor') && i.id === 'inst-2') ||
+      (userEmail.includes('guerreiro') && i.id === 'inst-3')
+    ) || insts[0] || null;
+  }, [institutionUser, allInstitutions]);
+
+  // Filter registrations STRICTLY for this institution only
   const instRegistrations = useMemo(() => {
-    return registrations.filter(r => {
-      // 1. Institution filter
-      if (selectedInstId !== 'all') {
-        const targetInst = allInstitutions.find(i => i.id === selectedInstId);
-        const instId = String(selectedInstId || '').toLowerCase().trim();
-        const instName = String(targetInst?.name || '').toLowerCase().trim();
-        const regInst = String(r.selectedInstitution || '').toLowerCase().trim();
-        
-        const matchesInst = 
-          regInst === instId ||
-          regInst === instName ||
-          (instName && regInst && (instName.includes(regInst) || regInst.includes(instName))) ||
-          (regInst && instId && regInst.includes(instId.replace('inst-', ''))) ||
-          (instId === 'inst-1' && (regInst.includes('alberto') || regInst === '1')) ||
-          (instId === 'inst-2' && (regInst.includes('amor') || regInst === '2')) ||
-          (instId === 'inst-3' && (regInst.includes('guerreiro') || regInst === '3'));
-        
-        if (!matchesInst) return false;
-      }
+    if (!currentInst) return [];
+    const instId = String(currentInst.id || '').toLowerCase().trim();
+    const instName = String(currentInst.name || '').toLowerCase().trim();
 
-      // 2. Status filter
+    return registrations.filter(r => {
+      const regInst = String(r.selectedInstitution || '').toLowerCase().trim();
+      
+      const matchesInst = 
+        regInst === instId ||
+        regInst === instName ||
+        (instName && regInst && (instName.includes(regInst) || regInst.includes(instName))) ||
+        (regInst && instId && regInst.includes(instId.replace('inst-', ''))) ||
+        (instId === 'inst-1' && (regInst.includes('alberto') || regInst === '1')) ||
+        (instId === 'inst-2' && (regInst.includes('amor') || regInst === '2')) ||
+        (instId === 'inst-3' && (regInst.includes('guerreiro') || regInst === '3'));
+      
+      if (!matchesInst) return false;
+
+      // Status filter
       if (statusFilter !== 'ALL' && r.donationStatus !== statusFilter) {
         return false;
       }
 
-      // 3. Search query filter
+      // Search query filter
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
         const tutor = (r.tutorName || '').toLowerCase();
@@ -170,15 +163,15 @@ export default function InstitutionDashboard() {
 
       return true;
     });
-  }, [registrations, selectedInstId, allInstitutions, statusFilter, searchQuery]);
+  }, [registrations, currentInst, statusFilter, searchQuery]);
 
-  // Statistics calculations (based on selected institution or all)
+  // Statistics strictly for this institution
   const baseRegistrationsForStats = useMemo(() => {
-    if (selectedInstId === 'all') return registrations;
+    if (!currentInst) return [];
+    const instId = String(currentInst.id || '').toLowerCase().trim();
+    const instName = String(currentInst.name || '').toLowerCase().trim();
+
     return registrations.filter(r => {
-      const targetInst = allInstitutions.find(i => i.id === selectedInstId);
-      const instId = String(selectedInstId || '').toLowerCase().trim();
-      const instName = String(targetInst?.name || '').toLowerCase().trim();
       const regInst = String(r.selectedInstitution || '').toLowerCase().trim();
       return (
         regInst === instId ||
@@ -190,7 +183,7 @@ export default function InstitutionDashboard() {
         (instId === 'inst-3' && (regInst.includes('guerreiro') || regInst === '3'))
       );
     });
-  }, [registrations, selectedInstId, allInstitutions]);
+  }, [registrations, currentInst]);
 
   const approvedDonations = baseRegistrationsForStats.filter(r => r.donationStatus === 'APROVADA');
   const totalArrecadado = approvedDonations.reduce((acc, curr) => acc + curr.donationValue, 0);
@@ -200,19 +193,6 @@ export default function InstitutionDashboard() {
   const inAnalysisCount = baseRegistrationsForStats.filter(r => r.donationStatus === 'EM ANÁLISE').length;
   const approvedCount = approvedDonations.length;
   const rejectedCount = baseRegistrationsForStats.filter(r => r.donationStatus === 'REJEITADA').length;
-
-  // Counts per institution for badges
-  const getInstCount = (instId: string) => {
-    return registrations.filter(r => {
-      const regInst = String(r.selectedInstitution || '').toLowerCase().trim();
-      return (
-        regInst === instId ||
-        (instId === 'inst-1' && (regInst.includes('alberto') || regInst === '1')) ||
-        (instId === 'inst-2' && (regInst.includes('amor') || regInst === '2')) ||
-        (instId === 'inst-3' && (regInst.includes('guerreiro') || regInst === '3'))
-      );
-    }).length;
-  };
 
   // Actions
   const handleApprove = (id: string) => {
@@ -291,7 +271,7 @@ export default function InstitutionDashboard() {
     }
   };
 
-  if (!mounted || !institutionUser) {
+  if (!mounted || !institutionUser || !currentInst) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 text-slate-500">
         <div className="flex flex-col items-center gap-3">
@@ -309,8 +289,8 @@ export default function InstitutionDashboard() {
       <header className="h-20 flex items-center justify-between px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
         <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
           <Link href="/" className="shrink-0"><Logo /></Link>
-          <span className="inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-extrabold bg-[#8DC63F]/10 text-[#8DC63F] border border-[#8DC63F]/20 uppercase tracking-widest truncate max-w-[140px] sm:max-w-[260px]">
-            {currentInst ? currentInst.name : 'Visão Geral (Todas as ONGs)'}
+          <span className="inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-extrabold bg-[#8DC63F]/10 text-[#8DC63F] border border-[#8DC63F]/20 uppercase tracking-widest truncate max-w-[150px] sm:max-w-[280px]">
+            {currentInst.name}
           </span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
@@ -338,73 +318,18 @@ export default function InstitutionDashboard() {
       {/* Main Panel Area */}
       <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 flex flex-col gap-6 animate-in fade-in duration-300">
         
-        {/* ONG Selector Tabs / Bar */}
-        <div className="bg-white dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 shrink-0">
-            <Heart className="h-4 w-4 text-[#8DC63F]" />
-            <span>Visualizando ONG:</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            {allInstitutions.map((inst) => {
-              const count = getInstCount(inst.id);
-              const isSelected = selectedInstId === inst.id;
-              return (
-                <button
-                  key={inst.id}
-                  onClick={() => setSelectedInstId(inst.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    isSelected
-                      ? 'bg-[#003A8C] text-white dark:bg-lime-500 dark:text-slate-950 shadow-sm'
-                      : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                  }`}
-                >
-                  <span>{inst.logo}</span>
-                  <span className="truncate max-w-[120px] sm:max-w-[180px]">{inst.name}</span>
-                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-                    isSelected
-                      ? 'bg-white/20 text-white dark:bg-slate-950/30 dark:text-slate-950'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                  }`}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-
-            <button
-              onClick={() => setSelectedInstId('all')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                selectedInstId === 'all'
-                  ? 'bg-[#003A8C] text-white dark:bg-lime-500 dark:text-slate-950 shadow-sm'
-                  : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-              }`}
-            >
-              <span>🌐</span>
-              <span>Todas as ONGs</span>
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-                selectedInstId === 'all'
-                  ? 'bg-white/20 text-white dark:bg-slate-950/30 dark:text-slate-950'
-                  : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-              }`}>
-                {registrations.length}
-              </span>
-            </button>
-          </div>
-        </div>
-
         {/* Welcome Banner */}
         <div className="bg-gradient-to-r from-blue-900 to-slate-900 dark:from-slate-950 dark:to-slate-900 p-6 sm:p-8 rounded-3xl text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-md">
           <div className="flex items-center gap-4">
             <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-white text-slate-900 flex items-center justify-center text-3xl sm:text-4xl shadow-inner shrink-0">
-              {currentInst ? currentInst.logo : '🐾'}
+              {currentInst.logo}
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-extrabold font-poppins">
-                {currentInst ? currentInst.name : 'Painel Geral de Todas as Doações'}
+                {currentInst.name}
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                {currentInst?.mission || 'Gestão e validação em tempo real dos comprovantes PIX da Cãominhada 2026.'}
+                Painel Institucional • Gestão de Comprovantes PIX da Cãominhada 2026
               </p>
             </div>
           </div>
@@ -635,19 +560,11 @@ export default function InstitutionDashboard() {
             ))}
 
             {instRegistrations.length === 0 && (
-              <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center flex flex-col items-center gap-3">
+              <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center flex flex-col items-center gap-2">
                 <span className="text-3xl">🐾</span>
                 <p className="text-slate-500 dark:text-slate-400 font-semibold text-xs">
-                  Nenhuma inscrição encontrada para este filtro.
+                  Nenhuma doação recebida para esta instituição até o momento.
                 </p>
-                {selectedInstId !== 'inst-1' && (
-                  <button
-                    onClick={() => setSelectedInstId('inst-1')}
-                    className="mt-1 px-4 py-2 rounded-xl bg-[#003A8C] text-white dark:bg-lime-500 dark:text-slate-950 font-bold text-xs"
-                  >
-                    Ver doações do Abrigo de Seu Alberto ({getInstCount('inst-1')})
-                  </button>
-                )}
               </div>
             )}
           </div>
@@ -777,7 +694,7 @@ export default function InstitutionDashboard() {
                   {instRegistrations.length === 0 && (
                     <tr>
                       <td colSpan={8} className="text-center p-10 text-slate-400 font-semibold">
-                        Nenhuma doação encontrada para este filtro.
+                        Nenhuma doação recebida até o momento.
                       </td>
                     </tr>
                   )}
