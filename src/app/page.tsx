@@ -340,55 +340,24 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Mockup bottom Metrics Bar */}
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 z-20 relative">
-          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl py-6 px-8 sm:px-12 grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Metric 1: Inscritos */}
-            <div className="flex items-center gap-4 justify-start">
-              {/* Green Paw Print Icon */}
-              <svg viewBox="0 0 100 100" fill="currentColor" className="h-8 w-8 text-[#8DC63F] shrink-0">
-                <path d="M50,45 C40,45 35,53 35,62 C35,72 42,78 50,78 C58,78 65,72 65,62 C65,53 60,45 50,45 Z" />
-                <circle cx="28" cy="38" r="9" />
-                <circle cx="43" cy="25" r="10" />
-                <circle cx="57" cy="25" r="10" />
-                <circle cx="72" cy="38" r="9" />
-              </svg>
+        {/* Hero bottom Percurso Bar */}
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 z-20 relative">
+          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl py-6 px-8 sm:px-12 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10">
+            <div className="flex items-center gap-4 justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-[#8DC63F]/15 flex items-center justify-center text-[#8DC63F] shrink-0">
+                <Route className="h-6 w-6" strokeWidth={2} />
+              </div>
               <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">
-                  {mounted ? registrations.length : 0}
-                </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Inscritos</span>
+                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">3,4 km e 1 km</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mt-1">2 Opções de Percurso (Caminhada e Passeio)</span>
               </div>
             </div>
-
-            {/* Metric 2: Pets */}
-            <div className="flex items-center gap-4 justify-start">
-              <Dog className="h-8 w-8 text-[#8DC63F] shrink-0" strokeWidth={1.5} />
-              <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">
-                  {mounted ? registrations.filter(r => r.petName).length : 0}
-                </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Pets Participantes</span>
-              </div>
-            </div>
-
-            {/* Metric 3: Patrocinadores */}
-            <div className="flex items-center gap-4 justify-start">
-              <Heart className="h-8 w-8 text-red-500 shrink-0" strokeWidth={1.5} />
-              <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">28</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">Patrocinadores</span>
-              </div>
-            </div>
-
-            {/* Metric 4: Percurso */}
-            <div className="flex items-center gap-4 justify-start">
-              <Route className="h-8 w-8 text-[#8DC63F] shrink-0" strokeWidth={1.5} />
-              <div className="font-poppins text-left">
-                <span className="text-2xl sm:text-3xl font-black text-[#003A8C] leading-none block">3,4 e 1 km</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-450 block mt-1">2 Opções de Percurso</span>
-              </div>
-            </div>
+            <a 
+              href="#percurso"
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#003A8C] bg-slate-50 hover:bg-[#8DC63F]/15 hover:text-[#003A8C] px-5 py-3 rounded-full transition-all border border-slate-200 shadow-sm"
+            >
+              Ver Detalhes do Trajeto <ChevronRight className="h-3.5 w-3.5 text-[#8DC63F]" />
+            </a>
           </div>
         </div>
 

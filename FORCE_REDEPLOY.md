@@ -1,7 +1,8 @@
 # Atualização Cãominhada Pet Salute 2026
-Deploy: Correção da inicialização Realtime e carregamento automático das inscrições do Supabase no navegador
-Timestamp: 2026-09-11 21:55:00
+Deploy: Remoção das métricas de inscritos, pets e patrocinadores do Hero, mantendo destaque elegante das opções de percurso
+Timestamp: 2026-09-11 22:05:00
 Status: Deploy forçado para produção na Vercel
+
 
 
 
