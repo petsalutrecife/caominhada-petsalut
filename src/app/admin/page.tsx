@@ -37,11 +37,23 @@ export default function AdminDashboard() {
   const [validatorPinInput, setValidatorPinInput] = useState('2026');
   const [securityMsg, setSecurityMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Database states
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [institutions, setInstitutions] = useState<Institution[]>([]);
+  // Database states - initialized synchronously from cache to eliminate F5 pop-in delay
+  const [registrations, setRegistrations] = useState<Registration[]>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getRegistrations();
+    return [];
+  });
+  const [sponsors, setSponsors] = useState<Sponsor[]>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getSponsors();
+    return [];
+  });
+  const [expenses, setExpenses] = useState<Expense[]>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getExpenses();
+    return [];
+  });
+  const [institutions, setInstitutions] = useState<Institution[]>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getInstitutions();
+    return [];
+  });
 
   // Search & Filter states (Participants)
   const [searchQuery, setSearchQuery] = useState('');

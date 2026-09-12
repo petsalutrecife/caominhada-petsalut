@@ -18,8 +18,14 @@ export default function InstitutionDashboard() {
   const [institutionUser, setInstitutionUser] = useState<any>(null);
   const [currentInst, setCurrentInst] = useState<Institution | null>(null);
   
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [allInstitutions, setAllInstitutions] = useState<Institution[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getRegistrations();
+    return [];
+  });
+  const [allInstitutions, setAllInstitutions] = useState<Institution[]>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getInstitutions();
+    return [];
+  });
   
   // Modals & inputs
   const [viewReceiptUrl, setViewReceiptUrl] = useState<string | null>(null);

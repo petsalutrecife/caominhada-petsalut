@@ -15,9 +15,14 @@ import {
 } from 'lucide-react';
 
 export default function QrCodeValidatorPage() {
-  const [mounted, setMounted] = useState(false);
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [institutions, setInstitutions] = useState<Institution[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getRegistrations();
+    return [];
+  });
+  const [institutions, setInstitutions] = useState<Institution[]>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getInstitutions();
+    return [];
+  });
   
   // Auth / Security state
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);

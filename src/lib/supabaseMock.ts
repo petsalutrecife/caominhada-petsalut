@@ -503,15 +503,26 @@ class SupabaseMockClient {
   private setStorage<T>(key: string, data: T[]) {
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem(key, JSON.stringify(data));
-      } catch (e) {
-        // QuotaExceededError: clear old data and retry once
-        try {
-          localStorage.removeItem(key);
-          localStorage.setItem(key, JSON.stringify(data));
-        } catch {
-          // If still fails, operate in-memory only
+        let payload: any = data;
+        if (key === 'ps_registrations' && Array.isArray(data)) {
+          payload = data.map((item: any) => {
+            if (item && typeof item === 'object') {
+              const copy = { ...item };
+              // Strip heavy base64 strings to ensure localStorage quota is never exceeded
+              if (copy.donationReceipt && typeof copy.donationReceipt === 'string' && copy.donationReceipt.length > 500) {
+                copy.donationReceipt = undefined;
+              }
+              if (copy.petPhoto && typeof copy.petPhoto === 'string' && copy.petPhoto.length > 500) {
+                copy.petPhoto = undefined;
+              }
+              return copy;
+            }
+            return item;
+          });
         }
+        localStorage.setItem(key, JSON.stringify(payload));
+      } catch (e) {
+        console.warn('Storage save warning:', e);
       }
     }
   }
