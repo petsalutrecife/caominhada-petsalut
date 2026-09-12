@@ -534,12 +534,9 @@ class SupabaseMockClient {
       let changed = false;
       const { data: instData } = await supabase.from('institutions').select('*');
       if (instData && instData.length > 0) {
-        const mappedInst = instData.map(mapDbToInstitution);
-        if (JSON.stringify(mappedInst) !== JSON.stringify(this.institutions)) {
-          this.institutions = mappedInst;
-          this.setStorage('ps_institutions', this.institutions);
-          changed = true;
-        }
+        this.institutions = instData.map(mapDbToInstitution);
+        this.setStorage('ps_institutions', this.institutions);
+        changed = true;
       } else if (this.institutions.length === 0) {
         this.institutions = initialInstitutions;
         this.setStorage('ps_institutions', initialInstitutions);
@@ -547,19 +544,14 @@ class SupabaseMockClient {
       }
       
       const { data: regData, error: regError } = await supabase.from('registrations').select('*').order('created_at', { ascending: false });
-      if (regData && !regError) {
-        const mappedReg = regData.map(mapDbToRegistration);
-        if (JSON.stringify(mappedReg) !== JSON.stringify(this.registrations)) {
-          this.registrations = mappedReg;
-          this.setStorage('ps_registrations', this.registrations);
-          changed = true;
-        }
+      if (regData && !regError && regData.length > 0) {
+        this.registrations = regData.map(mapDbToRegistration);
+        this.setStorage('ps_registrations', this.registrations);
+        changed = true;
       }
 
       this.isInitialSyncDone = true;
-      if (changed) {
-        this.notifyListeners();
-      }
+      this.notifyListeners();
     } catch (err) {
       console.error('Error syncing with Supabase:', err);
       if (this.institutions.length === 0) {
@@ -567,6 +559,7 @@ class SupabaseMockClient {
         this.setStorage('ps_institutions', initialInstitutions);
       }
       this.isInitialSyncDone = true;
+      this.notifyListeners();
     }
   }
 

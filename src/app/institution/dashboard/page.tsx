@@ -90,8 +90,14 @@ export default function InstitutionDashboard() {
       refreshData();
     });
 
+    // Polling safety timer to guarantee fresh state
+    const interval = setInterval(() => {
+      refreshData();
+    }, 2500);
+
     return () => {
       unsubscribe();
+      clearInterval(interval);
     };
   }, []);
 
@@ -114,9 +120,14 @@ export default function InstitutionDashboard() {
   // Filter registrations for this institution (matches by ID, name, or slug)
   const instRegistrations = registrations.filter(r => {
     if (!currentInst) return false;
-    if (r.selectedInstitution === currentInst.id) return true;
-    if (r.selectedInstitution && currentInst.name && r.selectedInstitution.toLowerCase().trim() === currentInst.name.toLowerCase().trim()) return true;
-    if (r.selectedInstitution && r.selectedInstitution.includes(currentInst.id.replace('inst-', ''))) return true;
+    const instId = String(currentInst.id || '').toLowerCase().trim();
+    const instName = String(currentInst.name || '').toLowerCase().trim();
+    const regInst = String(r.selectedInstitution || '').toLowerCase().trim();
+    
+    if (regInst === instId) return true;
+    if (regInst === instName) return true;
+    if (instName && regInst && (instName.includes(regInst) || regInst.includes(instName))) return true;
+    if (regInst && instId && regInst.includes(instId.replace('inst-', ''))) return true;
     return false;
   });
 
