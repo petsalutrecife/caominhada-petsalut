@@ -15,8 +15,24 @@ export default function InstitutionDashboard() {
   const router = useRouter();
   
   const [mounted, setMounted] = useState(false);
-  const [institutionUser, setInstitutionUser] = useState<any>(null);
-  const [currentInst, setCurrentInst] = useState<Institution | null>(null);
+  const [institutionUser, setInstitutionUser] = useState<any>(() => {
+    if (typeof window !== 'undefined') return supabaseMock.getCurrentUser();
+    return null;
+  });
+  const [currentInst, setCurrentInst] = useState<Institution | null>(() => {
+    if (typeof window !== 'undefined') {
+      const user = supabaseMock.getCurrentUser();
+      if (user) {
+        const insts = supabaseMock.getInstitutions();
+        return insts.find(i => 
+          i.id === user.id || 
+          (i.email && user.email && i.email.toLowerCase().trim() === user.email.toLowerCase().trim()) ||
+          (i.name && user.name && i.name.toLowerCase().trim() === user.name.toLowerCase().trim())
+        ) || null;
+      }
+    }
+    return null;
+  });
   
   const [registrations, setRegistrations] = useState<Registration[]>(() => {
     if (typeof window !== 'undefined') return supabaseMock.getRegistrations();
@@ -38,30 +54,31 @@ export default function InstitutionDashboard() {
     setRegistrations(regs);
     const insts = supabaseMock.getInstitutions();
     setAllInstitutions(insts);
-    if (institutionUser) {
-      const found = insts.find(i => i.id === institutionUser.id);
-      if (found) setCurrentInst(found);
+    
+    const user = supabaseMock.getCurrentUser();
+    if (user) {
+      setInstitutionUser(user);
+      const found = insts.find(i => 
+        i.id === user.id || 
+        (i.email && user.email && i.email.toLowerCase().trim() === user.email.toLowerCase().trim()) ||
+        (i.name && user.name && i.name.toLowerCase().trim() === user.name.toLowerCase().trim())
+      );
+      if (found) {
+        setCurrentInst(found);
+      }
     }
   };
 
   useEffect(() => {
     setMounted(true);
     const user = supabaseMock.getCurrentUser();
-    if (!user || user.role !== 'institution') {
+    if (!user || (user.role !== 'institution' && user.role !== 'admin')) {
       router.push('/institution/login');
       return;
     }
     setInstitutionUser(user);
     
-    const insts = supabaseMock.getInstitutions();
-    setAllInstitutions(insts);
-    
-    const foundInst = insts.find(i => i.id === user.id);
-    if (foundInst) {
-      setCurrentInst(foundInst);
-    }
-    
-    setRegistrations(supabaseMock.getRegistrations());
+    refreshData();
 
     // Subscribe to realtime database and cross-tab events
     const unsubscribe = supabaseMock.subscribe(() => {
@@ -94,8 +111,14 @@ export default function InstitutionDashboard() {
     );
   }
 
-  // Filter registrations for this institution only
-  const instRegistrations = registrations.filter(r => r.selectedInstitution === currentInst.id);
+  // Filter registrations for this institution (matches by ID, name, or slug)
+  const instRegistrations = registrations.filter(r => {
+    if (!currentInst) return false;
+    if (r.selectedInstitution === currentInst.id) return true;
+    if (r.selectedInstitution && currentInst.name && r.selectedInstitution.toLowerCase().trim() === currentInst.name.toLowerCase().trim()) return true;
+    if (r.selectedInstitution && r.selectedInstitution.includes(currentInst.id.replace('inst-', ''))) return true;
+    return false;
+  });
 
   // Statistics calculations
   const approvedDonations = instRegistrations.filter(r => r.donationStatus === 'APROVADA');
@@ -189,9 +212,9 @@ export default function InstitutionDashboard() {
       
       {/* Header */}
       <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <Link href="/"><Logo /></Link>
-          <span className="hidden sm:inline-block px-3 py-1 rounded-full text-[10px] font-bold bg-[#8DC63F]/10 text-[#8DC63F] border border-[#8DC63F]/20 uppercase tracking-widest">
+        <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+          <Link href="/" className="shrink-0"><Logo /></Link>
+          <span className="inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold bg-[#8DC63F]/10 text-[#8DC63F] border border-[#8DC63F]/20 uppercase tracking-widest truncate max-w-[140px] sm:max-w-[240px]">
             {currentInst.name}
           </span>
         </div>
@@ -276,9 +299,113 @@ export default function InstitutionDashboard() {
 
         {/* Donations List Section */}
         <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins">Comprovantes Recebidos</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins">Comprovantes Recebidos</h3>
+            <span className="text-xs font-bold text-slate-400 bg-white dark:bg-slate-950 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
+              {instRegistrations.length} {instRegistrations.length === 1 ? 'doação' : 'doações'}
+            </span>
+          </div>
+
+          {/* Mobile Cards View (Visible on screens < md) */}
+          <div className="md:hidden flex flex-col gap-3">
+            {instRegistrations.map((reg) => (
+              <div key={reg.id} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+                <div className="flex justify-between items-start gap-2">
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white block text-sm">{reg.tutorName}</span>
+                    <span className="text-[11px] text-slate-400 font-mono block">{reg.regNumber}</span>
+                  </div>
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider shrink-0 ${
+                    reg.donationStatus === 'APROVADA'
+                      ? 'bg-emerald-100 dark:bg-emerald-950/45 text-emerald-800 dark:text-emerald-400'
+                      : reg.donationStatus === 'REJEITADA'
+                        ? 'bg-red-100 dark:bg-red-950/45 text-red-800 dark:text-red-400'
+                        : 'bg-amber-100 dark:bg-amber-950/45 text-amber-800 dark:text-amber-400'
+                  }`}>
+                    {reg.donationStatus}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-850">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase font-bold">Pet</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{reg.petName} ({reg.petBreed || reg.petSpecies})</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase font-bold">Valor PIX</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">R$ {reg.donationValue.toFixed(2)}</span>
+                  </div>
+                  <div className="col-span-2 text-[10px] text-slate-400">
+                    Envio: {new Date(reg.createdAt).toLocaleDateString('pt-BR')} às {new Date(reg.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+
+                {reg.notes && (
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2.5 py-1 rounded-lg">
+                    Obs: {reg.notes}
+                  </span>
+                )}
+
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-850">
+                  {reg.donationReceipt ? (
+                    <button
+                      onClick={() => setViewReceiptUrl(reg.donationReceipt || null)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 font-bold text-xs text-[#003A8C] dark:text-lime-400"
+                    >
+                      <Eye className="h-3.5 w-3.5" /> Comprovante
+                    </button>
+                  ) : (
+                    <span className="text-slate-400 italic text-[11px]">Sem anexo</span>
+                  )}
+
+                  <div className="flex items-center gap-1.5">
+                    {reg.donationStatus !== 'APROVADA' && (
+                      <button
+                        onClick={() => handleApprove(reg.id)}
+                        className="p-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
+                        title="Aprovar doação"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                    )}
+                    {reg.donationStatus !== 'REJEITADA' && (
+                      <button
+                        onClick={() => openRejectionModal(reg.id)}
+                        className="p-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors"
+                        title="Rejeitar doação"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                    {reg.donationStatus === 'AGUARDANDO VALIDAÇÃO' && (
+                      <button
+                        onClick={() => handleRequestNewReceipt(reg.id)}
+                        className="p-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+                        title="Solicitar Reenvio"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => openNotesModal(reg)}
+                      className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors"
+                      title="Observação"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {instRegistrations.length === 0 && (
+              <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center text-slate-400 font-semibold text-xs">
+                Nenhuma doação recebida até o momento.
+              </div>
+            )}
+          </div>
           
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
+          {/* Desktop Table View (Hidden on mobile) */}
+          <div className="hidden md:block bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
