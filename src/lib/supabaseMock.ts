@@ -397,43 +397,9 @@ class SupabaseMockClient {
   private isInitialSyncDone: boolean = false;
   private broadcastChannel: BroadcastChannel | null = null;
   private realtimeChannel: any = null;
-  private realtimeInitialized: boolean = false;
-
-  constructor() {
-    this.initRealtime();
-    this.syncFromSupabase();
-  }
-
-  // --- Pub/Sub Listener System ---
-  subscribe(listener: () => void): () => void {
-    this.listeners.add(listener);
-    return () => {
-      this.listeners.delete(listener);
-    };
-  }
-
-  notifyListeners(): void {
-    this.listeners.forEach((fn) => {
-      try {
-        fn();
-      } catch (e) {
-        console.error('Error executing realtime listener:', e);
-      }
-    });
-
-    if (this.broadcastChannel) {
-      try {
-        this.broadcastChannel.postMessage({ type: 'DATA_UPDATED', timestamp: Date.now() });
-      } catch {}
-    }
-  }
-
-  isSyncLoaded(): boolean {
-    return this.isInitialSyncDone;
-  }
-
   private initRealtime() {
-    if (typeof window === 'undefined' || this.realtimeInitialized) return;
+    if (typeof window === 'undefined') return;
+    if (this.realtimeInitialized) return;
     this.realtimeInitialized = true;
 
     // Cross-tab sync via BroadcastChannel
@@ -453,9 +419,7 @@ class SupabaseMockClient {
     // Storage event for fallback cross-tab updates
     window.addEventListener('storage', (e) => {
       if (e.key && e.key.startsWith('ps_')) {
-        this.registrations = [];
-        this.institutions = [];
-        this.notifyListeners();
+        this.syncFromSupabase();
       }
     });
 
@@ -485,17 +449,48 @@ class SupabaseMockClient {
       console.warn('Supabase Realtime subscription could not be created:', err);
     }
 
-    // Polling fallback every 8 seconds
+    // Polling fallback every 3 seconds to guarantee 100% fresh data
     setInterval(() => {
       this.syncFromSupabase();
-    }, 8000);
+    }, 3000);
+
+    // Immediate initial sync
+    this.syncFromSupabase();
+  }
+
+  // --- Pub/Sub Listener System ---
+  subscribe(listener: () => void): () => void {
+    this.initRealtime();
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  notifyListeners(): void {
+    this.listeners.forEach((fn) => {
+      try {
+        fn();
+      } catch (e) {
+        console.error('Error executing realtime listener:', e);
+      }
+    });
+
+    if (this.broadcastChannel) {
+      try {
+        this.broadcastChannel.postMessage({ type: 'DATA_UPDATED', timestamp: Date.now() });
+      } catch {}
+    }
+  }
+
+  isSyncLoaded(): boolean {
+    return this.isInitialSyncDone;
   }
 
   private getStorage<T>(key: string, initial: T[]): T[] {
     if (typeof window === 'undefined') return initial;
     const item = localStorage.getItem(key);
     if (!item) {
-      localStorage.setItem(key, JSON.stringify(initial));
       return initial;
     }
     try {
@@ -511,7 +506,6 @@ class SupabaseMockClient {
         localStorage.setItem(key, JSON.stringify(data));
       } catch (e) {
         // QuotaExceededError: clear old data and retry once
-        console.warn('localStorage quota exceeded, clearing old registrations cache', e);
         try {
           localStorage.removeItem(key);
           localStorage.setItem(key, JSON.stringify(data));
@@ -524,6 +518,7 @@ class SupabaseMockClient {
 
   // Async server-sync triggered on boot, subscriptions and page queries
   async syncFromSupabase() {
+    this.initRealtime();
     try {
       let changed = false;
       const { data: instData } = await supabase.from('institutions').select('*');
@@ -534,17 +529,14 @@ class SupabaseMockClient {
           this.setStorage('ps_institutions', this.institutions);
           changed = true;
         }
-      } else {
-        // Supabase empty or unreachable: use seed data
-        if (this.institutions.length === 0) {
-          this.institutions = initialInstitutions;
-          this.setStorage('ps_institutions', initialInstitutions);
-          changed = true;
-        }
+      } else if (this.institutions.length === 0) {
+        this.institutions = initialInstitutions;
+        this.setStorage('ps_institutions', initialInstitutions);
+        changed = true;
       }
       
-      const { data: regData } = await supabase.from('registrations').select('*');
-      if (regData) {
+      const { data: regData, error: regError } = await supabase.from('registrations').select('*').order('created_at', { ascending: false });
+      if (regData && !regError) {
         const mappedReg = regData.map(mapDbToRegistration);
         if (JSON.stringify(mappedReg) !== JSON.stringify(this.registrations)) {
           this.registrations = mappedReg;
@@ -559,7 +551,6 @@ class SupabaseMockClient {
       }
     } catch (err) {
       console.error('Error syncing with Supabase:', err);
-      // Ensure seed data is loaded on error
       if (this.institutions.length === 0) {
         this.institutions = initialInstitutions;
         this.setStorage('ps_institutions', initialInstitutions);
@@ -571,6 +562,7 @@ class SupabaseMockClient {
   // --- Institutions API ---
 
   getInstitutions(): Institution[] {
+    this.initRealtime();
     if (this.institutions.length > 0) return this.institutions;
     const stored = this.getStorage<Institution>('ps_institutions', []);
     if (stored.length > 0) {
@@ -642,6 +634,7 @@ class SupabaseMockClient {
   // --- Registrations API ---
 
   getRegistrations(): Registration[] {
+    this.initRealtime();
     if (this.registrations.length > 0) return this.registrations;
     const stored = this.getStorage<Registration>('ps_registrations', []);
     if (stored.length > 0) {
