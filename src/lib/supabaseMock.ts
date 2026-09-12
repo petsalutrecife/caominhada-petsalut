@@ -531,23 +531,24 @@ class SupabaseMockClient {
   async syncFromSupabase() {
     this.initRealtime();
     try {
-      let changed = false;
-      const { data: instData } = await supabase.from('institutions').select('*');
+      const [instResult, regResult] = await Promise.all([
+        supabase.from('institutions').select('*'),
+        supabase.from('registrations').select('*').order('created_at', { ascending: false })
+      ]);
+
+      const instData = instResult.data;
       if (instData && instData.length > 0) {
         this.institutions = instData.map(mapDbToInstitution);
         this.setStorage('ps_institutions', this.institutions);
-        changed = true;
       } else if (this.institutions.length === 0) {
         this.institutions = initialInstitutions;
         this.setStorage('ps_institutions', initialInstitutions);
-        changed = true;
       }
-      
-      const { data: regData, error: regError } = await supabase.from('registrations').select('*').order('created_at', { ascending: false });
-      if (regData && !regError && regData.length > 0) {
+
+      const regData = regResult.data;
+      if (regData && !regResult.error && regData.length > 0) {
         this.registrations = regData.map(mapDbToRegistration);
         this.setStorage('ps_registrations', this.registrations);
-        changed = true;
       }
 
       this.isInitialSyncDone = true;
