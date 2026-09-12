@@ -406,6 +406,8 @@ class SupabaseMockClient {
   private broadcastChannel: BroadcastChannel | null = null;
   private realtimeChannel: any = null;
   private realtimeInitialized: boolean = false;
+  private isCurrentlySyncing: boolean = false;
+  private lastSyncTimestamp: number = 0;
 
   private initRealtime() {
     if (typeof window === 'undefined') return;
@@ -433,39 +435,39 @@ class SupabaseMockClient {
       }
     });
 
-    // Window focus auto-sync
+    // Window focus auto-sync (debounced)
     window.addEventListener('focus', () => {
       this.syncFromSupabase();
     });
 
-    // Supabase Realtime Channel Subscription
+    // Supabase Realtime Channel Subscription (Event-driven)
     try {
       this.realtimeChannel = supabase
         .channel('caominhada-db-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, () => {
-          this.syncFromSupabase();
+          this.syncFromSupabase(true);
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'institutions' }, () => {
-          this.syncFromSupabase();
+          this.syncFromSupabase(true);
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sponsors' }, () => {
-          this.syncFromSupabase();
+          this.syncFromSupabase(true);
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
-          this.syncFromSupabase();
+          this.syncFromSupabase(true);
         })
         .subscribe();
     } catch (err) {
       console.warn('Supabase Realtime subscription could not be created:', err);
     }
 
-    // Polling fallback every 3 seconds to guarantee 100% fresh data
+    // Light polling fallback every 12 seconds to prevent exhausting Postgres connection limits
     setInterval(() => {
       this.syncFromSupabase();
-    }, 3000);
+    }, 12000);
 
     // Immediate initial sync
-    this.syncFromSupabase();
+    this.syncFromSupabase(true);
   }
 
   // --- Pub/Sub Listener System ---
@@ -538,8 +540,12 @@ class SupabaseMockClient {
   }
 
   // Async server-sync triggered on boot, subscriptions and page queries
-  async syncFromSupabase() {
-    this.initRealtime();
+  async syncFromSupabase(force: boolean = false) {
+    if (this.isCurrentlySyncing && !force) return;
+    const now = Date.now();
+    if (!force && now - this.lastSyncTimestamp < 2500) return;
+
+    this.isCurrentlySyncing = true;
     try {
       const [instResult, regResult] = await Promise.all([
         supabase.from('institutions').select('*'),
@@ -562,6 +568,7 @@ class SupabaseMockClient {
       }
 
       this.isInitialSyncDone = true;
+      this.lastSyncTimestamp = Date.now();
       this.notifyListeners();
     } catch (err) {
       console.error('Error syncing with Supabase:', err);
@@ -570,7 +577,10 @@ class SupabaseMockClient {
         this.setStorage('ps_institutions', initialInstitutions);
       }
       this.isInitialSyncDone = true;
+      this.lastSyncTimestamp = Date.now();
       this.notifyListeners();
+    } finally {
+      this.isCurrentlySyncing = false;
     }
   }
 
