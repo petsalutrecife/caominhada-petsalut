@@ -99,6 +99,13 @@ export default function AdminDashboard() {
   const [newExpenseValue, setNewExpenseValue] = useState(0);
   const [newExpenseDate, setNewExpenseDate] = useState(new Date().toISOString().split('T')[0]);
 
+  const refreshData = () => {
+    setRegistrations(supabaseMock.getRegistrations());
+    setSponsors(supabaseMock.getSponsors());
+    setExpenses(supabaseMock.getExpenses());
+    setInstitutions(supabaseMock.getInstitutions());
+  };
+
   useEffect(() => {
     setMounted(true);
     const currentUser = supabaseMock.getCurrentUser();
@@ -108,28 +115,23 @@ export default function AdminDashboard() {
     }
     setAdminUser(currentUser);
 
-    // Initial load of database
+    // Initial instant load from cache
     refreshData();
 
-    // Fetch from Supabase and refresh data once done
+    // Subscribe to realtime database and cross-tab events
+    const unsubscribe = supabaseMock.subscribe(() => {
+      refreshData();
+    });
+
+    // Background sync from Supabase
     supabaseMock.syncFromSupabase().then(() => {
       refreshData();
     });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
-
-  const refreshData = async () => {
-    setRegistrations(supabaseMock.getRegistrations());
-    setSponsors(supabaseMock.getSponsors());
-    setExpenses(supabaseMock.getExpenses());
-    setInstitutions(supabaseMock.getInstitutions());
-
-    await supabaseMock.syncFromSupabase();
-
-    setRegistrations(supabaseMock.getRegistrations());
-    setSponsors(supabaseMock.getSponsors());
-    setExpenses(supabaseMock.getExpenses());
-    setInstitutions(supabaseMock.getInstitutions());
-  };
 
   const handleLogout = () => {
     supabaseMock.signOut();

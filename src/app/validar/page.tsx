@@ -107,9 +107,19 @@ export default function QrCodeValidatorPage() {
     }
 
     loadData();
+
+    // Realtime subscription
+    const unsubscribe = supabaseMock.subscribe(() => {
+      loadData();
+    });
+
     supabaseMock.syncFromSupabase().then(() => {
       loadData();
     });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const handleStationChange = (newStation: 'ALL' | 'Zona Sul' | 'Zona Norte') => {

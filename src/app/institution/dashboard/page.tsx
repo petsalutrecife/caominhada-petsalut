@@ -27,8 +27,16 @@ export default function InstitutionDashboard() {
   const [selectedRegId, setSelectedRegId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   
-  const [notesModalOpen, setNotesModalOpen] = useState(false);
-  const [noteContent, setNoteContent] = useState('');
+  const refreshData = () => {
+    const regs = supabaseMock.getRegistrations();
+    setRegistrations(regs);
+    const insts = supabaseMock.getInstitutions();
+    setAllInstitutions(insts);
+    if (institutionUser) {
+      const found = insts.find(i => i.id === institutionUser.id);
+      if (found) setCurrentInst(found);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -47,25 +55,22 @@ export default function InstitutionDashboard() {
       setCurrentInst(foundInst);
     }
     
-    refreshData();
+    setRegistrations(supabaseMock.getRegistrations());
 
-    // Fetch from Supabase and refresh data
-    supabaseMock.syncFromSupabase().then(() => {
-      const updatedInsts = supabaseMock.getInstitutions();
-      setAllInstitutions(updatedInsts);
-      const updatedFoundInst = updatedInsts.find(i => i.id === user.id);
-      if (updatedFoundInst) {
-        setCurrentInst(updatedFoundInst);
-      }
+    // Subscribe to realtime database and cross-tab events
+    const unsubscribe = supabaseMock.subscribe(() => {
       refreshData();
     });
-  }, []);
 
-  const refreshData = async () => {
-    setRegistrations(supabaseMock.getRegistrations());
-    await supabaseMock.syncFromSupabase();
-    setRegistrations(supabaseMock.getRegistrations());
-  };
+    // Background sync from Supabase
+    supabaseMock.syncFromSupabase().then(() => {
+      refreshData();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const handleLogout = () => {
     supabaseMock.signOut();
