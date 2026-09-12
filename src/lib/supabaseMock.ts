@@ -397,6 +397,8 @@ class SupabaseMockClient {
   private isInitialSyncDone: boolean = false;
   private broadcastChannel: BroadcastChannel | null = null;
   private realtimeChannel: any = null;
+  private realtimeInitialized: boolean = false;
+
   private initRealtime() {
     if (typeof window === 'undefined') return;
     if (this.realtimeInitialized) return;

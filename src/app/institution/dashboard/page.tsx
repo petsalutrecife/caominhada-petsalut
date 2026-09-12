@@ -48,6 +48,8 @@ export default function InstitutionDashboard() {
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [selectedRegId, setSelectedRegId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [notesModalOpen, setNotesModalOpen] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
   
   const refreshData = () => {
     const regs = supabaseMock.getRegistrations();
