@@ -63,6 +63,25 @@ export default function AdminDashboard() {
   const [filterDonation, setFilterDonation] = useState<string>('All');
   const [filterInstitution, setFilterInstitution] = useState<string>('All');
   const [viewReceiptUrl, setViewReceiptUrl] = useState<string | null>(null);
+  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
+
+  const handleOpenReceipt = async (r: Registration) => {
+    if (r.donationReceipt && r.donationReceipt !== '[receipt_uploaded]') {
+      setViewReceiptUrl(r.donationReceipt);
+      return;
+    }
+    setIsLoadingReceipt(true);
+    try {
+      const receipt = await supabaseMock.getReceipt(r.id);
+      if (receipt) {
+        setViewReceiptUrl(receipt);
+      } else {
+        alert('Comprovante não disponível no momento.');
+      }
+    } finally {
+      setIsLoadingReceipt(false);
+    }
+  };
 
   // WhatsApp Dispatcher Modal states
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
@@ -1235,8 +1254,9 @@ export default function AdminDashboard() {
                               )}
                               {r.donationReceipt && (
                                 <button
-                                  onClick={() => setViewReceiptUrl(r.donationReceipt || null)}
-                                  className="text-[9px] text-blue-500 hover:text-blue-700 font-semibold flex items-center gap-0.5 mt-1"
+                                  onClick={() => handleOpenReceipt(r)}
+                                  disabled={isLoadingReceipt}
+                                  className="text-[9px] text-blue-500 hover:text-blue-700 font-semibold flex items-center gap-0.5 mt-1 disabled:opacity-50"
                                 >
                                   <Eye className="h-3 w-3" /> Ver comprovante
                                 </button>

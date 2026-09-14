@@ -8,6 +8,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Registration, Institution } from '@/lib/supabaseMock';
 import { generateRegistrationTicket } from '@/lib/generateTicketPdf';
 import { generateStoriesImage } from '@/lib/generateStoriesImage';
+import { compressImage } from '@/lib/imageCompressor';
 import { 
   LogOut, Calendar, MapPin, Award, CheckCircle2, Clock, ShieldAlert, 
   CreditCard, ClipboardList, RefreshCw, X, Download, Camera, Upload, 
@@ -24,13 +25,12 @@ export default function ParticipantDashboard() {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Re-upload state
+  // Modals state
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [reuploadModalOpen, setReuploadModalOpen] = useState(false);
-  const [newReceipt, setNewReceipt] = useState('');
-  const [newReceiptName, setNewReceiptName] = useState('');
+  const [newReceipt, setNewReceipt] = useState<string>('');
+  const [newReceiptName, setNewReceiptName] = useState<string>('');
   const [isSubmittingReceipt, setIsSubmittingReceipt] = useState(false);
-
-  // Stories Card Modal state
   const [storiesModalOpen, setStoriesModalOpen] = useState(false);
   const [storiesImgData, setStoriesImgData] = useState<string | null>(null);
   const [isGeneratingStories, setIsGeneratingStories] = useState(false);
@@ -63,6 +63,12 @@ export default function ParticipantDashboard() {
       regs = supabaseMock.getRegistrations();
       userReg = regs.find(r => r.id === currentUser.id);
       if (userReg) {
+        if (!userReg.petPhoto) {
+          const photo = await supabaseMock.getPetPhoto(userReg.id);
+          if (photo) {
+            userReg = { ...userReg, petPhoto: photo };
+          }
+        }
         setRegistration(userReg);
       } else if (!userReg && !registration) {
         router.push('/login');
@@ -573,16 +579,22 @@ export default function ParticipantDashboard() {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            const newPhoto = reader.result as string;
+                          try {
+                            const newPhoto = await compressImage(file, { maxWidth: 800, maxHeight: 800, quality: 0.75 });
                             const updated = supabaseMock.updateRegistration(registration.id, { petPhoto: newPhoto });
                             setRegistration(updated);
-                          };
-                          reader.readAsDataURL(file);
+                          } catch {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              const newPhoto = reader.result as string;
+                              const updated = supabaseMock.updateRegistration(registration.id, { petPhoto: newPhoto });
+                              setRegistration(updated);
+                            };
+                            reader.readAsDataURL(file);
+                          }
                         }
                       }}
                       className="hidden"
@@ -596,16 +608,22 @@ export default function ParticipantDashboard() {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            const newPhoto = reader.result as string;
+                          try {
+                            const newPhoto = await compressImage(file, { maxWidth: 800, maxHeight: 800, quality: 0.75 });
                             const updated = supabaseMock.updateRegistration(registration.id, { petPhoto: newPhoto });
                             setRegistration(updated);
-                          };
-                          reader.readAsDataURL(file);
+                          } catch {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              const newPhoto = reader.result as string;
+                              const updated = supabaseMock.updateRegistration(registration.id, { petPhoto: newPhoto });
+                              setRegistration(updated);
+                            };
+                            reader.readAsDataURL(file);
+                          }
                         }
                       }}
                       className="hidden"
@@ -685,19 +703,24 @@ export default function ParticipantDashboard() {
                     <label className="px-4 py-2 rounded-xl bg-[#003A8C] hover:bg-blue-700 text-white text-xs font-bold cursor-pointer flex items-center gap-1.5 transition-all">
                       <Upload className="h-3.5 w-3.5" /> Escolher Arquivo
                       <input type="file" accept="image/*,.pdf"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            if (file.size > 10 * 1024 * 1024) {
-                              alert('O arquivo excede o limite máximo de 10MB.');
+                            if (file.size > 15 * 1024 * 1024) {
+                              alert('O arquivo excede o limite máximo.');
                               return;
                             }
                             setNewReceiptName(file.name);
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setNewReceipt(reader.result as string);
-                            };
-                            reader.readAsDataURL(file);
+                            try {
+                              const compressed = await compressImage(file, { maxWidth: 1000, maxHeight: 1000, quality: 0.75 });
+                              setNewReceipt(compressed);
+                            } catch {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setNewReceipt(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
                           }
                         }}
                         className="hidden"

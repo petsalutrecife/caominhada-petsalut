@@ -8,6 +8,7 @@ import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Registration, Institution } from '@/lib/supabaseMock';
 import { generateRegistrationTicket } from '@/lib/generateTicketPdf';
+import { compressImage } from '@/lib/imageCompressor';
 import { 
   ArrowLeft, ArrowRight, User, Phone, Mail, Award, CheckCircle2, Copy, 
   Calendar, Heart, Shield, Camera, Upload, MapPin, MessageCircle,
@@ -249,58 +250,56 @@ export default function RegisterPage() {
     return donationValue === 0 ? Number(customValue) : donationValue;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateStep(7)) return;
 
     setIsSubmitting(true);
     const finalVal = getFinalDonationValue();
     
-    setTimeout(() => {
-      try {
-        const saved = supabaseMock.saveRegistration({
-          tutorName,
-          tutorCpf,
-          tutorBirthDate,
-          tutorPhone: tutorWhatsApp,
-          tutorWhatsApp,
-          tutorEmail,
-          tutorCity,
-          tutorState,
-          petName,
-          petSpecies,
-          petBreed,
-          petSize,
-          petAge,
-          petPhoto,
-          selectedInstitution,
-          donationValue: finalVal,
-          donationReceipt,
-          donationStatus: 'AGUARDANDO VALIDAÇÃO',
-          statusPayment: 'Pendente',
-          statusKit: 'Aguardando',
-          notes: kitPickupLocation ? `Retirada: ${kitPickupLocation}` : ''
-        });
-        
-        setRegisteredUser(saved);
-        setCurrentStep(8);
-        setIsSubmitting(false);
-        
-        confetti({
-          particleCount: 150,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
-      } catch (err: unknown) {
-        setIsSubmitting(false);
-        const isQuota = err instanceof DOMException && (err.name === 'QuotaExceededError' || err.code === 22);
-        if (isQuota) {
-          alert('Erro de armazenamento local. Seus dados foram registrados, mas o cache local está cheio. Tente limpar o histórico do navegador se o problema persistir.');
-        } else {
-          console.error('Registration error:', err);
-          alert('Erro ao realizar a inscrição. Tente novamente.');
-        }
+    try {
+      const saved = await supabaseMock.saveRegistrationAsync({
+        tutorName,
+        tutorCpf,
+        tutorBirthDate,
+        tutorPhone: tutorWhatsApp,
+        tutorWhatsApp,
+        tutorEmail,
+        tutorCity,
+        tutorState,
+        petName,
+        petSpecies,
+        petBreed,
+        petSize,
+        petAge,
+        petPhoto,
+        selectedInstitution,
+        donationValue: finalVal,
+        donationReceipt,
+        donationStatus: 'AGUARDANDO VALIDAÇÃO',
+        statusPayment: 'Pendente',
+        statusKit: 'Aguardando',
+        notes: kitPickupLocation ? `Retirada: ${kitPickupLocation}` : ''
+      });
+      
+      setRegisteredUser(saved);
+      setCurrentStep(8);
+      setIsSubmitting(false);
+      
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+    } catch (err: unknown) {
+      setIsSubmitting(false);
+      const isQuota = err instanceof DOMException && (err.name === 'QuotaExceededError' || err.code === 22);
+      if (isQuota) {
+        alert('Erro de armazenamento local. Seus dados foram registrados, mas o cache local está cheio. Tente limpar o histórico do navegador se o problema persistir.');
+      } else {
+        console.error('Registration error:', err);
+        alert('Erro ao realizar a inscrição. Tente novamente.');
       }
-    }, 1500);
+    }
   };
 
   const copyToClipboard = (text: string, setter: (v: boolean) => void) => {
@@ -821,12 +820,17 @@ export default function RegisterPage() {
                       <label className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-850 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 cursor-pointer flex items-center gap-2 hover-lift transition-all animate-all">
                         <Upload className="h-4 w-4" /> Escolher Foto
                         <input type="file" accept="image/*"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                              const reader = new FileReader();
-                              reader.onloadend = () => setPetPhoto(reader.result as string);
-                              reader.readAsDataURL(file);
+                              try {
+                                const compressed = await compressImage(file, { maxWidth: 800, maxHeight: 800, quality: 0.75 });
+                                setPetPhoto(compressed);
+                              } catch {
+                                const reader = new FileReader();
+                                reader.onloadend = () => setPetPhoto(reader.result as string);
+                                reader.readAsDataURL(file);
+                              }
                             }
                           }}
                           className="hidden"
@@ -1344,20 +1348,26 @@ export default function RegisterPage() {
                         <label className="px-6 py-3 rounded-xl bg-[#003A8C] hover:bg-blue-700 text-white text-xs font-bold cursor-pointer flex items-center gap-2 hover-lift transition-all">
                           <Upload className="h-4 w-4" /> Selecionar Comprovante
                           <input type="file" accept="image/*,.pdf"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                if (file.size > 10 * 1024 * 1024) {
-                                  alert('O arquivo excede o limite máximo de 10MB.');
+                                if (file.size > 15 * 1024 * 1024) {
+                                  alert('O arquivo excede o limite máximo.');
                                   return;
                                 }
                                 setDonationReceiptName(file.name);
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  setDonationReceipt(reader.result as string);
+                                try {
+                                  const compressed = await compressImage(file, { maxWidth: 1000, maxHeight: 1000, quality: 0.75 });
+                                  setDonationReceipt(compressed);
                                   if (errors.donationReceipt) setErrors(prev => ({ ...prev, donationReceipt: '' }));
-                                };
-                                reader.readAsDataURL(file);
+                                } catch {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setDonationReceipt(reader.result as string);
+                                    if (errors.donationReceipt) setErrors(prev => ({ ...prev, donationReceipt: '' }));
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
                               }
                             }}
                             className="hidden"

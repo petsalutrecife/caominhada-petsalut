@@ -401,6 +401,8 @@ const initialExpenses: Expense[] = [
 class SupabaseMockClient {
   private institutions: Institution[] = [];
   private registrations: Registration[] = [];
+  private receiptCache: Map<string, string> = new Map();
+  private photoCache: Map<string, string> = new Map();
   private listeners: Set<() => void> = new Set();
   private isInitialSyncDone: boolean = false;
   private broadcastChannel: BroadcastChannel | null = null;
@@ -408,6 +410,7 @@ class SupabaseMockClient {
   private realtimeInitialized: boolean = false;
   private isCurrentlySyncing: boolean = false;
   private lastSyncTimestamp: number = 0;
+  private realtimeDebounceTimer: any = null;
 
   private initRealtime() {
     if (typeof window === 'undefined') return;
@@ -440,31 +443,30 @@ class SupabaseMockClient {
       this.syncFromSupabase();
     });
 
+    const triggerDebouncedSync = () => {
+      if (this.realtimeDebounceTimer) clearTimeout(this.realtimeDebounceTimer);
+      this.realtimeDebounceTimer = setTimeout(() => {
+        this.syncFromSupabase(true);
+      }, 300);
+    };
+
     // Supabase Realtime Channel Subscription (Event-driven)
     try {
       this.realtimeChannel = supabase
         .channel('caominhada-db-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, () => {
-          this.syncFromSupabase(true);
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'institutions' }, () => {
-          this.syncFromSupabase(true);
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'sponsors' }, () => {
-          this.syncFromSupabase(true);
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
-          this.syncFromSupabase(true);
-        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, triggerDebouncedSync)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'institutions' }, triggerDebouncedSync)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sponsors' }, triggerDebouncedSync)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, triggerDebouncedSync)
         .subscribe();
     } catch (err) {
       console.warn('Supabase Realtime subscription could not be created:', err);
     }
 
-    // Light polling fallback every 12 seconds to prevent exhausting Postgres connection limits
+    // Light polling fallback every 30 seconds to prevent exhausting Postgres connection limits
     setInterval(() => {
       this.syncFromSupabase();
-    }, 12000);
+    }, 30000);
 
     // Immediate initial sync
     this.syncFromSupabase(true);
@@ -543,13 +545,16 @@ class SupabaseMockClient {
   async syncFromSupabase(force: boolean = false) {
     if (this.isCurrentlySyncing && !force) return;
     const now = Date.now();
-    if (!force && now - this.lastSyncTimestamp < 2500) return;
+    if (!force && now - this.lastSyncTimestamp < 1500) return;
 
     this.isCurrentlySyncing = true;
     try {
+      // Query metadata only for registrations to avoid PostgreSQL statement timeout (57014)
       const [instResult, regResult] = await Promise.all([
         supabase.from('institutions').select('*'),
-        supabase.from('registrations').select('*').order('created_at', { ascending: false })
+        supabase.from('registrations')
+          .select('id, tutor_name, tutor_cpf, tutor_birth_date, tutor_phone, tutor_whats_app, tutor_email, tutor_city, tutor_state, pet_name, pet_species, pet_breed, pet_size, pet_age, selected_institution, donation_value, donation_status, rejection_reason, notes, reg_number, status_payment, status_kit, shirt_size, created_at, qr_code')
+          .order('created_at', { ascending: false })
       ]);
 
       const instData = instResult.data;
@@ -562,8 +567,17 @@ class SupabaseMockClient {
       }
 
       const regData = regResult.data;
-      if (regData && !regResult.error && regData.length > 0) {
-        this.registrations = regData.map(mapDbToRegistration);
+      if (regData && !regResult.error) {
+        this.registrations = regData.map(db => {
+          const item = mapDbToRegistration(db);
+          if (this.receiptCache.has(item.id)) {
+            item.donationReceipt = this.receiptCache.get(item.id);
+          }
+          if (this.photoCache.has(item.id)) {
+            item.petPhoto = this.photoCache.get(item.id);
+          }
+          return item;
+        });
         this.setStorage('ps_registrations', this.registrations);
       }
 
@@ -582,6 +596,54 @@ class SupabaseMockClient {
     } finally {
       this.isCurrentlySyncing = false;
     }
+  }
+
+  // Helper to fetch receipt on-demand (e.g. for modal viewing)
+  async getReceipt(id: string): Promise<string | null> {
+    if (this.receiptCache.has(id)) {
+      return this.receiptCache.get(id) || null;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('donation_receipt')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (!error && data?.donation_receipt) {
+        this.receiptCache.set(id, data.donation_receipt);
+        const reg = this.registrations.find(r => r.id === id);
+        if (reg) reg.donationReceipt = data.donation_receipt;
+        return data.donation_receipt;
+      }
+    } catch (e) {
+      console.error('Error loading receipt on demand:', e);
+    }
+    return null;
+  }
+
+  // Helper to fetch pet photo on-demand
+  async getPetPhoto(id: string): Promise<string | null> {
+    if (this.photoCache.has(id)) {
+      return this.photoCache.get(id) || null;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('pet_photo')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (!error && data?.pet_photo) {
+        this.photoCache.set(id, data.pet_photo);
+        const reg = this.registrations.find(r => r.id === id);
+        if (reg) reg.petPhoto = data.pet_photo;
+        return data.pet_photo;
+      }
+    } catch (e) {
+      console.error('Error loading pet photo on demand:', e);
+    }
+    return null;
   }
 
   // --- Institutions API ---
@@ -683,37 +745,95 @@ class SupabaseMockClient {
     return [];
   }
 
-  saveRegistration(reg: Omit<Registration, 'id' | 'createdAt' | 'regNumber' | 'qrCode'>): Registration {
-    const list = this.getRegistrations();
-    const count = list.length + 1;
+  async saveRegistrationAsync(reg: Omit<Registration, 'id' | 'createdAt' | 'regNumber' | 'qrCode'>): Promise<Registration> {
+    let count = this.getRegistrations().length + 1;
+    try {
+      const { count: serverCount } = await supabase.from('registrations').select('*', { count: 'exact', head: true });
+      if (serverCount !== null && serverCount !== undefined) {
+        count = serverCount + 1;
+      }
+    } catch {}
+
     const formattedCount = String(count).padStart(4, '0');
     const regNumber = `PET-2026-${formattedCount}`;
-    
+    const newId = `reg-${Date.now()}`;
+
     const newReg: Registration = {
       ...reg,
-      id: `reg-${Date.now()}`,
+      id: newId,
       regNumber,
       createdAt: new Date().toISOString(),
       qrCode: `${regNumber}|${reg.tutorName}|${reg.petName}|${reg.statusPayment}`
     };
 
-    // For localStorage: strip base64 receipt to avoid QuotaExceededError
-    // (images can be several MB as base64). Keep a marker so we know it was uploaded.
+    if (newReg.donationReceipt) {
+      this.receiptCache.set(newId, newReg.donationReceipt);
+    }
+    if (newReg.petPhoto) {
+      this.photoCache.set(newId, newReg.petPhoto);
+    }
+
+    const list = this.getRegistrations();
     const regForStorage: Registration = {
       ...newReg,
       donationReceipt: newReg.donationReceipt ? '[receipt_uploaded]' : undefined,
       petPhoto: newReg.petPhoto ? '[photo_uploaded]' : undefined,
     };
 
-    // Synchronous optimistic update (without large base64 blobs)
-    list.push(regForStorage);
+    list.unshift(regForStorage);
     this.registrations = list;
     this.setStorage('ps_registrations', this.registrations);
     this.notifyListeners();
 
-    // Async server insert — send full object including receipt
+    const { error } = await supabase.from('registrations').insert([mapRegistrationToDb(newReg)]);
+    if (error) {
+      console.error('Error creating registration in Supabase:', error);
+    } else {
+      await this.syncFromSupabase(true);
+    }
+
+    return newReg;
+  }
+
+  saveRegistration(reg: Omit<Registration, 'id' | 'createdAt' | 'regNumber' | 'qrCode'>): Registration {
+    const list = this.getRegistrations();
+    const count = list.length + 1;
+    const formattedCount = String(count).padStart(4, '0');
+    const regNumber = `PET-2026-${formattedCount}`;
+    const newId = `reg-${Date.now()}`;
+    
+    const newReg: Registration = {
+      ...reg,
+      id: newId,
+      regNumber,
+      createdAt: new Date().toISOString(),
+      qrCode: `${regNumber}|${reg.tutorName}|${reg.petName}|${reg.statusPayment}`
+    };
+
+    if (newReg.donationReceipt) {
+      this.receiptCache.set(newId, newReg.donationReceipt);
+    }
+    if (newReg.petPhoto) {
+      this.photoCache.set(newId, newReg.petPhoto);
+    }
+
+    const regForStorage: Registration = {
+      ...newReg,
+      donationReceipt: newReg.donationReceipt ? '[receipt_uploaded]' : undefined,
+      petPhoto: newReg.petPhoto ? '[photo_uploaded]' : undefined,
+    };
+
+    list.unshift(regForStorage);
+    this.registrations = list;
+    this.setStorage('ps_registrations', this.registrations);
+    this.notifyListeners();
+
     supabase.from('registrations').insert([mapRegistrationToDb(newReg)]).then(({ error }) => {
-      if (error) console.error('Error creating registration in Supabase:', error);
+      if (error) {
+        console.error('Error creating registration in Supabase:', error);
+      } else {
+        this.syncFromSupabase(true);
+      }
     });
 
     return newReg;
@@ -723,6 +843,13 @@ class SupabaseMockClient {
     const list = this.getRegistrations();
     const idx = list.findIndex(r => r.id === id);
     if (idx === -1) throw new Error('Registration not found');
+
+    if (updates.donationReceipt) {
+      this.receiptCache.set(id, updates.donationReceipt);
+    }
+    if (updates.petPhoto) {
+      this.photoCache.set(id, updates.petPhoto);
+    }
 
     const updated = { ...list[idx], ...updates };
     updated.qrCode = `${updated.regNumber}|${updated.tutorName}|${updated.petName}|${updated.statusPayment}`;
@@ -735,7 +862,11 @@ class SupabaseMockClient {
 
     // Async server update
     supabase.from('registrations').update(mapRegistrationToDb(updates)).eq('id', id).then(({ error }) => {
-      if (error) console.error('Error updating registration in Supabase:', error);
+      if (error) {
+        console.error('Error updating registration in Supabase:', error);
+      } else {
+        this.syncFromSupabase(true);
+      }
     });
 
     return updated;

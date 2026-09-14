@@ -40,11 +40,30 @@ export default function InstitutionDashboard() {
 
   // Modals & inputs
   const [viewReceiptUrl, setViewReceiptUrl] = useState<string | null>(null);
+  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [selectedRegId, setSelectedRegId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [notesModalOpen, setNotesModalOpen] = useState(false);
   const [noteContent, setNoteContent] = useState('');
+
+  const handleOpenReceipt = async (reg: Registration) => {
+    if (reg.donationReceipt && reg.donationReceipt !== '[receipt_uploaded]') {
+      setViewReceiptUrl(reg.donationReceipt);
+      return;
+    }
+    setIsLoadingReceipt(true);
+    try {
+      const receipt = await supabaseMock.getReceipt(reg.id);
+      if (receipt) {
+        setViewReceiptUrl(receipt);
+      } else {
+        alert('Comprovante não disponível no momento.');
+      }
+    } finally {
+      setIsLoadingReceipt(false);
+    }
+  };
   
   const refreshData = () => {
     const regs = supabaseMock.getRegistrations();
@@ -510,8 +529,9 @@ export default function InstitutionDashboard() {
                 <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-850">
                   {reg.donationReceipt ? (
                     <button
-                      onClick={() => setViewReceiptUrl(reg.donationReceipt || null)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 font-bold text-xs text-[#003A8C] dark:text-lime-400"
+                      onClick={() => handleOpenReceipt(reg)}
+                      disabled={isLoadingReceipt}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 font-bold text-xs text-[#003A8C] dark:text-lime-400 disabled:opacity-50"
                     >
                       <Eye className="h-3.5 w-3.5" /> Comprovante
                     </button>
@@ -642,8 +662,9 @@ export default function InstitutionDashboard() {
                       <td className="p-4 text-center">
                         {reg.donationReceipt ? (
                           <button
-                            onClick={() => setViewReceiptUrl(reg.donationReceipt || null)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 font-semibold text-[10px] transition-colors"
+                            onClick={() => handleOpenReceipt(reg)}
+                            disabled={isLoadingReceipt}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 font-semibold text-[10px] transition-colors disabled:opacity-50"
                           >
                             <Eye className="h-3.5 w-3.5 text-[#003A8C] dark:text-lime-400" /> Visualizar
                           </button>
