@@ -412,8 +412,22 @@ class SupabaseMockClient {
   private lastSyncTimestamp: number = 0;
   private realtimeDebounceTimer: any = null;
 
+  private purgeStaleCacheIfNeeded() {
+    if (typeof window === 'undefined') return;
+    const CURRENT_VERSION = 'v3_realtime_sync_optimized';
+    const savedVersion = localStorage.getItem('ps_cache_version');
+    if (savedVersion !== CURRENT_VERSION) {
+      try {
+        localStorage.removeItem('ps_registrations');
+        localStorage.setItem('ps_cache_version', CURRENT_VERSION);
+        this.registrations = [];
+      } catch {}
+    }
+  }
+
   private initRealtime() {
     if (typeof window === 'undefined') return;
+    this.purgeStaleCacheIfNeeded();
     if (this.realtimeInitialized) return;
     this.realtimeInitialized = true;
 
@@ -423,7 +437,7 @@ class SupabaseMockClient {
         this.broadcastChannel = new BroadcastChannel('caominhada_sync_channel');
         this.broadcastChannel.onmessage = (event) => {
           if (event.data?.type === 'DATA_UPDATED') {
-            this.syncFromSupabase();
+            this.syncFromSupabase(true);
           }
         };
       }
@@ -434,20 +448,20 @@ class SupabaseMockClient {
     // Storage event for fallback cross-tab updates
     window.addEventListener('storage', (e) => {
       if (e.key && e.key.startsWith('ps_')) {
-        this.syncFromSupabase();
+        this.syncFromSupabase(true);
       }
     });
 
-    // Window focus auto-sync (debounced)
+    // Window focus auto-sync
     window.addEventListener('focus', () => {
-      this.syncFromSupabase();
+      this.syncFromSupabase(true);
     });
 
     const triggerDebouncedSync = () => {
       if (this.realtimeDebounceTimer) clearTimeout(this.realtimeDebounceTimer);
       this.realtimeDebounceTimer = setTimeout(() => {
         this.syncFromSupabase(true);
-      }, 300);
+      }, 200);
     };
 
     // Supabase Realtime Channel Subscription (Event-driven)
@@ -463,10 +477,10 @@ class SupabaseMockClient {
       console.warn('Supabase Realtime subscription could not be created:', err);
     }
 
-    // Light polling fallback every 30 seconds to prevent exhausting Postgres connection limits
+    // Light polling fallback every 15 seconds to ensure live sync across all tabs
     setInterval(() => {
-      this.syncFromSupabase();
-    }, 30000);
+      this.syncFromSupabase(false);
+    }, 15000);
 
     // Immediate initial sync
     this.syncFromSupabase(true);

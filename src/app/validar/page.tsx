@@ -119,7 +119,7 @@ export default function QrCodeValidatorPage() {
       loadData();
     });
 
-    supabaseMock.syncFromSupabase().then(() => {
+    supabaseMock.syncFromSupabase(true).then(() => {
       loadData();
     });
 

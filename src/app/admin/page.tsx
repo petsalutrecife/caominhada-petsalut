@@ -155,7 +155,7 @@ export default function AdminDashboard() {
     });
 
     // Background sync from Supabase
-    supabaseMock.syncFromSupabase().then(() => {
+    supabaseMock.syncFromSupabase(true).then(() => {
       refreshData();
     });
 

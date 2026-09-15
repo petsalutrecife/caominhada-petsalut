@@ -38,8 +38,15 @@ export default function LandingPage() {
     setInstitutions(supabaseMock.getInstitutions());
     setRegistrations(supabaseMock.getRegistrations());
 
-    // Fetch from Supabase and refresh data
-    supabaseMock.syncFromSupabase().then(() => {
+    // Subscribe to live database updates
+    const unsubscribe = supabaseMock.subscribe(() => {
+      setInstitutions(supabaseMock.getInstitutions());
+      setRegistrations(supabaseMock.getRegistrations());
+      setSponsors(supabaseMock.getSponsors());
+    });
+
+    // Fetch fresh from Supabase
+    supabaseMock.syncFromSupabase(true).then(() => {
       setInstitutions(supabaseMock.getInstitutions());
       setRegistrations(supabaseMock.getRegistrations());
     });
@@ -74,6 +81,7 @@ export default function LandingPage() {
     window.addEventListener('scroll', handleScroll);
 
     return () => {
+      unsubscribe();
       clearInterval(timer);
       window.removeEventListener('scroll', handleScroll);
     };
