@@ -563,12 +563,10 @@ class SupabaseMockClient {
 
     this.isCurrentlySyncing = true;
     try {
-      // Query metadata only for registrations to avoid PostgreSQL statement timeout (57014)
+      // Query registrations and institutions from Supabase
       const [instResult, regResult] = await Promise.all([
         supabase.from('institutions').select('*'),
-        supabase.from('registrations')
-          .select('id, tutor_name, tutor_cpf, tutor_birth_date, tutor_phone, tutor_whats_app, tutor_email, tutor_city, tutor_state, pet_name, pet_species, pet_breed, pet_size, pet_age, selected_institution, donation_value, donation_status, rejection_reason, notes, reg_number, status_payment, status_kit, shirt_size, created_at, qr_code')
-          .order('created_at', { ascending: false })
+        supabase.from('registrations').select('*').order('created_at', { ascending: false })
       ]);
 
       const instData = instResult.data;
