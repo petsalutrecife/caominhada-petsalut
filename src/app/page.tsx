@@ -49,6 +49,7 @@ export default function LandingPage() {
     supabaseMock.syncFromSupabase(true).then(() => {
       setInstitutions(supabaseMock.getInstitutions());
       setRegistrations(supabaseMock.getRegistrations());
+      setSponsors(supabaseMock.getSponsors());
     });
 
     const timer = setInterval(() => {

@@ -189,6 +189,30 @@ function mapInstitutionToDb(inst: Partial<Institution>): any {
   return db;
 }
 
+function mapDbToSponsor(db: any): Sponsor {
+  return {
+    id: db.id,
+    name: db.name || '',
+    logo: db.logo || '',
+    category: db.category || 'Ouro',
+    investedValue: Number(db.invested_value) || 0,
+    description: db.description || '',
+    website: db.website || '#'
+  };
+}
+
+function mapSponsorToDb(s: Partial<Sponsor>): any {
+  const db: any = {};
+  if (s.id !== undefined) db.id = s.id;
+  if (s.name !== undefined) db.name = s.name;
+  if (s.logo !== undefined) db.logo = s.logo;
+  if (s.category !== undefined) db.category = s.category;
+  if (s.investedValue !== undefined) db.invested_value = s.investedValue;
+  if (s.description !== undefined) db.description = s.description;
+  if (s.website !== undefined) db.website = s.website;
+  return db;
+}
+
 // Initial fallback mock data seed for institutions
 const initialInstitutions: Institution[] = [
   {
@@ -401,6 +425,7 @@ const initialExpenses: Expense[] = [
 class SupabaseMockClient {
   private institutions: Institution[] = [];
   private registrations: Registration[] = [];
+  private sponsors: Sponsor[] = [];
   private receiptCache: Map<string, string> = new Map();
   private photoCache: Map<string, string> = new Map();
   private listeners: Set<() => void> = new Set();
@@ -414,7 +439,7 @@ class SupabaseMockClient {
 
   private purgeStaleCacheIfNeeded() {
     if (typeof window === 'undefined') return;
-    const CURRENT_VERSION = 'v3_realtime_sync_optimized';
+    const CURRENT_VERSION = 'v4_sponsors_realtime_sync';
     const savedVersion = localStorage.getItem('ps_cache_version');
     if (savedVersion !== CURRENT_VERSION) {
       try {
@@ -563,10 +588,11 @@ class SupabaseMockClient {
 
     this.isCurrentlySyncing = true;
     try {
-      // Query registrations and institutions from Supabase
-      const [instResult, regResult] = await Promise.all([
+      // Query registrations, institutions and sponsors from Supabase
+      const [instResult, regResult, spResult] = await Promise.all([
         supabase.from('institutions').select('*'),
-        supabase.from('registrations').select('*').order('created_at', { ascending: false })
+        supabase.from('registrations').select('*').order('created_at', { ascending: false }),
+        supabase.from('sponsors').select('*').order('created_at', { ascending: true })
       ]);
 
       const instData = instResult.data;
@@ -576,6 +602,23 @@ class SupabaseMockClient {
       } else if (this.institutions.length === 0) {
         this.institutions = initialInstitutions;
         this.setStorage('ps_institutions', initialInstitutions);
+      }
+
+      const spData = spResult.data;
+      if (spData && spData.length > 0) {
+        this.sponsors = spData.map(mapDbToSponsor);
+        this.setStorage('ps_sponsors', this.sponsors);
+      } else if (!spResult.error && (!spData || spData.length === 0)) {
+        // Table exists in Supabase but is empty -> auto-seed current/initial sponsors
+        const localSponsors = this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
+        const seedList = localSponsors.length > 0 ? localSponsors : initialSponsors;
+        this.sponsors = seedList;
+        this.setStorage('ps_sponsors', this.sponsors);
+        supabase.from('sponsors').upsert(seedList.map(mapSponsorToDb)).then(({ error }) => {
+          if (error) console.warn('Auto-seed sponsors into Supabase note:', error);
+        });
+      } else if (this.sponsors.length === 0) {
+        this.sponsors = this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
       }
 
       const regData = regResult.data;
@@ -899,51 +942,49 @@ class SupabaseMockClient {
     });
   }
 
-  // --- Sponsors API (LocalStorage) ---
+  // --- Sponsors API (Supabase & Realtime) ---
 
   getSponsors(): Sponsor[] {
-    const list = this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
-    if (list.some(s => s.name.includes('Royal Canin') || s.name.includes('Pet Salute Plano') || s.name.includes('PremieRpet'))) {
-      this.setStorage('ps_sponsors', initialSponsors);
-      return initialSponsors;
-    }
-    // Ensure all initial sponsors are present
-    let updated = false;
-    for (const initSp of initialSponsors) {
-      if (!list.some(s => s.id === initSp.id || s.name.toLowerCase() === initSp.name.toLowerCase())) {
-        list.push(initSp);
-        updated = true;
+    this.initRealtime();
+    let list: Sponsor[] = [];
+    if (this.sponsors.length > 0) {
+      list = this.sponsors;
+    } else {
+      const stored = this.getStorage<Sponsor>('ps_sponsors', []);
+      if (stored.length > 0) {
+        list = stored;
+        this.sponsors = stored;
+      } else {
+        list = initialSponsors;
+        this.sponsors = initialSponsors;
+        this.setStorage('ps_sponsors', initialSponsors);
       }
     }
-    if (updated) {
-      this.setStorage('ps_sponsors', list);
-    }
-    return list.map(s => {
-      let item = { ...s };
-      if (item.category === 'Premium') item.category = 'Ouro';
-      if (item.id === 'sp-2' || item.name.includes('Amigo Bicho')) item.website = 'https://amigobicho.com.br/';
-      if (item.id === 'sp-3' || item.name.includes('Metrópole')) {
-        item.category = 'Prata';
-        item.website = 'https://hoo.be/clubmetropole';
-      }
-      if (item.id === 'sp-4' || item.name.includes('Pet Happy')) item.website = 'https://www.pethappyrecife.com.br/';
-      if (item.id === 'sp-avne' || item.name.includes('AVNE')) {
-        item.category = 'Prata';
-        item.logo = '/sponsors/avne.png';
-        item.website = 'https://www.instagram.com/avne_mergulho';
-      }
-      return item;
-    });
+    return list;
   }
 
   saveSponsor(sponsor: Omit<Sponsor, 'id'>): Sponsor {
-    const list = this.getSponsors();
+    const newId = `sp-${Date.now()}`;
     const newSponsor: Sponsor = {
       ...sponsor,
-      id: `sp-${Date.now()}`
+      id: newId
     };
+
+    const list = this.getSponsors();
     list.push(newSponsor);
-    this.setStorage('ps_sponsors', list);
+    this.sponsors = list;
+    this.setStorage('ps_sponsors', this.sponsors);
+    this.notifyListeners();
+
+    // Async server insert
+    supabase.from('sponsors').insert([mapSponsorToDb(newSponsor)]).then(({ error }) => {
+      if (error) {
+        console.error('Error creating sponsor in Supabase:', error);
+      } else {
+        this.syncFromSupabase(true);
+      }
+    });
+
     return newSponsor;
   }
 
@@ -952,15 +993,40 @@ class SupabaseMockClient {
     const idx = list.findIndex(s => s.id === id);
     if (idx === -1) throw new Error('Sponsor not found');
     const updated = { ...list[idx], ...updates };
+
     list[idx] = updated;
-    this.setStorage('ps_sponsors', list);
+    this.sponsors = list;
+    this.setStorage('ps_sponsors', this.sponsors);
+    this.notifyListeners();
+
+    // Async server upsert
+    supabase.from('sponsors').upsert(mapSponsorToDb(updated)).then(({ error }) => {
+      if (error) {
+        console.error('Error updating sponsor in Supabase:', error);
+      } else {
+        this.syncFromSupabase(true);
+      }
+    });
+
     return updated;
   }
 
   deleteSponsor(id: string): void {
     const list = this.getSponsors();
     const filtered = list.filter(s => s.id !== id);
-    this.setStorage('ps_sponsors', filtered);
+
+    this.sponsors = filtered;
+    this.setStorage('ps_sponsors', this.sponsors);
+    this.notifyListeners();
+
+    // Async server delete
+    supabase.from('sponsors').delete().eq('id', id).then(({ error }) => {
+      if (error) {
+        console.error('Error deleting sponsor from Supabase:', error);
+      } else {
+        this.syncFromSupabase(true);
+      }
+    });
   }
 
   // --- Expenses API (LocalStorage) ---
