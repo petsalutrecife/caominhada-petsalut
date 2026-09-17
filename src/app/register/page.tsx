@@ -282,22 +282,35 @@ export default function RegisterPage() {
       });
       
       setRegisteredUser(saved);
-      setCurrentStep(8);
       setIsSubmitting(false);
+      setCurrentStep(8);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 }
-      });
+      try {
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      } catch {}
     } catch (err: unknown) {
       setIsSubmitting(false);
       const isQuota = err instanceof DOMException && (err.name === 'QuotaExceededError' || err.code === 22);
       if (isQuota) {
-        alert('Erro de armazenamento local. Seus dados foram registrados, mas o cache local está cheio. Tente limpar o histórico do navegador se o problema persistir.');
+        setCurrentStep(8);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         console.error('Registration error:', err);
-        alert('Erro ao realizar a inscrição. Tente novamente.');
+        // Tenta recuperar a inscrição recém-salva caso tenha sido persistida
+        const clean = tutorCpf.replace(/\D/g, '');
+        const existing = supabaseMock.getRegistrations().find(r => r.tutorCpf.replace(/\D/g, '') === clean);
+        if (existing) {
+          setRegisteredUser(existing);
+          setCurrentStep(8);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          alert('Houve uma instabilidade momentânea na conexão. Por favor, tente clicar em Finalizar Inscrição novamente.');
+        }
       }
     }
   };

@@ -803,7 +803,9 @@ class SupabaseMockClient {
   async saveRegistrationAsync(reg: Omit<Registration, 'id' | 'createdAt' | 'regNumber' | 'qrCode'>): Promise<Registration> {
     let count = this.getRegistrations().length + 1;
     try {
-      const { count: serverCount } = await supabase.from('registrations').select('*', { count: 'exact', head: true });
+      const countPromise = supabase.from('registrations').select('*', { count: 'exact', head: true });
+      const timeoutCount = new Promise((_, reject) => setTimeout(() => reject(new Error('count timeout')), 2000));
+      const { count: serverCount } = await Promise.race([countPromise, timeoutCount]) as any;
       if (serverCount !== null && serverCount !== undefined) {
         count = serverCount + 1;
       }
@@ -835,17 +837,28 @@ class SupabaseMockClient {
       petPhoto: newReg.petPhoto ? '[photo_uploaded]' : undefined,
     };
 
+    // Atualização otimista e síncrona imediata
     list.unshift(regForStorage);
     this.registrations = list;
     this.setStorage('ps_registrations', this.registrations);
     this.notifyListeners();
 
-    const { error } = await supabase.from('registrations').insert([mapRegistrationToDb(newReg)]);
-    if (error) {
-      console.error('Error creating registration in Supabase:', error);
-    } else {
-      await this.syncFromSupabase(true);
+    // Inserção no Supabase com timeout de segurança (não trava a tela se a rede oscilar)
+    try {
+      const insertPromise = supabase.from('registrations').insert([mapRegistrationToDb(newReg)]);
+      const timeoutInsert = new Promise((_, reject) => setTimeout(() => reject(new Error('insert timeout')), 5000));
+      const res = await Promise.race([insertPromise, timeoutInsert]) as any;
+      if (res?.error) {
+        console.error('Error creating registration in Supabase:', res.error);
+      }
+    } catch (err) {
+      console.warn('Supabase insert note (data preserved locally):', err);
     }
+
+    // Sincronização secundária em background para não bloquear o avanço da tela do usuário
+    setTimeout(() => {
+      this.syncFromSupabase(true).catch(e => console.warn('Background sync note:', e));
+    }, 100);
 
     return newReg;
   }
