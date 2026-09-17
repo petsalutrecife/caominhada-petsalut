@@ -290,11 +290,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleOpenReceipt = (reg: Registration) => {
-    setViewReceiptReg(reg);
-    setViewReceiptUrl(reg.donationReceipt || null);
-  };
-
   // Update participant kit status
   const handleUpdateKit = (id: string, nextStatus: 'Aguardando' | 'Liberado' | 'Retirado') => {
     supabaseMock.updateRegistration(id, { statusKit: nextStatus });
