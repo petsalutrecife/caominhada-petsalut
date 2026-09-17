@@ -63,9 +63,11 @@ export default function AdminDashboard() {
   const [filterDonation, setFilterDonation] = useState<string>('All');
   const [filterInstitution, setFilterInstitution] = useState<string>('All');
   const [viewReceiptUrl, setViewReceiptUrl] = useState<string | null>(null);
+  const [viewReceiptReg, setViewReceiptReg] = useState<Registration | null>(null);
   const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
 
   const handleOpenReceipt = async (r: Registration) => {
+    setViewReceiptReg(r);
     if (r.donationReceipt && r.donationReceipt !== '[receipt_uploaded]') {
       setViewReceiptUrl(r.donationReceipt);
       return;
@@ -235,28 +237,62 @@ export default function AdminDashboard() {
 
   // --- Actions ---
 
-  // Approve donation (validates the receipt)
+  // Approve donation (validates the receipt & registration, allows re-approving rejected/in-analysis participants)
   const handleApproveDonation = (id: string) => {
     supabaseMock.updateRegistration(id, {
       donationStatus: 'APROVADA',
       statusPayment: 'Aprovado',
-      statusKit: 'Aguardando'
+      statusKit: 'Liberado',
+      rejectionReason: ''
     });
     refreshData();
   };
 
   // Reject donation
   const handleRejectDonation = (id: string) => {
-    const reason = prompt('Informe o motivo da rejeição do comprovante:');
+    const reason = prompt('Informe o motivo da rejeição do comprovante:', 'Comprovante não identificado ou ilegível');
     if (reason === null) return;
     
     supabaseMock.updateRegistration(id, {
       donationStatus: 'REJEITADA',
       statusPayment: 'Pendente',
       statusKit: 'Aguardando',
-      rejectionReason: reason
+      rejectionReason: reason || 'Comprovante rejeitado'
     });
     refreshData();
+  };
+
+  // Set donation in analysis
+  const handleSetInAnalysis = (id: string) => {
+    supabaseMock.updateRegistration(id, {
+      donationStatus: 'EM ANÁLISE',
+      statusPayment: 'Pendente',
+      statusKit: 'Aguardando'
+    });
+    refreshData();
+  };
+
+  // Direct status update for donation
+  const handleUpdateDonationStatus = (id: string, nextStatus: 'AGUARDANDO VALIDAÇÃO' | 'EM ANÁLISE' | 'APROVADA' | 'REJEITADA') => {
+    if (nextStatus === 'APROVADA') {
+      handleApproveDonation(id);
+    } else if (nextStatus === 'REJEITADA') {
+      handleRejectDonation(id);
+    } else if (nextStatus === 'EM ANÁLISE') {
+      handleSetInAnalysis(id);
+    } else {
+      supabaseMock.updateRegistration(id, {
+        donationStatus: 'AGUARDANDO VALIDAÇÃO',
+        statusPayment: 'Pendente',
+        statusKit: 'Aguardando'
+      });
+      refreshData();
+    }
+  };
+
+  const handleOpenReceipt = (reg: Registration) => {
+    setViewReceiptReg(reg);
+    setViewReceiptUrl(reg.donationReceipt || null);
   };
 
   // Update participant kit status
@@ -1223,40 +1259,80 @@ export default function AdminDashboard() {
                           <td className="p-4">
                             <div className="flex flex-col gap-1.5">
                               <span className="font-bold block text-slate-900 dark:text-white">R$ {r.donationValue.toFixed(2)}</span>
-                              <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg font-bold text-[9px] uppercase tracking-wider w-fit ${
-                                r.donationStatus === 'APROVADA'
-                                  ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-400'
-                                  : r.donationStatus === 'AGUARDANDO VALIDAÇÃO'
-                                    ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-400'
-                                    : r.donationStatus === 'REJEITADA'
-                                      ? 'bg-red-100 dark:bg-red-950/50 text-red-800 dark:text-red-400'
-                                      : 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-400'
-                              }`}>
-                                {r.donationStatus}
-                              </span>
-                              {r.donationStatus === 'AGUARDANDO VALIDAÇÃO' && (
-                                <div className="flex gap-1.5 mt-1">
+                              
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg font-bold text-[9px] uppercase tracking-wider w-fit ${
+                                  r.donationStatus === 'APROVADA'
+                                    ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-400'
+                                    : r.donationStatus === 'AGUARDANDO VALIDAÇÃO'
+                                      ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-400'
+                                      : r.donationStatus === 'REJEITADA'
+                                        ? 'bg-red-100 dark:bg-red-950/50 text-red-800 dark:text-red-400'
+                                        : 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-400'
+                                }`}>
+                                  {r.donationStatus}
+                                </span>
+
+                                <select
+                                  value={r.donationStatus}
+                                  onChange={(e) => handleUpdateDonationStatus(r.id, e.target.value as any)}
+                                  className="p-0.5 px-1 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[9px] text-slate-600 dark:text-slate-300 focus:outline-none"
+                                  title="Alterar status manualmente"
+                                >
+                                  <option value="AGUARDANDO VALIDAÇÃO">Aguardando Validação</option>
+                                  <option value="EM ANÁLISE">Em Análise</option>
+                                  <option value="APROVADA">Aprovada</option>
+                                  <option value="REJEITADA">Rejeitada</option>
+                                </select>
+                              </div>
+
+                              {/* Ações de Validação / Aceitação / Rejeição */}
+                              <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                                {r.donationStatus !== 'APROVADA' ? (
                                   <button
                                     onClick={() => handleApproveDonation(r.id)}
-                                    className="px-2 py-0.5 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white text-[8px] font-bold flex items-center gap-0.5 transition-colors"
-                                    title="Aprovar"
+                                    className="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] font-bold flex items-center gap-1 shadow-sm transition-all"
+                                    title={r.donationStatus === 'REJEITADA' ? 'Aceitar inscrição novamente' : 'Validar e Aprovar Inscrição'}
                                   >
-                                    <Check className="h-3 w-3" /> Validar
+                                    <Check className="h-3 w-3" />
+                                    {r.donationStatus === 'REJEITADA' ? 'Aceitar Novamente' : 'Validar Inscrição'}
                                   </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleSetInAnalysis(r.id)}
+                                    className="text-[9px] text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 underline font-medium transition-colors"
+                                    title="Reabrir / Mover para Em Análise"
+                                  >
+                                    Reabrir Análise
+                                  </button>
+                                )}
+
+                                {r.donationStatus !== 'REJEITADA' && (
                                   <button
                                     onClick={() => handleRejectDonation(r.id)}
-                                    className="px-2 py-0.5 rounded-md bg-red-500 hover:bg-red-650 text-white text-[8px] font-bold flex items-center gap-0.5 transition-colors"
-                                    title="Rejeitar"
+                                    className="px-2 py-1 rounded-md bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-950/60 dark:text-red-300 dark:hover:bg-red-900 text-[9px] font-bold flex items-center gap-0.5 transition-colors"
+                                    title="Rejeitar Comprovante"
                                   >
-                                    <X className="h-3 w-3" /> Rejeitar
+                                    <X className="h-2.5 w-2.5" /> Rejeitar
                                   </button>
-                                </div>
-                              )}
+                                )}
+
+                                {r.donationStatus === 'AGUARDANDO VALIDAÇÃO' && (
+                                  <button
+                                    onClick={() => handleSetInAnalysis(r.id)}
+                                    className="px-1.5 py-1 rounded-md bg-amber-100 hover:bg-amber-200 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 text-[9px] font-bold flex items-center gap-0.5 transition-colors"
+                                    title="Marcar como Em Análise"
+                                  >
+                                    Em Análise
+                                  </button>
+                                )}
+                              </div>
+
                               {r.donationReceipt && (
                                 <button
                                   onClick={() => handleOpenReceipt(r)}
                                   disabled={isLoadingReceipt}
-                                  className="text-[9px] text-blue-500 hover:text-blue-700 font-semibold flex items-center gap-0.5 mt-1 disabled:opacity-50"
+                                  className="text-[9px] text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold flex items-center gap-0.5 mt-0.5 disabled:opacity-50"
                                 >
                                   <Eye className="h-3 w-3" /> Ver comprovante
                                 </button>
@@ -2028,17 +2104,46 @@ export default function AdminDashboard() {
 
       {/* COMPROVANTE VIEWER MODAL */}
       {viewReceiptUrl && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-950 max-w-lg w-full rounded-3xl p-6 border border-slate-200 dark:border-slate-850 shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-950 max-w-lg w-full rounded-3xl p-6 border border-slate-200 dark:border-slate-850 shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200 my-auto">
             <button
-              onClick={() => setViewReceiptUrl(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-400 hover:text-slate-605 transition-colors"
+              onClick={() => { setViewReceiptUrl(null); setViewReceiptReg(null); }}
+              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-400 hover:text-slate-600 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white font-poppins mb-4">Comprovante de Doação</h3>
             
-            <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-2xl flex items-center justify-center max-h-[350px] overflow-auto border border-slate-200 dark:border-slate-800">
+            <div className="text-left mb-3">
+              <span className="text-[10px] font-bold text-primary-blue dark:text-blue-400 uppercase tracking-wider block">Conferência de Pagamento / Doação</span>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white font-poppins">Comprovante de Doação</h3>
+            </div>
+
+            {/* Participant Quick Info */}
+            {viewReceiptReg && (
+              <div className="bg-slate-50 dark:bg-slate-900/90 p-3 rounded-2xl border border-slate-150 dark:border-slate-850 mb-3 text-left grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Tutor & Inscrição</span>
+                  <strong className="text-slate-900 dark:text-white block text-[11px] truncate">{viewReceiptReg.tutorName}</strong>
+                  <span className="text-[10px] font-mono text-slate-500 block">{viewReceiptReg.regNumber} • {viewReceiptReg.petName} 🐾</span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Valor & Status</span>
+                  <strong className="text-slate-900 dark:text-white block text-[11px]">R$ {viewReceiptReg.donationValue.toFixed(2)}</strong>
+                  <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-bold mt-0.5 ${
+                    viewReceiptReg.donationStatus === 'APROVADA'
+                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+                      : viewReceiptReg.donationStatus === 'REJEITADA'
+                        ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300'
+                        : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
+                  }`}>
+                    {viewReceiptReg.donationStatus}
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            {/* Receipt Preview Area */}
+            <div className="bg-slate-100 dark:bg-slate-900 p-3 rounded-2xl flex items-center justify-center max-h-[360px] overflow-auto border border-slate-200 dark:border-slate-800">
               {viewReceiptUrl.startsWith('data:application/pdf') ? (
                 <div className="flex flex-col items-center gap-3 py-10">
                   <FileText className="h-16 w-16 text-slate-450" />
@@ -2049,6 +2154,63 @@ export default function AdminDashboard() {
                 <img src={viewReceiptUrl} alt="Comprovante de pagamento" className="max-w-full h-auto object-contain rounded-lg" />
               )}
             </div>
+
+            {/* Modal Actions */}
+            {viewReceiptReg && (
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-900 flex flex-wrap gap-2 justify-end">
+                {viewReceiptReg.donationStatus !== 'APROVADA' ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleApproveDonation(viewReceiptReg.id);
+                      setViewReceiptReg(prev => prev ? { ...prev, donationStatus: 'APROVADA', statusPayment: 'Aprovado', statusKit: 'Liberado' } : null);
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition-all"
+                  >
+                    <Check className="h-4 w-4" />
+                    {viewReceiptReg.donationStatus === 'REJEITADA' ? 'Aceitar Inscrição Novamente' : 'Validar Inscrição'}
+                  </button>
+                ) : (
+                  <div className="flex-1 py-2 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-1">
+                    <Check className="h-4 w-4" /> Inscrição Validada
+                  </div>
+                )}
+
+                {viewReceiptReg.donationStatus !== 'REJEITADA' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleRejectDonation(viewReceiptReg.id);
+                      setViewReceiptReg(prev => prev ? { ...prev, donationStatus: 'REJEITADA', statusPayment: 'Pendente', statusKit: 'Aguardando' } : null);
+                    }}
+                    className="py-2.5 px-3 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-950/60 dark:text-red-300 text-xs font-bold flex items-center justify-center gap-1 transition-colors"
+                  >
+                    <X className="h-4 w-4" /> Rejeitar
+                  </button>
+                )}
+
+                {viewReceiptReg.donationStatus !== 'EM ANÁLISE' && viewReceiptReg.donationStatus !== 'AGUARDANDO VALIDAÇÃO' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSetInAnalysis(viewReceiptReg.id);
+                      setViewReceiptReg(prev => prev ? { ...prev, donationStatus: 'EM ANÁLISE', statusPayment: 'Pendente' } : null);
+                    }}
+                    className="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 text-xs font-bold transition-colors"
+                  >
+                    Em Análise
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => { setViewReceiptUrl(null); setViewReceiptReg(null); }}
+                  className="py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
