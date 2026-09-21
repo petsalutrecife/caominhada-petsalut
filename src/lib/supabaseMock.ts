@@ -656,14 +656,16 @@ class SupabaseMockClient {
     this.isCurrentlySyncing = true;
     this.notifyStatus(true);
     try {
-      // Query registrations, institutions and sponsors from Supabase com timeout protetor de 4.5s
+      // Consulta ultra rápida e otimizada (sem carregar dezenas de megabytes de fotos/comprovantes a cada segundo)
+      const LIGHT_REG_COLUMNS = 'id, tutor_name, tutor_cpf, tutor_birth_date, tutor_phone, tutor_whats_app, tutor_email, tutor_city, tutor_state, pet_name, pet_species, pet_breed, pet_size, pet_age, selected_institution, donation_value, donation_status, rejection_reason, notes, reg_number, status_payment, status_kit, created_at, qr_code';
+
       const queryPromise = Promise.all([
         supabase.from('institutions').select('*'),
-        supabase.from('registrations').select('*').order('created_at', { ascending: false }),
+        supabase.from('registrations').select(LIGHT_REG_COLUMNS).order('created_at', { ascending: false }),
         supabase.from('sponsors').select('*').order('created_at', { ascending: true })
       ]);
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Sync timeout')), 4500)
+        setTimeout(() => reject(new Error('Sync timeout')), 5000)
       );
 
       const [instResult, regResult, spResult] = await Promise.race([queryPromise, timeoutPromise]) as any;
@@ -698,11 +700,13 @@ class SupabaseMockClient {
       if (regResult?.error) {
         console.error('❌ Erro retornado pelo Supabase na tabela registrations (verifique RLS no Supabase):', regResult.error);
       } else if (regData) {
-        console.log(`✅ Supabase sincronizado com sucesso! ${regData.length} inscrições carregadas do banco.`);
+        console.log(`✅ Supabase sincronizado com sucesso! ${regData.length} inscrições carregadas do banco em alta velocidade.`);
         this.registrations = regData.map((db: any) => {
           const item = mapDbToRegistration(db);
           if (this.receiptCache.has(item.id)) {
             item.donationReceipt = this.receiptCache.get(item.id);
+          } else if (item.donationValue > 0 || item.donationStatus) {
+            item.donationReceipt = '[receipt_uploaded]';
           }
           if (this.photoCache.has(item.id)) {
             item.petPhoto = this.photoCache.get(item.id);
