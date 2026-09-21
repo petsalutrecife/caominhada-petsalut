@@ -136,6 +136,7 @@ export default function AdminDashboard() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [manualRefreshSpin, setManualRefreshSpin] = useState(false);
+  const [sortRegOrder, setSortRegOrder] = useState<'asc' | 'desc'>('asc');
 
   const refreshData = () => {
     setRegistrations([...supabaseMock.getRegistrations()]);
@@ -747,7 +748,14 @@ export default function AdminDashboard() {
     let y = 40;
     doc.setTextColor(30, 41, 59);
     
-    registrations.forEach((r, idx) => {
+    // Ordenar participantes por número de inscrição crescente (1, 2, 3...)
+    const sortedForPdf = [...registrations].sort((a, b) => {
+      const numA = parseInt(a.regNumber?.replace(/\D/g, '') || '0', 10);
+      const numB = parseInt(b.regNumber?.replace(/\D/g, '') || '0', 10);
+      return numA - numB;
+    });
+
+    sortedForPdf.forEach((r, idx) => {
       if (y > 270) {
         doc.addPage();
         y = 20;
@@ -843,25 +851,34 @@ export default function AdminDashboard() {
 
   const getInstName = (instId: string) => institutions.find(i => i.id === instId)?.name || 'N/A';
 
-  const filteredRegistrations = registrations.filter(r => {
-    const matchesSearch = 
-      (r.tutorName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (r.petName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (r.regNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (r.tutorCpf || '').includes(searchQuery);
+  const filteredRegistrations = registrations
+    .filter(r => {
+      const matchesSearch = 
+        (r.tutorName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (r.petName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (r.regNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (r.tutorCpf || '').includes(searchQuery);
 
-    const matchesPayment = filterPayment === 'All' || r.statusPayment === filterPayment;
-    const matchesKit = filterKit === 'All' || r.statusKit === filterKit;
-    const matchesDonation = filterDonation === 'All' || r.donationStatus === filterDonation;
-    const matchesInstitution = filterInstitution === 'All' || r.selectedInstitution === filterInstitution;
-    const matchesPickup = filterPickup === 'All' || (
-      filterPickup === 'Zona Sul' ? (r.notes || '').includes('Zona Sul') :
-      filterPickup === 'Zona Norte' ? (r.notes || '').includes('Zona Norte') :
-      filterPickup === 'Não Informado' ? (!r.notes || (!r.notes.includes('Zona Sul') && !r.notes.includes('Zona Norte'))) : true
-    );
+      const matchesPayment = filterPayment === 'All' || r.statusPayment === filterPayment;
+      const matchesKit = filterKit === 'All' || r.statusKit === filterKit;
+      const matchesDonation = filterDonation === 'All' || r.donationStatus === filterDonation;
+      const matchesInstitution = filterInstitution === 'All' || r.selectedInstitution === filterInstitution;
+      const matchesPickup = filterPickup === 'All' || (
+        filterPickup === 'Zona Sul' ? (r.notes || '').includes('Zona Sul') :
+        filterPickup === 'Zona Norte' ? (r.notes || '').includes('Zona Norte') :
+        filterPickup === 'Não Informado' ? (!r.notes || (!r.notes.includes('Zona Sul') && !r.notes.includes('Zona Norte'))) : true
+      );
 
-    return matchesSearch && matchesPayment && matchesKit && matchesPickup && matchesDonation && matchesInstitution;
-  });
+      return matchesSearch && matchesPayment && matchesKit && matchesPickup && matchesDonation && matchesInstitution;
+    })
+    .sort((a, b) => {
+      const numA = parseInt(a.regNumber?.replace(/\D/g, '') || '0', 10);
+      const numB = parseInt(b.regNumber?.replace(/\D/g, '') || '0', 10);
+      if (numA !== numB) {
+        return sortRegOrder === 'asc' ? numA - numB : numB - numA;
+      }
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
@@ -1261,7 +1278,18 @@ export default function AdminDashboard() {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-850 text-slate-400 uppercase font-bold">
-                        <th className="p-4">Nº Inscrição</th>
+                        <th 
+                          className="p-4 cursor-pointer hover:text-slate-900 dark:hover:text-white select-none transition-colors group"
+                          onClick={() => setSortRegOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                          title="Clique para alternar entre ordem crescente e decrescente"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span>Nº Inscrição</span>
+                            <span className="text-[11px] font-bold text-[#003A8C] dark:text-[#8DC63F] group-hover:scale-110 transition-transform">
+                              {sortRegOrder === 'asc' ? '▲ (1→37)' : '▼ (37→1)'}
+                            </span>
+                          </div>
+                        </th>
                         <th className="p-4">Tutor</th>
                         <th className="p-4">Pet</th>
                         <th className="p-4">Instituição</th>

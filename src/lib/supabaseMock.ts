@@ -889,19 +889,46 @@ class SupabaseMockClient {
     return [];
   }
 
-  async saveRegistrationAsync(reg: Omit<Registration, 'id' | 'createdAt' | 'regNumber' | 'qrCode'>): Promise<Registration> {
-    let count = this.getRegistrations().length + 1;
-    try {
-      const countPromise = supabase.from('registrations').select('*', { count: 'exact', head: true });
-      const timeoutCount = new Promise((_, reject) => setTimeout(() => reject(new Error('count timeout')), 2000));
-      const { count: serverCount } = await Promise.race([countPromise, timeoutCount]) as any;
-      if (serverCount !== null && serverCount !== undefined) {
-        count = serverCount + 1;
-      }
-    } catch {}
+  private async getNextSequentialNumber(): Promise<string> {
+    let maxNum = 0;
 
-    const formattedCount = String(count).padStart(4, '0');
-    const regNumber = `PET-2026-${formattedCount}`;
+    // 1. Vasculhar inscrições carregadas localmente
+    const localList = this.getRegistrations();
+    localList.forEach(r => {
+      const match = r.regNumber?.match(/PET-2026-(\d+)/i);
+      if (match) {
+        const val = parseInt(match[1], 10);
+        if (!isNaN(val) && val > maxNum) maxNum = val;
+      }
+    });
+
+    // 2. Consultar os números mais recentes diretamente no Supabase para garantir precisão
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('reg_number')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (!error && data && data.length > 0) {
+        data.forEach((item: any) => {
+          const match = item.reg_number?.match(/PET-2026-(\d+)/i);
+          if (match) {
+            const val = parseInt(match[1], 10);
+            if (!isNaN(val) && val > maxNum) maxNum = val;
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('Erro ao consultar sequencial do Supabase:', e);
+    }
+
+    const nextSeq = maxNum + 1;
+    return `PET-2026-${String(nextSeq).padStart(4, '0')}`;
+  }
+
+  async saveRegistrationAsync(reg: Omit<Registration, 'id' | 'createdAt' | 'regNumber' | 'qrCode'>): Promise<Registration> {
+    const regNumber = await this.getNextSequentialNumber();
     const newId = `reg-${Date.now()}`;
 
     const newReg: Registration = {
@@ -952,10 +979,16 @@ class SupabaseMockClient {
   }
 
   saveRegistration(reg: Omit<Registration, 'id' | 'createdAt' | 'regNumber' | 'qrCode'>): Registration {
+    let maxNum = 0;
     const list = this.getRegistrations();
-    const count = list.length + 1;
-    const formattedCount = String(count).padStart(4, '0');
-    const regNumber = `PET-2026-${formattedCount}`;
+    list.forEach(r => {
+      const match = r.regNumber?.match(/PET-2026-(\d+)/i);
+      if (match) {
+        const val = parseInt(match[1], 10);
+        if (!isNaN(val) && val > maxNum) maxNum = val;
+      }
+    });
+    const regNumber = `PET-2026-${String(maxNum + 1).padStart(4, '0')}`;
     const newId = `reg-${Date.now()}`;
     
     const newReg: Registration = {
