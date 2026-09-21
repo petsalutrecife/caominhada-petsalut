@@ -695,7 +695,10 @@ class SupabaseMockClient {
       }
 
       const regData = regResult?.data;
-      if (regData && !regResult?.error) {
+      if (regResult?.error) {
+        console.error('❌ Erro retornado pelo Supabase na tabela registrations (verifique RLS no Supabase):', regResult.error);
+      } else if (regData) {
+        console.log(`✅ Supabase sincronizado com sucesso! ${regData.length} inscrições carregadas do banco.`);
         this.registrations = regData.map((db: any) => {
           const item = mapDbToRegistration(db);
           if (this.receiptCache.has(item.id)) {
