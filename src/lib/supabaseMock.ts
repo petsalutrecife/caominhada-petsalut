@@ -560,19 +560,19 @@ class SupabaseMockClient {
       console.warn('Supabase Realtime subscription could not be created:', err);
     }
 
-    // Fast Polling ativo (a cada 3.5s enquanto o usuário está na tela) para garantir
-    // tempo real imediato mesmo se o WebSocket não estiver com publication configurada
+    // Polling inteligente e econômico (a cada 8s) para poupar Disk I/O do Supabase,
+    // garantindo tempo real conjunto com o WebSocket e atualização instantânea por clique/foco
     setInterval(() => {
       if (typeof document !== 'undefined' && document.hidden) return;
       this.syncFromSupabase(false);
-    }, 3500);
+    }, 8000);
 
-    // Polling em background espaçado (a cada 12s se a aba estiver minimizada)
+    // Polling em background espaçado (a cada 25s se a aba estiver minimizada)
     setInterval(() => {
       if (typeof document !== 'undefined' && document.hidden) {
         this.syncFromSupabase(false);
       }
-    }, 12000);
+    }, 25000);
 
     // Sincronização inicial imediata com o servidor
     this.syncFromSupabase(true);
