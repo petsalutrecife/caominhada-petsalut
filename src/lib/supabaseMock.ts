@@ -429,6 +429,7 @@ class SupabaseMockClient {
   private receiptCache: Map<string, string> = new Map();
   private photoCache: Map<string, string> = new Map();
   private listeners: Set<() => void> = new Set();
+  private statusListeners: Set<(syncing: boolean, lastSync: Date | null) => void> = new Set();
   private isInitialSyncDone: boolean = false;
   private broadcastChannel: BroadcastChannel | null = null;
   private realtimeChannel: any = null;
@@ -450,19 +451,64 @@ class SupabaseMockClient {
     }
   }
 
+  loadFromLocalStorage(): void {
+    if (typeof window === 'undefined') return;
+    const storedRegs = this.getStorage<Registration>('ps_registrations', []);
+    if (storedRegs.length > 0) {
+      this.registrations = storedRegs;
+    }
+    const storedInsts = this.getStorage<Institution>('ps_institutions', []);
+    if (storedInsts.length > 0) {
+      this.institutions = storedInsts;
+    }
+    const storedSponsors = this.getStorage<Sponsor>('ps_sponsors', []);
+    if (storedSponsors.length > 0) {
+      this.sponsors = storedSponsors;
+    }
+  }
+
+  private notifyStatus(syncing: boolean) {
+    const lastDate = this.lastSyncTimestamp ? new Date(this.lastSyncTimestamp) : null;
+    this.statusListeners.forEach((fn) => {
+      try {
+        fn(syncing, lastDate);
+      } catch (e) {
+        console.error('Error in status listener:', e);
+      }
+    });
+  }
+
+  onSyncStatus(listener: (syncing: boolean, lastSync: Date | null) => void): () => void {
+    this.statusListeners.add(listener);
+    const lastDate = this.lastSyncTimestamp ? new Date(this.lastSyncTimestamp) : null;
+    listener(this.isCurrentlySyncing, lastDate);
+    return () => {
+      this.statusListeners.delete(listener);
+    };
+  }
+
   private initRealtime() {
     if (typeof window === 'undefined') return;
     this.purgeStaleCacheIfNeeded();
     if (this.realtimeInitialized) return;
     this.realtimeInitialized = true;
 
-    // Cross-tab sync via BroadcastChannel
+    // Carga inicial ultra rápida da memória local
+    this.loadFromLocalStorage();
+
+    const handleLocalUpdate = () => {
+      this.loadFromLocalStorage();
+      this.notifyListeners(false);
+      this.syncFromSupabase(true);
+    };
+
+    // Cross-tab sync via BroadcastChannel (mesmo navegador, abas diferentes)
     try {
       if ('BroadcastChannel' in window) {
         this.broadcastChannel = new BroadcastChannel('caominhada_sync_channel');
         this.broadcastChannel.onmessage = (event) => {
           if (event.data?.type === 'DATA_UPDATED') {
-            this.syncFromSupabase(true);
+            handleLocalUpdate();
           }
         };
       }
@@ -470,26 +516,34 @@ class SupabaseMockClient {
       console.warn('BroadcastChannel not available:', e);
     }
 
-    // Storage event for fallback cross-tab updates
+    // Storage event como fallback de sincronização entre abas
     window.addEventListener('storage', (e) => {
       if (e.key && e.key.startsWith('ps_')) {
-        this.syncFromSupabase(true);
+        handleLocalUpdate();
       }
     });
 
-    // Window focus auto-sync
+    // Ao focar na janela ou voltar para a aba, forçar sincronização imediata
     window.addEventListener('focus', () => {
       this.syncFromSupabase(true);
     });
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          this.syncFromSupabase(true);
+        }
+      });
+    }
 
     const triggerDebouncedSync = () => {
       if (this.realtimeDebounceTimer) clearTimeout(this.realtimeDebounceTimer);
       this.realtimeDebounceTimer = setTimeout(() => {
         this.syncFromSupabase(true);
-      }, 200);
+      }, 150);
     };
 
-    // Supabase Realtime Channel Subscription (Event-driven)
+    // Supabase Realtime Channel Subscription (Event-driven WebSocket)
     try {
       this.realtimeChannel = supabase
         .channel('caominhada-db-changes')
@@ -497,17 +551,30 @@ class SupabaseMockClient {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'institutions' }, triggerDebouncedSync)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sponsors' }, triggerDebouncedSync)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, triggerDebouncedSync)
-        .subscribe();
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            console.log('⚡ Supabase Realtime conectado com sucesso!');
+          }
+        });
     } catch (err) {
       console.warn('Supabase Realtime subscription could not be created:', err);
     }
 
-    // Light polling fallback every 15 seconds to ensure live sync across all tabs
+    // Fast Polling ativo (a cada 3.5s enquanto o usuário está na tela) para garantir
+    // tempo real imediato mesmo se o WebSocket não estiver com publication configurada
     setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       this.syncFromSupabase(false);
-    }, 15000);
+    }, 3500);
 
-    // Immediate initial sync
+    // Polling em background espaçado (a cada 12s se a aba estiver minimizada)
+    setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) {
+        this.syncFromSupabase(false);
+      }
+    }, 12000);
+
+    // Sincronização inicial imediata com o servidor
     this.syncFromSupabase(true);
   }
 
@@ -520,7 +587,7 @@ class SupabaseMockClient {
     };
   }
 
-  notifyListeners(): void {
+  notifyListeners(broadcast: boolean = true): void {
     this.listeners.forEach((fn) => {
       try {
         fn();
@@ -529,7 +596,7 @@ class SupabaseMockClient {
       }
     });
 
-    if (this.broadcastChannel) {
+    if (broadcast && this.broadcastChannel) {
       try {
         this.broadcastChannel.postMessage({ type: 'DATA_UPDATED', timestamp: Date.now() });
       } catch {}
@@ -584,18 +651,24 @@ class SupabaseMockClient {
   async syncFromSupabase(force: boolean = false) {
     if (this.isCurrentlySyncing && !force) return;
     const now = Date.now();
-    if (!force && now - this.lastSyncTimestamp < 1500) return;
+    if (!force && now - this.lastSyncTimestamp < 2000) return;
 
     this.isCurrentlySyncing = true;
+    this.notifyStatus(true);
     try {
-      // Query registrations, institutions and sponsors from Supabase
-      const [instResult, regResult, spResult] = await Promise.all([
+      // Query registrations, institutions and sponsors from Supabase com timeout protetor de 4.5s
+      const queryPromise = Promise.all([
         supabase.from('institutions').select('*'),
         supabase.from('registrations').select('*').order('created_at', { ascending: false }),
         supabase.from('sponsors').select('*').order('created_at', { ascending: true })
       ]);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Sync timeout')), 4500)
+      );
 
-      const instData = instResult.data;
+      const [instResult, regResult, spResult] = await Promise.race([queryPromise, timeoutPromise]) as any;
+
+      const instData = instResult?.data;
       if (instData && instData.length > 0) {
         this.institutions = instData.map(mapDbToInstitution);
         this.setStorage('ps_institutions', this.institutions);
@@ -604,11 +677,11 @@ class SupabaseMockClient {
         this.setStorage('ps_institutions', initialInstitutions);
       }
 
-      const spData = spResult.data;
+      const spData = spResult?.data;
       if (spData && spData.length > 0) {
         this.sponsors = spData.map(mapDbToSponsor);
         this.setStorage('ps_sponsors', this.sponsors);
-      } else if (!spResult.error && (!spData || spData.length === 0)) {
+      } else if (!spResult?.error && (!spData || spData.length === 0)) {
         // Table exists in Supabase but is empty -> auto-seed current/initial sponsors
         const localSponsors = this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
         const seedList = localSponsors.length > 0 ? localSponsors : initialSponsors;
@@ -621,9 +694,9 @@ class SupabaseMockClient {
         this.sponsors = this.getStorage<Sponsor>('ps_sponsors', initialSponsors);
       }
 
-      const regData = regResult.data;
-      if (regData && !regResult.error) {
-        this.registrations = regData.map(db => {
+      const regData = regResult?.data;
+      if (regData && !regResult?.error) {
+        this.registrations = regData.map((db: any) => {
           const item = mapDbToRegistration(db);
           if (this.receiptCache.has(item.id)) {
             item.donationReceipt = this.receiptCache.get(item.id);
@@ -638,19 +711,26 @@ class SupabaseMockClient {
 
       this.isInitialSyncDone = true;
       this.lastSyncTimestamp = Date.now();
-      this.notifyListeners();
+      this.notifyListeners(false);
     } catch (err) {
-      console.error('Error syncing with Supabase:', err);
+      console.warn('Sync note:', err);
       if (this.institutions.length === 0) {
         this.institutions = initialInstitutions;
         this.setStorage('ps_institutions', initialInstitutions);
       }
       this.isInitialSyncDone = true;
       this.lastSyncTimestamp = Date.now();
-      this.notifyListeners();
+      this.notifyListeners(false);
     } finally {
       this.isCurrentlySyncing = false;
+      this.notifyStatus(false);
     }
+  }
+
+  async forceSync(): Promise<void> {
+    this.loadFromLocalStorage();
+    this.notifyListeners(false);
+    await this.syncFromSupabase(true);
   }
 
   // Helper to fetch receipt on-demand (e.g. for modal viewing)
@@ -719,7 +799,7 @@ class SupabaseMockClient {
         this.setStorage('ps_institutions', initialInstitutions);
       }
     }
-    // Ensure email & password defaults are present for all institutions
+    // Ensure email & password defaults are present for all institutions and return fresh array copy
     return list.map(inst => {
       const fallback = initialInstitutions.find(init => init.id === inst.id);
       return {
@@ -739,10 +819,11 @@ class SupabaseMockClient {
       totalDonations: inst.totalDonations || 0
     };
 
-    // Synchronous optimistic update
-    this.institutions.push(newInst);
+    // Synchronous optimistic update with new array reference
+    const currentList = this.getInstitutions();
+    this.institutions = [...currentList, newInst];
     this.setStorage('ps_institutions', this.institutions);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Async server insert
     supabase.from('institutions').insert([mapInstitutionToDb(newInst)]).then(({ error }) => {
@@ -758,11 +839,12 @@ class SupabaseMockClient {
     if (idx === -1) throw new Error('Institution not found');
     const updated = { ...list[idx], ...updates };
 
-    // Synchronous optimistic update
-    list[idx] = updated;
-    this.institutions = list;
+    // Synchronous optimistic update with new array reference
+    const newList = [...list];
+    newList[idx] = updated;
+    this.institutions = newList;
     this.setStorage('ps_institutions', this.institutions);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Async server update
     supabase.from('institutions').update(mapInstitutionToDb(updates)).eq('id', id).then(({ error }) => {
@@ -776,10 +858,10 @@ class SupabaseMockClient {
     const list = this.getInstitutions();
     const filtered = list.filter(i => i.id !== id);
 
-    // Synchronous optimistic update
-    this.institutions = filtered;
+    // Synchronous optimistic update with new array reference
+    this.institutions = [...filtered];
     this.setStorage('ps_institutions', this.institutions);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Async server delete
     supabase.from('institutions').delete().eq('id', id).then(({ error }) => {
@@ -791,11 +873,11 @@ class SupabaseMockClient {
 
   getRegistrations(): Registration[] {
     this.initRealtime();
-    if (this.registrations.length > 0) return this.registrations;
+    if (this.registrations.length > 0) return [...this.registrations];
     const stored = this.getStorage<Registration>('ps_registrations', []);
     if (stored.length > 0) {
       this.registrations = stored;
-      return stored;
+      return [...stored];
     }
     return [];
   }
@@ -837,11 +919,10 @@ class SupabaseMockClient {
       petPhoto: newReg.petPhoto ? '[photo_uploaded]' : undefined,
     };
 
-    // Atualização otimista e síncrona imediata
-    list.unshift(regForStorage);
-    this.registrations = list;
+    // Atualização otimista e síncrona imediata com nova referência de array
+    this.registrations = [regForStorage, ...list];
     this.setStorage('ps_registrations', this.registrations);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Inserção no Supabase com timeout de segurança (não trava a tela se a rede oscilar)
     try {
@@ -891,10 +972,9 @@ class SupabaseMockClient {
       petPhoto: newReg.petPhoto ? '[photo_uploaded]' : undefined,
     };
 
-    list.unshift(regForStorage);
-    this.registrations = list;
+    this.registrations = [regForStorage, ...list];
     this.setStorage('ps_registrations', this.registrations);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     supabase.from('registrations').insert([mapRegistrationToDb(newReg)]).then(({ error }) => {
       if (error) {
@@ -922,11 +1002,12 @@ class SupabaseMockClient {
     const updated = { ...list[idx], ...updates };
     updated.qrCode = `${updated.regNumber}|${updated.tutorName}|${updated.petName}|${updated.statusPayment}`;
     
-    // Synchronous optimistic update
-    list[idx] = updated;
-    this.registrations = list;
+    // Synchronous optimistic update com nova referência de array
+    const newList = [...list];
+    newList[idx] = updated;
+    this.registrations = newList;
     this.setStorage('ps_registrations', this.registrations);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Async server update
     supabase.from('registrations').update(mapRegistrationToDb(updates)).eq('id', id).then(({ error }) => {
@@ -944,10 +1025,10 @@ class SupabaseMockClient {
     const list = this.getRegistrations();
     const filtered = list.filter(r => r.id !== id);
 
-    // Synchronous optimistic update
-    this.registrations = filtered;
+    // Synchronous optimistic update com nova referência
+    this.registrations = [...filtered];
     this.setStorage('ps_registrations', this.registrations);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Async server delete
     supabase.from('registrations').delete().eq('id', id).then(({ error }) => {
@@ -973,7 +1054,7 @@ class SupabaseMockClient {
         this.setStorage('ps_sponsors', initialSponsors);
       }
     }
-    return list;
+    return [...list];
   }
 
   saveSponsor(sponsor: Omit<Sponsor, 'id'>): Sponsor {
@@ -984,10 +1065,9 @@ class SupabaseMockClient {
     };
 
     const list = this.getSponsors();
-    list.push(newSponsor);
-    this.sponsors = list;
+    this.sponsors = [...list, newSponsor];
     this.setStorage('ps_sponsors', this.sponsors);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Async server insert
     supabase.from('sponsors').insert([mapSponsorToDb(newSponsor)]).then(({ error }) => {
@@ -1007,10 +1087,11 @@ class SupabaseMockClient {
     if (idx === -1) throw new Error('Sponsor not found');
     const updated = { ...list[idx], ...updates };
 
-    list[idx] = updated;
-    this.sponsors = list;
+    const newList = [...list];
+    newList[idx] = updated;
+    this.sponsors = newList;
     this.setStorage('ps_sponsors', this.sponsors);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Async server upsert
     supabase.from('sponsors').upsert(mapSponsorToDb(updated)).then(({ error }) => {
@@ -1028,9 +1109,9 @@ class SupabaseMockClient {
     const list = this.getSponsors();
     const filtered = list.filter(s => s.id !== id);
 
-    this.sponsors = filtered;
+    this.sponsors = [...filtered];
     this.setStorage('ps_sponsors', this.sponsors);
-    this.notifyListeners();
+    this.notifyListeners(true);
 
     // Async server delete
     supabase.from('sponsors').delete().eq('id', id).then(({ error }) => {
@@ -1042,10 +1123,10 @@ class SupabaseMockClient {
     });
   }
 
-  // --- Expenses API (LocalStorage) ---
+  // --- Expenses API (LocalStorage & Cross-Tab) ---
 
   getExpenses(): Expense[] {
-    return this.getStorage<Expense>('ps_expenses', initialExpenses);
+    return [...this.getStorage<Expense>('ps_expenses', initialExpenses)];
   }
 
   saveExpense(expense: Omit<Expense, 'id'>): Expense {
@@ -1054,8 +1135,9 @@ class SupabaseMockClient {
       ...expense,
       id: `ex-${Date.now()}`
     };
-    list.push(newExpense);
-    this.setStorage('ps_expenses', list);
+    const newList = [...list, newExpense];
+    this.setStorage('ps_expenses', newList);
+    this.notifyListeners(true);
     return newExpense;
   }
 
@@ -1063,6 +1145,7 @@ class SupabaseMockClient {
     const list = this.getExpenses();
     const filtered = list.filter(e => e.id !== id);
     this.setStorage('ps_expenses', filtered);
+    this.notifyListeners(true);
   }
 
   // --- Auth & Session API ---

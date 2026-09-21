@@ -94,8 +94,8 @@ export default function QrCodeValidatorPage() {
   };
 
   const loadData = () => {
-    setRegistrations(supabaseMock.getRegistrations());
-    setInstitutions(supabaseMock.getInstitutions());
+    setRegistrations([...supabaseMock.getRegistrations()]);
+    setInstitutions([...supabaseMock.getInstitutions()]);
   };
 
   useEffect(() => {

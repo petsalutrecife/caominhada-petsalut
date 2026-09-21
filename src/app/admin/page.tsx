@@ -132,11 +132,27 @@ export default function AdminDashboard() {
   const [newExpenseValue, setNewExpenseValue] = useState(0);
   const [newExpenseDate, setNewExpenseDate] = useState(new Date().toISOString().split('T')[0]);
 
+  // Realtime Sync Status states
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [manualRefreshSpin, setManualRefreshSpin] = useState(false);
+
   const refreshData = () => {
-    setRegistrations(supabaseMock.getRegistrations());
-    setSponsors(supabaseMock.getSponsors());
-    setExpenses(supabaseMock.getExpenses());
-    setInstitutions(supabaseMock.getInstitutions());
+    setRegistrations([...supabaseMock.getRegistrations()]);
+    setSponsors([...supabaseMock.getSponsors()]);
+    setExpenses([...supabaseMock.getExpenses()]);
+    setInstitutions([...supabaseMock.getInstitutions()]);
+    setLastSyncTime(new Date());
+  };
+
+  const handleManualRefresh = async () => {
+    setManualRefreshSpin(true);
+    try {
+      await supabaseMock.forceSync();
+      refreshData();
+    } finally {
+      setTimeout(() => setManualRefreshSpin(false), 600);
+    }
   };
 
   useEffect(() => {
@@ -156,6 +172,12 @@ export default function AdminDashboard() {
       refreshData();
     });
 
+    // Escutar status de sincronização (tempo real)
+    const unsubStatus = supabaseMock.onSyncStatus((syncing, lastSync) => {
+      setIsSyncing(syncing);
+      if (lastSync) setLastSyncTime(lastSync);
+    });
+
     // Background sync from Supabase
     supabaseMock.syncFromSupabase(true).then(() => {
       refreshData();
@@ -163,6 +185,7 @@ export default function AdminDashboard() {
 
     return () => {
       unsubscribe();
+      unsubStatus();
     };
   }, []);
 
@@ -846,20 +869,48 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
         <Link href="/"><Logo /></Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* Indicador de Status em Tempo Real */}
+          <div 
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs"
+            title={lastSyncTime ? `Última sincronização com o banco: ${lastSyncTime.toLocaleTimeString('pt-BR')}` : 'Sincronização em tempo real ativa'}
+          >
+            <span className="relative flex h-2 w-2">
+              <span className={`absolute inline-flex h-full w-full rounded-full bg-emerald-400 ${isSyncing || manualRefreshSpin ? 'animate-ping opacity-75' : 'animate-ping opacity-60'}`}></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="font-semibold text-emerald-700 dark:text-emerald-300 hidden sm:inline">Tempo Real</span>
+            {lastSyncTime && (
+              <span className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 font-mono hidden md:inline">
+                {lastSyncTime.toLocaleTimeString('pt-BR')}
+              </span>
+            )}
+          </div>
+
+          {/* Botão de Atualização Manual */}
+          <button
+            onClick={handleManualRefresh}
+            disabled={isSyncing || manualRefreshSpin}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors disabled:opacity-50"
+            title="Sincronizar dados agora"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${(isSyncing || manualRefreshSpin) ? 'animate-spin text-[#003A8C] dark:text-[#8DC63F]' : ''}`} />
+            <span className="hidden sm:inline">Atualizar</span>
+          </button>
+
           <Link
             href="/validar"
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#8DC63F]/20 hover:bg-[#8DC63F]/30 text-[#003A8C] dark:text-[#8DC63F] border border-[#8DC63F]/40 transition-colors"
             title="Abrir Validador QR Code no celular ou câmera"
           >
-            <QrCode className="h-3.5 w-3.5" /> Validador QR Code
+            <QrCode className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Validador QR Code</span>
           </Link>
           <button
             onClick={handleOpenSecurityModal}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 text-[#003A8C] dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition-colors"
             title="Alterar e-mail e senha de login do administrador"
           >
-            <Key className="h-3.5 w-3.5" /> Acesso & Senha
+            <Key className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Acesso & Senha</span>
           </button>
           <ThemeToggle />
           <button
