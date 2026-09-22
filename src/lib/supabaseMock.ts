@@ -550,29 +550,30 @@ class SupabaseMockClient {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, triggerDebouncedSync)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'institutions' }, triggerDebouncedSync)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sponsors' }, triggerDebouncedSync)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, triggerDebouncedSync)
-        .subscribe((status) => {
+        .subscribe((status, err) => {
           if (status === 'SUBSCRIBED') {
             console.log('⚡ Supabase Realtime conectado com sucesso!');
+          } else if (status === 'CHANNEL_ERROR') {
+            console.warn('⚠️ Supabase Realtime aviso de canal:', err);
           }
         });
     } catch (err) {
       console.warn('Supabase Realtime subscription could not be created:', err);
     }
 
-    // Polling inteligente e econômico (a cada 8s) para poupar Disk I/O do Supabase,
-    // garantindo tempo real conjunto com o WebSocket e atualização instantânea por clique/foco
+    // Polling de segurança econômico (a cada 30s) para contingência,
+    // já que o Realtime WebSocket e os eventos de foco/visibilidade cobrem atualizações instantâneas
     setInterval(() => {
       if (typeof document !== 'undefined' && document.hidden) return;
       this.syncFromSupabase(false);
-    }, 8000);
+    }, 30000);
 
-    // Polling em background espaçado (a cada 25s se a aba estiver minimizada)
+    // Polling em background espaçado (a cada 90s se a aba estiver minimizada)
     setInterval(() => {
       if (typeof document !== 'undefined' && document.hidden) {
         this.syncFromSupabase(false);
       }
-    }, 25000);
+    }, 90000);
 
     // Sincronização inicial imediata com o servidor
     this.syncFromSupabase(true);
