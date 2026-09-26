@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { uploadMediaToStorage } from '@/lib/storageService';
+import { isStorageUrl } from '@/lib/imageCompressor';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fgzbpypmqpcthrpvywjd.supabase.co';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_u2rNfEfDo4y-MkOung-o4w_rODhzttz';
@@ -746,6 +748,11 @@ class SupabaseMockClient {
     if (this.receiptCache.has(id)) {
       return this.receiptCache.get(id) || null;
     }
+    const reg = this.registrations.find(r => r.id === id);
+    if (reg?.donationReceipt && reg.donationReceipt !== '[receipt_uploaded]') {
+      this.receiptCache.set(id, reg.donationReceipt);
+      return reg.donationReceipt;
+    }
     try {
       const { data, error } = await supabase
         .from('registrations')
@@ -755,7 +762,6 @@ class SupabaseMockClient {
 
       if (!error && data?.donation_receipt) {
         this.receiptCache.set(id, data.donation_receipt);
-        const reg = this.registrations.find(r => r.id === id);
         if (reg) reg.donationReceipt = data.donation_receipt;
         return data.donation_receipt;
       }
@@ -770,6 +776,11 @@ class SupabaseMockClient {
     if (this.photoCache.has(id)) {
       return this.photoCache.get(id) || null;
     }
+    const reg = this.registrations.find(r => r.id === id);
+    if (reg?.petPhoto && reg.petPhoto !== '[photo_uploaded]') {
+      this.photoCache.set(id, reg.petPhoto);
+      return reg.petPhoto;
+    }
     try {
       const { data, error } = await supabase
         .from('registrations')
@@ -779,7 +790,6 @@ class SupabaseMockClient {
 
       if (!error && data?.pet_photo) {
         this.photoCache.set(id, data.pet_photo);
-        const reg = this.registrations.find(r => r.id === id);
         if (reg) reg.petPhoto = data.pet_photo;
         return data.pet_photo;
       }
@@ -932,10 +942,35 @@ class SupabaseMockClient {
     const regNumber = await this.getNextSequentialNumber();
     const newId = `reg-${Date.now()}`;
 
+    // Upload pet photo and donation receipt to Supabase Storage if available
+    let resolvedPetPhoto = reg.petPhoto;
+    let resolvedReceipt = reg.donationReceipt;
+
+    try {
+      if (resolvedPetPhoto && !isStorageUrl(resolvedPetPhoto)) {
+        const uploadRes = await uploadMediaToStorage(resolvedPetPhoto, {
+          folder: 'pets',
+          identifier: `${regNumber}-pet`
+        });
+        resolvedPetPhoto = uploadRes.url;
+      }
+      if (resolvedReceipt && !isStorageUrl(resolvedReceipt)) {
+        const uploadRes = await uploadMediaToStorage(resolvedReceipt, {
+          folder: 'receipts',
+          identifier: `${regNumber}-receipt`
+        });
+        resolvedReceipt = uploadRes.url;
+      }
+    } catch (storageErr) {
+      console.warn('Storage upload fallback note:', storageErr);
+    }
+
     const newReg: Registration = {
       ...reg,
       id: newId,
       regNumber,
+      petPhoto: resolvedPetPhoto,
+      donationReceipt: resolvedReceipt,
       createdAt: new Date().toISOString(),
       qrCode: `${regNumber}|${reg.tutorName}|${reg.petName}|${reg.statusPayment}`
     };
@@ -950,8 +985,8 @@ class SupabaseMockClient {
     const list = this.getRegistrations();
     const regForStorage: Registration = {
       ...newReg,
-      donationReceipt: newReg.donationReceipt ? '[receipt_uploaded]' : undefined,
-      petPhoto: newReg.petPhoto ? '[photo_uploaded]' : undefined,
+      donationReceipt: isStorageUrl(newReg.donationReceipt) ? newReg.donationReceipt : (newReg.donationReceipt ? '[receipt_uploaded]' : undefined),
+      petPhoto: isStorageUrl(newReg.petPhoto) ? newReg.petPhoto : (newReg.petPhoto ? '[photo_uploaded]' : undefined),
     };
 
     // Atualização otimista e síncrona imediata com nova referência de array
@@ -962,7 +997,7 @@ class SupabaseMockClient {
     // Inserção no Supabase com timeout de segurança (não trava a tela se a rede oscilar)
     try {
       const insertPromise = supabase.from('registrations').insert([mapRegistrationToDb(newReg)]);
-      const timeoutInsert = new Promise((_, reject) => setTimeout(() => reject(new Error('insert timeout')), 5000));
+      const timeoutInsert = new Promise((_, reject) => setTimeout(() => reject(new Error('insert timeout')), 8000));
       const res = await Promise.race([insertPromise, timeoutInsert]) as any;
       if (res?.error) {
         console.error('Error creating registration in Supabase:', res.error);
@@ -1050,14 +1085,37 @@ class SupabaseMockClient {
     this.setStorage('ps_registrations', this.registrations);
     this.notifyListeners(true);
 
-    // Async server update
-    supabase.from('registrations').update(mapRegistrationToDb(updates)).eq('id', id).then(({ error }) => {
-      if (error) {
-        console.error('Error updating registration in Supabase:', error);
-      } else {
-        this.syncFromSupabase(true);
+    // Async server update with Storage upload if new media was provided
+    const asyncServerUpdate = async () => {
+      const dbUpdates: Partial<Registration> = { ...updates };
+      try {
+        if (dbUpdates.petPhoto && !isStorageUrl(dbUpdates.petPhoto)) {
+          const res = await uploadMediaToStorage(dbUpdates.petPhoto, {
+            folder: 'pets',
+            identifier: `${updated.regNumber || id}-pet`
+          });
+          dbUpdates.petPhoto = res.url;
+        }
+        if (dbUpdates.donationReceipt && !isStorageUrl(dbUpdates.donationReceipt)) {
+          const res = await uploadMediaToStorage(dbUpdates.donationReceipt, {
+            folder: 'receipts',
+            identifier: `${updated.regNumber || id}-receipt`
+          });
+          dbUpdates.donationReceipt = res.url;
+        }
+      } catch (e) {
+        console.warn('Storage upload in updateRegistration note:', e);
       }
-    });
+
+      supabase.from('registrations').update(mapRegistrationToDb(dbUpdates)).eq('id', id).then(({ error }) => {
+        if (error) {
+          console.error('Error updating registration in Supabase:', error);
+        } else {
+          this.syncFromSupabase(true);
+        }
+      });
+    };
+    asyncServerUpdate();
 
     return updated;
   }
