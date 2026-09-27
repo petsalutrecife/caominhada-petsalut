@@ -7,7 +7,7 @@ import { playTickSound, playWinnerSound } from '@/lib/raffleAudio';
 import { 
   Gift, Shuffle, Sparkles, Volume2, VolumeX, MessageSquare, 
   RotateCcw, Trophy, Award, CheckCircle2, UserCheck, Trash2, 
-  Download, PawPrint, Phone, ExternalLink, Filter, Cloud, HardDrive
+  Download, PawPrint, Phone, ExternalLink, Filter, Cloud, HardDrive, RefreshCw
 } from 'lucide-react';
 
 export type { RaffleWinner };
@@ -35,6 +35,7 @@ export default function RaffleModule() {
 
   // Cloud persistence state
   const [isCloudSynced, setIsCloudSynced] = useState<boolean | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -53,6 +54,17 @@ export default function RaffleModule() {
       setIsCloudSynced(isCloud);
     });
   }, []);
+
+  const handleForceSync = async () => {
+    setIsSyncing(true);
+    try {
+      const { winners: savedList, isCloud } = await supabaseMock.getRaffleWinners();
+      setWinners(savedList);
+      setIsCloudSynced(isCloud);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Save winners history (Instant local + Async Supabase Cloud)
   const saveWinners = async (newWinner: RaffleWinner) => {
@@ -432,23 +444,35 @@ export default function RaffleModule() {
             </p>
           </div>
 
-          {winners.length > 0 && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleExportCsv}
-                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center gap-2 transition-colors"
-              >
-                <Download className="h-3.5 w-3.5" /> Exportar CSV
-              </button>
-              <button
-                onClick={handleClearHistory}
-                className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold flex items-center gap-1.5 transition-colors"
-                title="Limpar histórico"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Limpar
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleForceSync}
+              disabled={isSyncing}
+              className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+              title="Sincronizar com a nuvem Supabase"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin text-[#003A8C] dark:text-lime-400' : ''}`} />
+              <span>{isSyncing ? 'Sincronizando...' : 'Atualizar Nuvem'}</span>
+            </button>
+
+            {winners.length > 0 && (
+              <>
+                <button
+                  onClick={handleExportCsv}
+                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  <Download className="h-3.5 w-3.5" /> Exportar CSV
+                </button>
+                <button
+                  onClick={handleClearHistory}
+                  className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Limpar histórico"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Limpar
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {winners.length === 0 ? (

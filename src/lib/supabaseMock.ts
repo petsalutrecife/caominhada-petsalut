@@ -1387,8 +1387,24 @@ class SupabaseMockClient {
 
       if (!error && data && Array.isArray(data)) {
         const cloudWinners = data.map(mapDbToRaffleWinner);
-        this.setStorage('ps_raffle_winners', cloudWinners);
-        return { winners: cloudWinners, isCloud: true };
+
+        // Auto-sync: if user had winners stored locally before creating table in Supabase, upload them now
+        const missingInCloud = local.filter(l => !cloudWinners.some(c => c.id === l.id));
+        if (missingInCloud.length > 0) {
+          try {
+            await supabase.from('raffle_winners').upsert(missingInCloud.map(mapRaffleWinnerToDb), { onConflict: 'id' });
+          } catch {}
+        }
+
+        // Merge uniquely
+        const mergedMap = new Map<string, RaffleWinner>();
+        [...cloudWinners, ...local].forEach(w => {
+          if (!mergedMap.has(w.id)) mergedMap.set(w.id, w);
+        });
+        const finalWinners = Array.from(mergedMap.values());
+
+        this.setStorage('ps_raffle_winners', finalWinners);
+        return { winners: finalWinners, isCloud: true };
       }
     } catch {
       // Table may not exist yet in Supabase SQL editor
@@ -1404,17 +1420,17 @@ class SupabaseMockClient {
     this.setStorage('ps_raffle_winners', updated);
     this.notifyListeners(true);
 
-    // 2. Asynchronous cloud persistence
+    // 2. Cloud persistence using upsert
     let isCloud = false;
     try {
       const { error } = await supabase
         .from('raffle_winners')
-        .insert([mapRaffleWinnerToDb(winner)]);
+        .upsert([mapRaffleWinnerToDb(winner)], { onConflict: 'id' });
       
       if (!error) {
         isCloud = true;
       } else {
-        console.warn('Supabase raffle_winners insert warning:', error.message);
+        console.warn('Supabase raffle_winners upsert error:', error.message);
       }
     } catch (err) {
       console.warn('Supabase raffle_winners exception:', err);

@@ -47,5 +47,26 @@ CREATE POLICY "Allow public delete on raffle_winners"
 ON public.raffle_winners FOR DELETE 
 USING (true);
 
--- 4. Notificar o PostgREST para recarregar o schema cache imediatamente
+-- 4. Criar View 'ganhadores' em português para visualização facilitada no painel
+CREATE OR REPLACE VIEW public.ganhadores AS 
+SELECT 
+  id,
+  tutor_name AS "Nome do Ganhador",
+  pet_name AS "Pet",
+  tutor_whatsapp AS "WhatsApp",
+  prize_name AS "Brinde",
+  sponsor_name AS "Patrocinador",
+  won_at AS "Horário",
+  created_at AS "Data de Criação"
+FROM public.raffle_winners;
+
+-- 5. Habilitar transmissão em Tempo Real (Realtime) se a publicação existir
+DO $$ 
+BEGIN 
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.raffle_winners; 
+EXCEPTION 
+  WHEN OTHERS THEN NULL; 
+END $$;
+
+-- 6. Notificar o PostgREST para recarregar o schema cache imediatamente
 NOTIFY pgrst, 'reload schema';
