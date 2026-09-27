@@ -80,6 +80,55 @@ export interface Expense {
   date: string;
 }
 
+export interface RaffleWinner {
+  id: string;
+  registrationId: string;
+  tutorName: string;
+  tutorPhone: string;
+  tutorWhatsApp: string;
+  petName: string;
+  petBreed?: string;
+  regNumber?: string;
+  prizeName: string;
+  sponsorName: string;
+  wonAt: string;
+  createdAt?: string;
+}
+
+function mapDbToRaffleWinner(db: any): RaffleWinner {
+  return {
+    id: db.id,
+    registrationId: db.registration_id || '',
+    tutorName: db.tutor_name || '',
+    tutorPhone: db.tutor_phone || '',
+    tutorWhatsApp: db.tutor_whatsapp || '',
+    petName: db.pet_name || '',
+    petBreed: db.pet_breed || '',
+    regNumber: db.reg_number || '',
+    prizeName: db.prize_name || '',
+    sponsorName: db.sponsor_name || '',
+    wonAt: db.won_at || '',
+    createdAt: db.created_at || ''
+  };
+}
+
+function mapRaffleWinnerToDb(w: RaffleWinner): any {
+  return {
+    id: w.id,
+    registration_id: w.registrationId,
+    tutor_name: w.tutorName,
+    tutor_phone: w.tutorPhone,
+    tutor_whatsapp: w.tutorWhatsApp,
+    pet_name: w.petName,
+    pet_breed: w.petBreed || null,
+    reg_number: w.regNumber || null,
+    prize_name: w.prizeName,
+    sponsor_name: w.sponsorName,
+    won_at: w.wonAt,
+    created_at: w.createdAt || new Date().toISOString()
+  };
+}
+
 // Helper mapping functions to support camelCase in UI and snake_case in Database
 
 function mapDbToRegistration(db: any): Registration {
@@ -1323,6 +1372,66 @@ class SupabaseMockClient {
     const filtered = list.filter(e => e.id !== id);
     this.setStorage('ps_expenses', filtered);
     this.notifyListeners(true);
+  }
+
+  // --- Raffle Winners API (Supabase Cloud + Offline-first LocalStorage) ---
+
+  async getRaffleWinners(): Promise<{ winners: RaffleWinner[]; isCloud: boolean }> {
+    const local = this.getStorage<RaffleWinner>('ps_raffle_winners', []);
+
+    try {
+      const { data, error } = await supabase
+        .from('raffle_winners')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data && Array.isArray(data)) {
+        const cloudWinners = data.map(mapDbToRaffleWinner);
+        this.setStorage('ps_raffle_winners', cloudWinners);
+        return { winners: cloudWinners, isCloud: true };
+      }
+    } catch {
+      // Table may not exist yet in Supabase SQL editor
+    }
+
+    return { winners: local, isCloud: false };
+  }
+
+  async saveRaffleWinner(winner: RaffleWinner): Promise<{ success: boolean; isCloud: boolean }> {
+    // 1. Immediate local save (0ms delay)
+    const current = this.getStorage<RaffleWinner>('ps_raffle_winners', []);
+    const updated = [winner, ...current.filter(w => w.id !== winner.id)];
+    this.setStorage('ps_raffle_winners', updated);
+    this.notifyListeners(true);
+
+    // 2. Asynchronous cloud persistence
+    let isCloud = false;
+    try {
+      const { error } = await supabase
+        .from('raffle_winners')
+        .insert([mapRaffleWinnerToDb(winner)]);
+      
+      if (!error) {
+        isCloud = true;
+      } else {
+        console.warn('Supabase raffle_winners insert warning:', error.message);
+      }
+    } catch (err) {
+      console.warn('Supabase raffle_winners exception:', err);
+    }
+
+    return { success: true, isCloud };
+  }
+
+  async clearRaffleWinners(): Promise<void> {
+    this.setStorage('ps_raffle_winners', []);
+    this.notifyListeners(true);
+
+    try {
+      await supabase.from('raffle_winners').delete().neq('id', '');
+    } catch (err) {
+      console.warn('Could not clear raffle_winners table in Supabase:', err);
+    }
   }
 
   // --- Auth & Session API ---

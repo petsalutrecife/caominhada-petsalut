@@ -2,27 +2,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { supabaseMock, Registration, Sponsor } from '@/lib/supabaseMock';
+import { supabaseMock, Registration, Sponsor, RaffleWinner } from '@/lib/supabaseMock';
 import { playTickSound, playWinnerSound } from '@/lib/raffleAudio';
 import { 
   Gift, Shuffle, Sparkles, Volume2, VolumeX, MessageSquare, 
   RotateCcw, Trophy, Award, CheckCircle2, UserCheck, Trash2, 
-  Download, PawPrint, Phone, ExternalLink, Filter
+  Download, PawPrint, Phone, ExternalLink, Filter, Cloud, HardDrive
 } from 'lucide-react';
 
-export interface RaffleWinner {
-  id: string;
-  registrationId: string;
-  tutorName: string;
-  tutorPhone: string;
-  tutorWhatsApp: string;
-  petName: string;
-  petBreed?: string;
-  regNumber: string;
-  prizeName: string;
-  sponsorName: string;
-  wonAt: string;
-}
+export type { RaffleWinner };
 
 export default function RaffleModule() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -45,6 +33,9 @@ export default function RaffleModule() {
   // Winners History State
   const [winners, setWinners] = useState<RaffleWinner[]>([]);
 
+  // Cloud persistence state
+  const [isCloudSynced, setIsCloudSynced] = useState<boolean | null>(null);
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load data
@@ -57,20 +48,17 @@ export default function RaffleModule() {
       setSelectedSponsor(sps[0].name);
     }
 
-    try {
-      const savedWinners = localStorage.getItem('ps_raffle_winners');
-      if (savedWinners) {
-        setWinners(JSON.parse(savedWinners));
-      }
-    } catch {}
+    supabaseMock.getRaffleWinners().then(({ winners: savedList, isCloud }) => {
+      setWinners(savedList);
+      setIsCloudSynced(isCloud);
+    });
   }, []);
 
-  // Save winners history
-  const saveWinners = (updated: RaffleWinner[]) => {
-    setWinners(updated);
-    try {
-      localStorage.setItem('ps_raffle_winners', JSON.stringify(updated));
-    } catch {}
+  // Save winners history (Instant local + Async Supabase Cloud)
+  const saveWinners = async (newWinner: RaffleWinner) => {
+    setWinners(prev => [newWinner, ...prev.filter(w => w.id !== newWinner.id)]);
+    const res = await supabaseMock.saveRaffleWinner(newWinner);
+    setIsCloudSynced(res.isCloud);
   };
 
   // Filter eligible participants
@@ -144,7 +132,7 @@ export default function RaffleModule() {
         };
 
         setActiveWinnerData(newWinnerRecord);
-        saveWinners([newWinnerRecord, ...winners]);
+        saveWinners(newWinnerRecord);
 
         if (soundEnabled) {
           playWinnerSound();
@@ -197,9 +185,10 @@ export default function RaffleModule() {
     link.click();
   };
 
-  const handleClearHistory = () => {
+  const handleClearHistory = async () => {
     if (confirm('Tem certeza de que deseja limpar o histórico de ganhadores?')) {
-      saveWinners([]);
+      await supabaseMock.clearRaffleWinners();
+      setWinners([]);
       setCurrentWinner(null);
       setActiveWinnerData(null);
       setDisplayName('Clique no botão para sortear');
@@ -423,10 +412,22 @@ export default function RaffleModule() {
       <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-amber-500" /> Histórico de Participantes Sorteados
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-amber-500" /> Histórico de Participantes Sorteados
+              </h3>
+              {isCloudSynced === true && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <Cloud className="h-3.5 w-3.5 text-emerald-500" /> Salvo na Nuvem (Supabase)
+                </span>
+              )}
+              {isCloudSynced === false && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800" title="Execute supabase_raffle_setup.sql no Supabase para ativar a sincronização na nuvem">
+                  <HardDrive className="h-3.5 w-3.5 text-amber-500" /> Salvo Localmente (Offline-First)
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Relação de todos os nomes premiados durante o evento para controle e entrega.
             </p>
           </div>
