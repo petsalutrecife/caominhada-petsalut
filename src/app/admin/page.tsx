@@ -9,13 +9,15 @@ import { supabaseMock, Registration, Sponsor, Expense, Institution } from '@/lib
 import { 
   LogOut, ClipboardList, TrendingUp, Users, Award, Landmark, Plus, Trash2, 
   Download, Edit, Search, Filter, ShieldCheck, Check, DollarSign, Upload, Globe, FileText, CheckSquare, RefreshCw,
-  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin, Key, Lock, Settings, UserCheck, QrCode, MessageCircle, Send, Share2
+  Heart, Building2, X, Eye, ShieldAlert, AlertCircle, MapPin, Key, Lock, Settings, UserCheck, QrCode, MessageCircle, Send, Share2,
+  Gift
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell 
 } from 'recharts';
 import { jsPDF } from 'jspdf';
+import RaffleModule from '@/components/RaffleModule';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -24,8 +26,8 @@ export default function AdminDashboard() {
   // Auth state
   const [adminUser, setAdminUser] = useState<any>(null);
 
-  // Tabs: 'dashboard' | 'participants' | 'institutions' | 'financial' | 'sponsors' | 'settings'
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'participants' | 'institutions' | 'financial' | 'sponsors' | 'settings'>('dashboard');
+  // Tabs: 'dashboard' | 'participants' | 'institutions' | 'financial' | 'sponsors' | 'settings' | 'raffle'
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'participants' | 'institutions' | 'financial' | 'sponsors' | 'settings' | 'raffle'>('dashboard');
 
   // Admin Security / Auth states
   const [securityModalOpen, setSecurityModalOpen] = useState(false);
@@ -993,6 +995,16 @@ export default function AdminDashboard() {
             }`}
           >
             <Award className="h-4 w-4" /> Patrocinadores
+          </button>
+          <button
+            onClick={() => setActiveTab('raffle')}
+            className={`flex-1 md:flex-initial flex items-center justify-center md:justify-start gap-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'raffle'
+                ? 'bg-[#003A8C] text-white dark:bg-lime-500 dark:text-slate-950'
+                : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900'
+            }`}
+          >
+            <Gift className="h-4 w-4" /> Sorteador de Brindes
           </button>
           <button
             onClick={() => {
@@ -2050,6 +2062,13 @@ export default function AdminDashboard() {
 
               </div>
 
+            </div>
+          )}
+
+          {/* TAB 7: SORTEADOR DE BRINDES (POR NOMES) */}
+          {activeTab === 'raffle' && (
+            <div className="flex flex-col gap-6 animate-in fade-in duration-200">
+              <RaffleModule />
             </div>
           )}
 
