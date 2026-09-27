@@ -918,7 +918,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-550">
           <p>Copyright © 2026 Pet Salute. Todos os direitos reservados. CNPJ: 12.345.678/0001-90</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-slate-400 transition-colors">Instagram</a>
+            <a href="https://www.instagram.com/petsaluteoficial" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram (@petsaluteoficial)</a>
             <a href="#" className="hover:text-slate-400 transition-colors">Facebook</a>
             <a href="#" className="hover:text-slate-400 transition-colors">YouTube</a>
           </div>

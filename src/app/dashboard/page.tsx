@@ -769,7 +769,7 @@ export default function ParticipantDashboard() {
                 Pronto para os Stories!
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Poste no Instagram/WhatsApp e marque <strong>@petsalutrecife</strong>
+                Poste no Instagram/WhatsApp e marque <strong>@petsaluteoficial</strong>
               </p>
             </div>
 

@@ -8,12 +8,13 @@ import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Registration, Institution } from '@/lib/supabaseMock';
 import { generateRegistrationTicket } from '@/lib/generateTicketPdf';
+import { generateStoriesImage } from '@/lib/generateStoriesImage';
 import { compressImage } from '@/lib/imageCompressor';
 import { 
   ArrowLeft, ArrowRight, User, Phone, Mail, Award, CheckCircle2, Copy, 
   Calendar, Heart, Shield, Camera, Upload, MapPin, MessageCircle,
   PawPrint, Building2, CreditCard, FileCheck, ChevronRight, Check, X,
-  Compass, DollarSign, FileText, Share2, Download
+  Compass, DollarSign, FileText, Share2, Download, Sparkles
 } from 'lucide-react';
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -115,6 +116,7 @@ export default function RegisterPage() {
   const [registeredUser, setRegisteredUser] = useState<Registration | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedShareLink, setCopiedShareLink] = useState(false);
+  const [isGeneratingStories, setIsGeneratingStories] = useState(false);
 
   useEffect(() => {
     // Only display active institutions
@@ -357,6 +359,25 @@ export default function RegisterPage() {
   if (currentStep === 8 && registeredUser) {
     const instName = institutions.find(i => i.id === registeredUser.selectedInstitution)?.name || '';
 
+    const handleDownloadStories = async () => {
+      setIsGeneratingStories(true);
+      try {
+        const dataUrl = await generateStoriesImage(registeredUser, instName);
+        if (dataUrl) {
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          a.download = `caominhada-stories-${(registeredUser.petName || 'pet').toLowerCase().replace(/\s+/g, '-')}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      } catch (err) {
+        console.error('Erro ao gerar crachá para stories:', err);
+      } finally {
+        setIsGeneratingStories(false);
+      }
+    };
+
     return (
       <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
         <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
@@ -497,19 +518,28 @@ export default function RegisterPage() {
                   {/* Instagram Mention */}
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/70 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-800/60 text-[10px] text-slate-600 dark:text-slate-300">
                     <InstagramIcon className="h-4 w-4 text-pink-500 shrink-0" />
-                    <span>No Instagram, marque <strong>@petsalutrecife</strong> e use <strong>#CaominhadaPetSalute2026</strong></span>
+                    <span>No Instagram, marque <strong>@petsaluteoficial</strong> e use <strong>#CaominhadaPetSalute2026</strong></span>
                   </div>
                 </div>
               );
             })()}
 
-            {/* Download Ticket PDF button */}
-            <div className="mt-6 w-full max-w-md">
+            {/* Download Ticket PDF & Stories Badge buttons */}
+            <div className="mt-6 w-full max-w-md flex flex-col gap-3">
               <button
                 onClick={() => generateRegistrationTicket(registeredUser, instName)}
-                className="w-full py-3.5 px-5 rounded-2xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover-lift flex items-center justify-center gap-2 text-sm transition-all"
+                className="w-full py-3.5 px-5 rounded-2xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover-lift flex items-center justify-center gap-2 text-sm transition-all cursor-pointer"
               >
                 <Download className="h-4 w-4" /> Baixar Comprovante & Ticket (PDF)
+              </button>
+
+              <button
+                onClick={handleDownloadStories}
+                disabled={isGeneratingStories}
+                className="w-full py-3.5 px-5 rounded-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-md hover-lift flex items-center justify-center gap-2 text-sm transition-all disabled:opacity-50 cursor-pointer"
+              >
+                <Sparkles className="h-4 w-4 text-amber-300" />
+                {isGeneratingStories ? 'Gerando Crachá em Alta Resolução...' : 'Baixar Crachá Oficial p/ Stories 📸'}
               </button>
             </div>
 

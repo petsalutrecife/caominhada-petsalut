@@ -214,7 +214,7 @@ export async function generateStoriesImage(
       ctx.fillStyle = '#FFFFFF';
       ctx.font = 'bold 30px Poppins, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Marque @petsalutrecife nos seus stories! 📸✨', 540, 1780);
+      ctx.fillText('Marque @petsaluteoficial nos seus stories! 📸✨', 540, 1780);
 
       ctx.fillStyle = '#8DC63F';
       ctx.font = 'bold 24px Montserrat, sans-serif';
