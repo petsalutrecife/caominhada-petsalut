@@ -295,21 +295,44 @@ export default function RegisterPage() {
       } catch {}
     } catch (err: unknown) {
       setIsSubmitting(false);
-      const isQuota = err instanceof DOMException && (err.name === 'QuotaExceededError' || err.code === 22);
-      if (isQuota) {
+      console.error('Registration error handled gracefully:', err);
+      const clean = tutorCpf.replace(/\D/g, '');
+      const existing = supabaseMock.getRegistrations().find(r => r.tutorCpf.replace(/\D/g, '') === clean)
+        || supabaseMock.getPendingRegistrations().find(r => r.tutorCpf.replace(/\D/g, '') === clean);
+      if (existing) {
+        setRegisteredUser(existing);
         setCurrentStep(8);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        console.error('Registration error:', err);
-        // Tenta recuperar a inscrição recém-salva caso tenha sido persistida
-        const clean = tutorCpf.replace(/\D/g, '');
-        const existing = supabaseMock.getRegistrations().find(r => r.tutorCpf.replace(/\D/g, '') === clean);
-        if (existing) {
-          setRegisteredUser(existing);
+        try {
+          const emergencyReg = supabaseMock.saveRegistration({
+            tutorName,
+            tutorCpf,
+            tutorBirthDate,
+            tutorPhone: tutorWhatsApp,
+            tutorWhatsApp,
+            tutorEmail,
+            tutorCity,
+            tutorState,
+            petName,
+            petSpecies,
+            petBreed,
+            petSize,
+            petAge,
+            petPhoto,
+            selectedInstitution,
+            donationValue: finalVal,
+            donationReceipt,
+            donationStatus: 'AGUARDANDO VALIDAÇÃO',
+            statusPayment: 'Pendente',
+            statusKit: 'Aguardando',
+            notes: kitPickupLocation ? `Retirada: ${kitPickupLocation}` : ''
+          });
+          setRegisteredUser(emergencyReg);
           setCurrentStep(8);
           window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-          alert('Houve uma instabilidade momentânea na conexão. Por favor, tente clicar em Finalizar Inscrição novamente.');
+        } catch {
+          alert('Por favor, verifique sua conexão e tente novamente.');
         }
       }
     }

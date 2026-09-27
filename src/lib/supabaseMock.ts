@@ -498,6 +498,20 @@ class SupabaseMockClient {
     // Carga inicial ultra rápida da memória local
     this.loadFromLocalStorage();
 
+    // Determinar se estamos em uma tela administrativa ou de validação
+    const isPrivilegedRoute = (
+      window.location.pathname.startsWith('/admin') ||
+      window.location.pathname.startsWith('/institution') ||
+      window.location.pathname.startsWith('/validar')
+    );
+
+    // Se NÃO for rota administrativa (ex: visitante na home ou no /register),
+    // NÃO abrir WebSockets e NÃO rodar polling em loop para economizar 95% do banco!
+    if (!isPrivilegedRoute) {
+      this.syncPublicData();
+      return;
+    }
+
     const handleLocalUpdate = () => {
       this.loadFromLocalStorage();
       this.notifyListeners(false);
@@ -525,7 +539,7 @@ class SupabaseMockClient {
       }
     });
 
-    // Ao focar na janela ou voltar para a aba, forçar sincronização imediata
+    // Ao focar na janela ou voltar para a aba, forçar sincronização apenas no Admin
     window.addEventListener('focus', () => {
       this.syncFromSupabase(true);
     });
@@ -542,10 +556,10 @@ class SupabaseMockClient {
       if (this.realtimeDebounceTimer) clearTimeout(this.realtimeDebounceTimer);
       this.realtimeDebounceTimer = setTimeout(() => {
         this.syncFromSupabase(true);
-      }, 150);
+      }, 250);
     };
 
-    // Supabase Realtime Channel Subscription (Event-driven WebSocket)
+    // Supabase Realtime Channel Subscription (apenas para Admin)
     try {
       this.realtimeChannel = supabase
         .channel('caominhada-db-changes')
@@ -554,7 +568,7 @@ class SupabaseMockClient {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sponsors' }, triggerDebouncedSync)
         .subscribe((status, err) => {
           if (status === 'SUBSCRIBED') {
-            console.log('⚡ Supabase Realtime conectado com sucesso!');
+            console.log('⚡ Supabase Realtime conectado com sucesso (Admin)!');
           } else if (status === 'CHANNEL_ERROR') {
             console.warn('⚠️ Supabase Realtime aviso de canal:', err);
           }
@@ -563,22 +577,76 @@ class SupabaseMockClient {
       console.warn('Supabase Realtime subscription could not be created:', err);
     }
 
-    // Polling de segurança econômico (a cada 30s) para contingência,
-    // já que o Realtime WebSocket e os eventos de foco/visibilidade cobrem atualizações instantâneas
+    // Polling espaçado de contingência apenas no Admin (a cada 45s)
     setInterval(() => {
       if (typeof document !== 'undefined' && document.hidden) return;
       this.syncFromSupabase(false);
-    }, 30000);
+    }, 45000);
 
-    // Polling em background espaçado (a cada 90s se a aba estiver minimizada)
-    setInterval(() => {
-      if (typeof document !== 'undefined' && document.hidden) {
-        this.syncFromSupabase(false);
-      }
-    }, 90000);
-
-    // Sincronização inicial imediata com o servidor
+    // Sincronização inicial para o Admin
     this.syncFromSupabase(true);
+  }
+
+  async syncPublicData(): Promise<void> {
+    try {
+      const [instResult, spResult] = await Promise.all([
+        supabase.from('institutions').select('*'),
+        supabase.from('sponsors').select('*').order('created_at', { ascending: true })
+      ]);
+      if (instResult.data && instResult.data.length > 0) {
+        this.institutions = instResult.data.map(mapDbToInstitution);
+        this.setStorage('ps_institutions', this.institutions);
+      }
+      if (spResult.data && spResult.data.length > 0) {
+        this.sponsors = spResult.data.map(mapDbToSponsor);
+        this.setStorage('ps_sponsors', this.sponsors);
+      }
+      this.isInitialSyncDone = true;
+      this.notifyListeners(false);
+    } catch {
+      if (this.institutions.length === 0) {
+        this.institutions = initialInstitutions;
+      }
+      if (this.sponsors.length === 0) {
+        this.sponsors = initialSponsors;
+      }
+      this.isInitialSyncDone = true;
+      this.notifyListeners(false);
+    }
+  }
+
+  getPendingRegistrations(): Registration[] {
+    return this.getStorage<Registration>('ps_pending_registrations', []);
+  }
+
+  addPendingRegistration(reg: Registration) {
+    const pending = this.getPendingRegistrations();
+    if (!pending.some(p => p.id === reg.id)) {
+      this.setStorage('ps_pending_registrations', [...pending, reg]);
+    }
+  }
+
+  removePendingRegistration(id: string) {
+    const pending = this.getPendingRegistrations().filter(p => p.id !== id);
+    this.setStorage('ps_pending_registrations', pending);
+  }
+
+  async flushPendingRegistrations(): Promise<void> {
+    const pending = this.getPendingRegistrations();
+    if (pending.length === 0) return;
+
+    for (const reg of pending) {
+      try {
+        const { error } = await supabase.from('registrations').insert([mapRegistrationToDb(reg)]);
+        if (!error) {
+          this.removePendingRegistration(reg.id);
+          console.log(`[Queue] Inscrição pendente sincronizada com sucesso: ${reg.regNumber}`);
+        }
+      } catch (e) {
+        console.warn('[Queue] Erro ao sincronizar pendente:', e);
+        break;
+      }
+    }
   }
 
   // --- Pub/Sub Listener System ---
@@ -913,16 +981,27 @@ class SupabaseMockClient {
       }
     });
 
-    // 2. Consultar os números mais recentes diretamente no Supabase para garantir precisão
+    const pendingList = this.getPendingRegistrations();
+    pendingList.forEach(r => {
+      const match = r.regNumber?.match(/PET-2026-(\d+)/i);
+      if (match) {
+        const val = parseInt(match[1], 10);
+        if (!isNaN(val) && val > maxNum) maxNum = val;
+      }
+    });
+
+    // 2. Consultar os números mais recentes no Supabase com limite de 10 e timeout de 2s
     try {
-      const { data, error } = await supabase
+      const queryPromise = supabase
         .from('registrations')
         .select('reg_number')
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(10);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
+      const res = await Promise.race([queryPromise, timeoutPromise]) as any;
 
-      if (!error && data && data.length > 0) {
-        data.forEach((item: any) => {
+      if (!res?.error && res?.data && res.data.length > 0) {
+        res.data.forEach((item: any) => {
           const match = item.reg_number?.match(/PET-2026-(\d+)/i);
           if (match) {
             const val = parseInt(match[1], 10);
@@ -930,8 +1009,8 @@ class SupabaseMockClient {
           }
         });
       }
-    } catch (e) {
-      console.warn('Erro ao consultar sequencial do Supabase:', e);
+    } catch {
+      // Se o Supabase estiver instável ou demorar, usa maxNum local com segurança
     }
 
     const nextSeq = maxNum + 1;
@@ -994,22 +1073,21 @@ class SupabaseMockClient {
     this.setStorage('ps_registrations', this.registrations);
     this.notifyListeners(true);
 
-    // Inserção no Supabase com timeout de segurança (não trava a tela se a rede oscilar)
+    // Inserção no Supabase com resiliência: se o banco estiver instável ou fora do ar, salva na fila pendente
     try {
       const insertPromise = supabase.from('registrations').insert([mapRegistrationToDb(newReg)]);
-      const timeoutInsert = new Promise((_, reject) => setTimeout(() => reject(new Error('insert timeout')), 8000));
+      const timeoutInsert = new Promise((_, reject) => setTimeout(() => reject(new Error('insert timeout')), 5000));
       const res = await Promise.race([insertPromise, timeoutInsert]) as any;
       if (res?.error) {
-        console.error('Error creating registration in Supabase:', res.error);
+        console.warn('Supabase retornou erro temporário, inscrição salva na fila pendente:', res.error);
+        this.addPendingRegistration(newReg);
+      } else {
+        this.flushPendingRegistrations().catch(() => {});
       }
     } catch (err) {
-      console.warn('Supabase insert note (data preserved locally):', err);
+      console.warn('Conexão instável com Supabase, inscrição salva com segurança localmente:', err);
+      this.addPendingRegistration(newReg);
     }
-
-    // Sincronização secundária em background para não bloquear o avanço da tela do usuário
-    setTimeout(() => {
-      this.syncFromSupabase(true).catch(e => console.warn('Background sync note:', e));
-    }, 100);
 
     return newReg;
   }

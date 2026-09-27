@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
-import { supabaseMock, Sponsor, Institution, Registration } from '@/lib/supabaseMock';
+import { supabaseMock, Sponsor, Institution } from '@/lib/supabaseMock';
 import { 
   Calendar, MapPin, Clock, Award, ShieldAlert, Heart, Trophy, Users, 
   ChevronRight, Menu, X, ArrowRight, Info, Compass, Dog, Route
@@ -14,7 +14,6 @@ import {
 export default function LandingPage() {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('inicio');
@@ -36,21 +35,6 @@ export default function LandingPage() {
     setMounted(true);
     setSponsors(supabaseMock.getSponsors());
     setInstitutions(supabaseMock.getInstitutions());
-    setRegistrations(supabaseMock.getRegistrations());
-
-    // Subscribe to live database updates
-    const unsubscribe = supabaseMock.subscribe(() => {
-      setInstitutions(supabaseMock.getInstitutions());
-      setRegistrations(supabaseMock.getRegistrations());
-      setSponsors(supabaseMock.getSponsors());
-    });
-
-    // Fetch fresh from Supabase
-    supabaseMock.syncFromSupabase(true).then(() => {
-      setInstitutions(supabaseMock.getInstitutions());
-      setRegistrations(supabaseMock.getRegistrations());
-      setSponsors(supabaseMock.getSponsors());
-    });
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -82,7 +66,6 @@ export default function LandingPage() {
     window.addEventListener('scroll', handleScroll);
 
     return () => {
-      unsubscribe();
       clearInterval(timer);
       window.removeEventListener('scroll', handleScroll);
     };
