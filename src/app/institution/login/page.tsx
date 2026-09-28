@@ -27,7 +27,7 @@ export default function InstitutionLoginPage() {
     }
   }, [router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -38,8 +38,8 @@ export default function InstitutionLoginPage() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      const res = supabaseMock.signIn(email, password);
+    try {
+      const res = await supabaseMock.signIn(email, password);
       setIsLoading(false);
 
       if (res.success && (res.user?.role === 'institution' || res.user?.role === 'admin')) {
@@ -47,7 +47,10 @@ export default function InstitutionLoginPage() {
       } else {
         setError(res.error || 'Credenciais inválidas para instituição parceira.');
       }
-    }, 400);
+    } catch {
+      setIsLoading(false);
+      setError('Erro ao validar credenciais. Tente novamente.');
+    }
   };
 
   return (

@@ -551,7 +551,8 @@ class SupabaseMockClient {
     const isPrivilegedRoute = (
       window.location.pathname.startsWith('/admin') ||
       window.location.pathname.startsWith('/institution') ||
-      window.location.pathname.startsWith('/validar')
+      window.location.pathname.startsWith('/validar') ||
+      window.location.pathname.startsWith('/dashboard')
     );
 
     // Se NÃO for rota administrativa (ex: visitante na home ou no /register),
@@ -1015,6 +1016,33 @@ class SupabaseMockClient {
       return [...stored];
     }
     return [];
+  }
+
+  async getRegistrationById(id: string): Promise<Registration | null> {
+    const local = this.getRegistrations().find(r => r.id === id);
+    if (local) return local;
+
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (!error && data) {
+        const mapped = mapDbToRegistration(data);
+        const list = this.getRegistrations();
+        if (!list.some(r => r.id === mapped.id)) {
+          list.unshift(mapped);
+          this.registrations = list;
+          this.setStorage('ps_registrations', list);
+        }
+        return mapped;
+      }
+    } catch (e) {
+      console.warn('Erro ao buscar registration por ID no Supabase:', e);
+    }
+    return null;
   }
 
   private async getNextSequentialNumber(): Promise<string> {
@@ -1510,28 +1538,29 @@ class SupabaseMockClient {
     return session ? JSON.parse(session) : null;
   }
 
-  signIn(email: string, identity: string): { success: boolean; user?: any; error?: string } {
+  async signIn(email: string, identity: string): Promise<{ success: boolean; user?: any; error?: string }> {
     const cleanEmail = (email || '').toLowerCase().trim();
     const cleanPass = (identity || '').trim();
 
-    // Admin check
+    // 1. Admin check
     const adminCreds = this.getAdminCredentials();
     if (
       (cleanEmail === adminCreds.email.toLowerCase().trim() || cleanEmail === 'admin' || cleanEmail === 'admin@petsalute.com.br' || cleanEmail === 'admin@petsalut.com.br') && 
       (cleanPass === adminCreds.password || cleanPass === 'admin123' || cleanPass === '123456')
     ) {
       const user = { email: adminCreds.email, role: 'admin', name: adminCreds.name };
-      localStorage.setItem('ps_session', JSON.stringify(user));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ps_session', JSON.stringify(user));
+      }
       return { success: true, user };
     }
 
-    // Institution check
-    const institutionsList = this.getInstitutions();
-    const instUser = institutionsList.find(i => {
+    // 2. Institution check
+    let institutionsList = this.getInstitutions();
+    let instUser = institutionsList.find(i => {
       const iEmail = (i.email || '').toLowerCase().trim();
       const iRespEmail = (i.responsibleEmail || '').toLowerCase().trim();
       const iId = (i.id || '').toLowerCase().trim();
-      const iName = (i.name || '').toLowerCase().trim();
       
       const emailMatches = 
         (iEmail && (iEmail === cleanEmail || cleanEmail.includes(iEmail) || iEmail.includes(cleanEmail))) ||
@@ -1553,6 +1582,44 @@ class SupabaseMockClient {
       return emailMatches && passMatches;
     });
 
+    if (!instUser) {
+      try {
+        const { data: dbInsts } = await supabase.from('institutions').select('*');
+        if (dbInsts && dbInsts.length > 0) {
+          this.institutions = dbInsts.map(mapDbToInstitution);
+          this.setStorage('ps_institutions', this.institutions);
+          institutionsList = this.institutions;
+          
+          instUser = institutionsList.find(i => {
+            const iEmail = (i.email || '').toLowerCase().trim();
+            const iRespEmail = (i.responsibleEmail || '').toLowerCase().trim();
+            const iId = (i.id || '').toLowerCase().trim();
+            
+            const emailMatches = 
+              (iEmail && (iEmail === cleanEmail || cleanEmail.includes(iEmail) || iEmail.includes(cleanEmail))) ||
+              (iRespEmail && (iRespEmail === cleanEmail || cleanEmail.includes(iRespEmail) || iRespEmail.includes(cleanEmail))) ||
+              (cleanEmail.includes('alberto') && iId === 'inst-1') ||
+              (cleanEmail.includes('amor') && iId === 'inst-2') ||
+              (cleanEmail.includes('guerreiro') && iId === 'inst-3');
+            
+            const passMatches = 
+              !cleanPass || 
+              (i.password && i.password === cleanPass) || 
+              cleanPass === '123456' || 
+              cleanPass === 'admin123' || 
+              cleanPass === 'petsalute2026' ||
+              (iId === 'inst-1' && cleanPass.toLowerCase() === 'alberto2026') ||
+              (iId === 'inst-2' && cleanPass.toLowerCase() === 'amor2026') ||
+              (iId === 'inst-3' && cleanPass.toLowerCase() === 'guerreiro2026');
+                                
+            return emailMatches && passMatches;
+          });
+        }
+      } catch (err) {
+        console.warn('Erro ao consultar instituições no login:', err);
+      }
+    }
+
     if (instUser) {
       const user = { 
         email: instUser.email || email, 
@@ -1561,21 +1628,99 @@ class SupabaseMockClient {
         name: instUser.name,
         institutionId: instUser.id 
       };
-      localStorage.setItem('ps_session', JSON.stringify(user));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ps_session', JSON.stringify(user));
+      }
       return { success: true, user };
     }
 
-    // Participant check: we match by email AND tutorCpf
-    const list = this.getRegistrations();
+    // 3. Participant check: we match by email AND tutorCpf
     const formattedCpf = cleanPass.replace(/\D/g, '');
-    const userReg = list.find(r => 
-      r.tutorEmail.toLowerCase().trim() === cleanEmail && 
-      (formattedCpf.length >= 4 ? r.tutorCpf.replace(/\D/g, '').includes(formattedCpf) || formattedCpf.includes(r.tutorCpf.replace(/\D/g, '')) : true)
-    );
+    const list = this.getRegistrations();
+    
+    // 3a. Busca rápida na memória / localStorage local
+    let userReg = list.find(r => {
+      const rEmail = (r.tutorEmail || '').toLowerCase().trim();
+      const rCpf = (r.tutorCpf || '').replace(/\D/g, '');
+      const emailMatches = rEmail === cleanEmail || rEmail.includes(cleanEmail) || cleanEmail.includes(rEmail);
+      const cpfMatches = formattedCpf.length >= 4 
+        ? (rCpf.includes(formattedCpf) || formattedCpf.includes(rCpf))
+        : true;
+      return emailMatches && cpfMatches;
+    });
+
+    // 3b. Se NÃO achou na memória local, faz consulta direta e instantânea no Supabase
+    if (!userReg) {
+      try {
+        let candidates: any[] = [];
+        
+        // Busca direta por e-mail no Supabase
+        const { data: dbByEmail, error: emailErr } = await supabase
+          .from('registrations')
+          .select('*')
+          .ilike('tutor_email', `%${cleanEmail}%`);
+
+        if (dbByEmail && dbByEmail.length > 0) {
+          candidates = dbByEmail;
+        }
+
+        // Se não achou por e-mail e foi digitado um CPF válido com 4+ dígitos, tenta buscar por CPF
+        if (candidates.length === 0 && formattedCpf.length >= 4) {
+          const { data: dbByCpf } = await supabase
+            .from('registrations')
+            .select('*')
+            .or(`tutor_cpf.ilike.%${formattedCpf}%,tutor_cpf.ilike.%${cleanPass}%`);
+
+          if (dbByCpf && dbByCpf.length > 0) {
+            candidates = dbByCpf;
+          }
+        }
+
+        // Valida os registros retornados do Supabase
+        for (const rawDb of candidates) {
+          const mapped = mapDbToRegistration(rawDb);
+          const mappedCpfClean = (mapped.tutorCpf || '').replace(/\D/g, '');
+          const mappedEmailClean = (mapped.tutorEmail || '').toLowerCase().trim();
+
+          const cpfMatches = formattedCpf.length >= 4 
+            ? (mappedCpfClean.includes(formattedCpf) || formattedCpf.includes(mappedCpfClean))
+            : true;
+
+          const emailMatches = mappedEmailClean === cleanEmail || 
+            mappedEmailClean.includes(cleanEmail) || 
+            cleanEmail.includes(mappedEmailClean);
+
+          if (cpfMatches && (emailMatches || formattedCpf.length >= 10)) {
+            userReg = mapped;
+
+            // Salva no cache local do dispositivo para que o dashboard reconheça imediatamente
+            const currentList = this.getRegistrations();
+            const existingIdx = currentList.findIndex(r => r.id === mapped.id);
+            if (existingIdx >= 0) {
+              currentList[existingIdx] = mapped;
+            } else {
+              currentList.unshift(mapped);
+            }
+            this.registrations = currentList;
+            this.setStorage('ps_registrations', currentList);
+            break;
+          }
+        }
+      } catch (dbErr) {
+        console.warn('Erro ao consultar Supabase durante login de participante:', dbErr);
+      }
+    }
 
     if (userReg) {
-      const user = { email, role: 'participant', id: userReg.id, name: userReg.tutorName };
-      localStorage.setItem('ps_session', JSON.stringify(user));
+      const user = { 
+        email: userReg.tutorEmail || email, 
+        role: 'participant', 
+        id: userReg.id, 
+        name: userReg.tutorName 
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ps_session', JSON.stringify(user));
+      }
       return { success: true, user };
     }
 

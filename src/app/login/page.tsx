@@ -47,7 +47,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -58,8 +58,8 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      const res = supabaseMock.signIn(email, passwordOrCpf);
+    try {
+      const res = await supabaseMock.signIn(email, passwordOrCpf);
       setIsLoading(false);
 
       if (res.success) {
@@ -73,7 +73,10 @@ export default function LoginPage() {
       } else {
         setError(res.error || 'Erro ao realizar login.');
       }
-    }, 800);
+    } catch (err: any) {
+      setIsLoading(false);
+      setError('Erro ao validar acesso. Verifique sua conexão e tente novamente.');
+    }
   };
 
   return (

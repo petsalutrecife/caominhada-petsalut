@@ -62,6 +62,11 @@ export default function ParticipantDashboard() {
       // Reload fresh data
       regs = supabaseMock.getRegistrations();
       userReg = regs.find(r => r.id === currentUser.id);
+
+      if (!userReg) {
+        userReg = await supabaseMock.getRegistrationById(currentUser.id);
+      }
+
       if (userReg) {
         if (!userReg.petPhoto) {
           const photo = await supabaseMock.getPetPhoto(userReg.id);

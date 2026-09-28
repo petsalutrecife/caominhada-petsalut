@@ -411,9 +411,9 @@ export default function RegisterPage() {
     setTimeout(() => setter(false), 2500);
   };
 
-  const handleGoToDashboard = () => {
+  const handleGoToDashboard = async () => {
     if (registeredUser) {
-      supabaseMock.signIn(registeredUser.tutorEmail, registeredUser.tutorCpf);
+      await supabaseMock.signIn(registeredUser.tutorEmail, registeredUser.tutorCpf);
       router.push('/dashboard');
     }
   };
