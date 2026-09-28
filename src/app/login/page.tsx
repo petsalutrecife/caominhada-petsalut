@@ -199,11 +199,11 @@ export default function LoginPage() {
           {/* Footer Info */}
           {activeTab === 'participant' && (
             <div className="mt-8 border-t border-slate-100 dark:border-slate-900 pt-6 text-center text-xs text-slate-500">
-              <p>
-                Não tem uma inscrição?{' '}
-                <Link href="/register" className="text-primary-blue dark:text-lime-400 font-bold hover:underline">
-                  Inscreva-se aqui
-                </Link>
+              <p className="text-amber-600 dark:text-amber-400 font-semibold">
+                Inscrições para o evento foram encerradas.
+              </p>
+              <p className="mt-1 text-[11px] text-slate-400">
+                Acesse com seu e-mail e CPF para ver seu QR Code e certificado.
               </p>
             </div>
           )}

@@ -132,10 +132,10 @@ export default function LandingPage() {
               Login
             </Link>
             <Link
-              href="/register"
+              href="/login"
               className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#8DC63F] hover:bg-[#7cb335] text-white flex items-center gap-2 shadow-lg shadow-[#8DC63F]/30 hover:shadow-[0_6px_25px_rgba(141,198,63,0.55)] hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 relative overflow-hidden group"
             >
-              <span className="relative z-10 flex items-center gap-2">Inscreva-se Agora 🐾</span>
+              <span className="relative z-10 flex items-center gap-2">Área do Participante 🐾</span>
               <span className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
             </Link>
           </div>
@@ -179,11 +179,11 @@ export default function LandingPage() {
               })}
               <hr className="border-slate-100 my-2" />
               <Link href="/login" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-semibold border-2 border-[#003A8C]/20 bg-[#003A8C]/5 hover:bg-[#003A8C] hover:text-white transition-colors">
-                Login
+                Login do Participante
               </Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full text-center py-3 rounded-2xl text-base font-bold bg-[#8DC63F] text-white shadow-md shadow-[#8DC63F]/30">
-                Inscreva-se Agora 🐾
-              </Link>
+              <div className="w-full text-center py-3 rounded-2xl text-sm font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                Inscrições Encerradas 🐾
+              </div>
             </div>
           </div>
         )}
@@ -273,15 +273,9 @@ export default function LandingPage() {
           
           {/* Left Column: Title Image, Subtitle, Buttons, Countdown Card */}
           <div className="lg:col-span-6 flex flex-col items-start text-left z-20">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold border border-[#8DC63F] text-[#8DC63F] bg-white mb-6 uppercase tracking-wider font-poppins shadow-sm">
-              <svg viewBox="0 0 100 100" fill="currentColor" className="h-3.5 w-3.5">
-                <path d="M50,45 C40,45 35,53 35,62 C35,72 42,78 50,78 C58,78 65,72 65,62 C65,53 60,45 50,45 Z" />
-                <circle cx="28" cy="38" r="9" />
-                <circle cx="43" cy="25" r="10" />
-                <circle cx="57" cy="25" r="10" />
-                <circle cx="72" cy="38" r="9" />
-              </svg>
-              Vem aí!
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold border border-amber-500 text-amber-700 bg-amber-50 mb-6 uppercase tracking-wider font-poppins shadow-sm">
+              <Lock className="h-3 w-3 text-amber-600" />
+              Inscrições Encerradas
             </span>
 
             {/* Custom Typography Logo Image replacing raw HTML text title */}
@@ -299,10 +293,10 @@ export default function LandingPage() {
 
             {/* Mockup Action Buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full sm:w-auto font-poppins">
-              <Link href="/register" className="px-7 py-3.5 rounded-full font-bold bg-[#8DC63F] hover:bg-[#7cb335] text-white text-center flex items-center justify-center gap-3 shadow-lg shadow-lime-500/10 hover-lift">
-                Inscreva-se Agora
+              <Link href="/login" className="px-7 py-3.5 rounded-full font-bold bg-[#003A8C] hover:bg-blue-800 text-white text-center flex items-center justify-center gap-3 shadow-lg shadow-blue-900/15 hover-lift">
+                Área do Participante
                 <span className="h-5 w-5 rounded-full bg-white flex items-center justify-center">
-                  <ArrowRight className="h-3.5 w-3.5 text-[#8DC63F]" />
+                  <ArrowRight className="h-3.5 w-3.5 text-[#003A8C]" />
                 </span>
               </Link>
               <a href="#sobre" className="px-7 py-3.5 rounded-full font-bold bg-white hover:bg-slate-50 text-[#003A8C] border border-[#003A8C] text-center flex items-center justify-center gap-2 transition-all">
@@ -577,12 +571,9 @@ export default function LandingPage() {
 
                 {/* Action Button */}
                 <div className="p-6 pt-2">
-                  <Link 
-                    href="/register" 
-                    className="w-full py-3 rounded-2xl bg-[#8DC63F] hover:bg-[#7cb335] text-white font-bold text-xs flex items-center justify-center gap-2 hover-lift transition-all shadow-sm shadow-lime-500/10"
-                  >
-                    Apoiar esta ONG 🐾
-                  </Link>
+                  <div className="w-full py-2.5 rounded-2xl bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-200">
+                    <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500" /> Causa Apoiada
+                  </div>
                 </div>
               </div>
             ))}
