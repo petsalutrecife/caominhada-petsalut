@@ -72,70 +72,6 @@ const stepLabels = [
 export default function RegisterPage() {
   const router = useRouter();
 
-  // ===================== INSCRIÇÕES ENCERRADAS =====================
-  const REGISTRATIONS_OPEN = false;
-
-  if (!REGISTRATIONS_OPEN) {
-    return (
-      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
-        <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
-          <Link href="/"><Logo /></Link>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1">
-              <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Site
-            </Link>
-          </div>
-        </header>
-
-        <main className="flex-1 flex items-center justify-center p-4 py-12">
-          <div className="max-w-xl w-full bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 sm:p-10 flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center text-amber-500 mb-6 shadow-sm">
-              <Lock className="h-8 w-8" />
-            </div>
-
-            <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 mb-4 font-poppins">
-              Lote Esgotado
-            </span>
-
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-poppins">
-              Inscrições Encerradas! 🐾
-            </h1>
-
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-inter">
-              As inscrições para a <strong>Cãominhada Pet Salute 2026</strong> foram oficialmente finalizadas. Agradecemos imensamente a todos os tutores e apaixonados por pets que garantiram suas vagas e apoiaram essa causa!
-            </p>
-
-            <div className="mt-6 w-full p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 text-left">
-              <p className="text-xs text-[#003A8C] dark:text-blue-300 font-semibold flex items-center gap-2 mb-1">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#8DC63F]" />
-                Já é inscrito?
-              </p>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                Você pode acessar o seu painel a qualquer momento para acompanhar a liberação do kit, consultar seu QR Code e baixar seu certificado de participação.
-              </p>
-            </div>
-
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full font-poppins">
-              <Link
-                href="/login"
-                className="flex-1 py-3.5 rounded-xl font-bold bg-[#003A8C] hover:bg-blue-800 text-white text-center text-sm shadow-md transition-all hover-lift"
-              >
-                Acessar Minha Inscrição (Login)
-              </Link>
-              <Link
-                href="/"
-                className="py-3.5 px-6 rounded-xl font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-center text-sm transition-colors"
-              >
-                Página Inicial
-              </Link>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   const [currentStep, setCurrentStep] = useState(1);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   
@@ -419,6 +355,70 @@ export default function RegisterPage() {
   };
 
   const selectedInst = institutions.find(i => i.id === selectedInstitution);
+
+  // ===================== INSCRIÇÕES ENCERRADAS =====================
+  const REGISTRATIONS_OPEN = false;
+
+  if (!REGISTRATIONS_OPEN) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
+        <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+          <Link href="/"><Logo /></Link>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1">
+              <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Site
+            </Link>
+          </div>
+        </header>
+
+        <main className="flex-1 flex items-center justify-center p-4 py-12">
+          <div className="max-w-xl w-full bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 sm:p-10 flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center text-amber-500 mb-6 shadow-sm">
+              <Lock className="h-8 w-8" />
+            </div>
+
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 mb-4 font-poppins">
+              Lote Esgotado
+            </span>
+
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-poppins">
+              Inscrições Encerradas! 🐾
+            </h1>
+
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-inter">
+              As inscrições para a <strong>Cãominhada Pet Salute 2026</strong> foram oficialmente finalizadas. Agradecemos imensamente a todos os tutores e apaixonados por pets que garantiram suas vagas e apoiaram essa causa!
+            </p>
+
+            <div className="mt-6 w-full p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 text-left">
+              <p className="text-xs text-[#003A8C] dark:text-blue-300 font-semibold flex items-center gap-2 mb-1">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#8DC63F]" />
+                Já é inscrito?
+              </p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                Você pode acessar o seu painel a qualquer momento para acompanhar a liberação do kit, consultar seu QR Code e baixar seu certificado de participação.
+              </p>
+            </div>
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full font-poppins">
+              <Link
+                href="/login"
+                className="flex-1 py-3.5 rounded-xl font-bold bg-[#003A8C] hover:bg-blue-800 text-white text-center text-sm shadow-md transition-all hover-lift"
+              >
+                Acessar Minha Inscrição (Login)
+              </Link>
+              <Link
+                href="/"
+                className="py-3.5 px-6 rounded-xl font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-center text-sm transition-colors"
+              >
+                Página Inicial
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   // ===================== STEP 8: CONCLUSION =====================
   if (currentStep === 8 && registeredUser) {

@@ -8,7 +8,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Sponsor, Institution } from '@/lib/supabaseMock';
 import { 
   Calendar, MapPin, Clock, Award, ShieldAlert, Heart, Trophy, Users, 
-  ChevronRight, Menu, X, ArrowRight, Info, Compass, Dog, Route, Camera, ExternalLink, Sparkles
+  ChevronRight, Menu, X, ArrowRight, Info, Compass, Dog, Route, Camera, ExternalLink, Sparkles, Lock
 } from 'lucide-react';
 
 export default function LandingPage() {
