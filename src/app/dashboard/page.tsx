@@ -478,38 +478,26 @@ export default function ParticipantDashboard() {
             <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover-lift">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white font-poppins">Certificado Digital</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Disponível para download após a confirmação da retirada do seu kit.
+                Certificado oficial de participação na Cãominhada Pet Salute disponível para download.
               </p>
 
               <hr className="border-slate-100 dark:border-slate-900 my-4" />
 
-              {registration.statusKit === 'Retirado' && isApproved ? (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 rounded-2xl">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="h-8 w-8 text-emerald-500" />
-                    <div>
-                      <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Certificado Liberado!</span>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Baixe e guarde a recordação da participação de {registration.petName}.</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleDownloadCertificate}
-                    className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 hover-lift"
-                  >
-                    <Download className="h-4 w-4" /> Baixar Certificado PDF
-                  </button>
-                </div>
-              ) : (
-                <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-850 flex items-start gap-3">
-                  <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-500" />
                   <div>
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Acesso bloqueado</span>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                      O certificado estará disponível assim que o kit especial da Cãominhada for retirado. A liberação do kit requer que o comprovante de doação seja validado pela instituição.
-                    </p>
+                    <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Certificado Liberado!</span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Baixe e guarde a recordação da participação de {registration.petName}.</p>
                   </div>
                 </div>
-              )}
+                <button
+                  onClick={handleDownloadCertificate}
+                  className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 hover-lift cursor-pointer"
+                >
+                  <Download className="h-4 w-4" /> Baixar Certificado PDF
+                </button>
+              </div>
             </div>
 
           </div>

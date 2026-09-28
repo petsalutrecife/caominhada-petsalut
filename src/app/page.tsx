@@ -8,7 +8,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { supabaseMock, Sponsor, Institution } from '@/lib/supabaseMock';
 import { 
   Calendar, MapPin, Clock, Award, ShieldAlert, Heart, Trophy, Users, 
-  ChevronRight, Menu, X, ArrowRight, Info, Compass, Dog, Route
+  ChevronRight, Menu, X, ArrowRight, Info, Compass, Dog, Route, Camera, ExternalLink, Sparkles
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -206,7 +206,70 @@ export default function LandingPage() {
         </div>
 
         {/* Content Wrapper */}
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-12 lg:pt-16 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8 lg:pt-10 pb-8 relative z-10">
+          
+          {/* Banner de Fotos Oficiais do Evento */}
+          <a
+            href="https://300mmsports.fotop.com.br/fotos/eventos/busca/cat/231555/evento/321453"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mb-8 sm:mb-10 block w-full relative overflow-hidden rounded-3xl sm:rounded-[2rem] border border-blue-200/80 bg-gradient-to-r from-[#003A8C] via-[#004bb5] to-[#002863] p-5 sm:p-7 shadow-xl shadow-[#003A8C]/20 hover:shadow-2xl hover:shadow-[#003A8C]/30 hover:border-[#8DC63F]/80 transition-all duration-300 transform hover:-translate-y-1"
+          >
+            {/* Efeitos de fundo e iluminação */}
+            <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-[#8DC63F]/20 blur-3xl group-hover:bg-[#8DC63F]/30 transition-all duration-500 pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-cyan-400/15 blur-3xl pointer-events-none" />
+            
+            {/* Brilho dinâmico no hover */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-white">
+              
+              {/* Lado Esquerdo: Ícone + Títulos e badges */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-5 w-full md:w-auto">
+                {/* Ícone com pulso e visual premium */}
+                <div className="relative shrink-0">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-[#8DC63F] group-hover:bg-[#8DC63F] group-hover:text-[#003A8C] group-hover:rotate-6 transition-all duration-300 shadow-inner">
+                    <Camera className="h-7 w-7 sm:h-8 sm:w-8 transition-transform group-hover:scale-110" />
+                  </div>
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8DC63F] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-4 w-4 bg-[#8DC63F]"></span>
+                  </span>
+                </div>
+
+                {/* Textos Informativos */}
+                <div className="flex flex-col">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1.5">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#8DC63F] text-[#003A8C] shadow-sm flex items-center gap-1 font-poppins">
+                      <Sparkles className="h-3 w-3" /> Fotos Já Disponíveis
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-blue-100 border border-white/15 font-poppins hidden sm:inline-flex">
+                      Galeria Oficial 300mm Sports
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black font-poppins tracking-tight text-white group-hover:text-blue-50 transition-colors">
+                    Encontre as fotos do seu pet na Cãominhada!
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-blue-150 font-inter mt-1 max-w-2xl leading-relaxed">
+                    A cobertura fotográfica profissional completa do evento está no ar. Clique para buscar as melhores lembranças do seu peludo!
+                  </p>
+                </div>
+              </div>
+
+              {/* Lado Direito: Botão Chamativo de Ação */}
+              <div className="shrink-0 w-full sm:w-auto flex justify-center">
+                <div className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#8DC63F] group-hover:bg-lime-400 text-[#003A8C] font-extrabold font-poppins text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-black/20 group-hover:shadow-lime-500/30 transition-all duration-300 transform group-hover:scale-105">
+                  <span>Ver Fotos Agora</span>
+                  <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </div>
+              </div>
+
+            </div>
+          </a>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
           {/* Left Column: Title Image, Subtitle, Buttons, Countdown Card */}
           <div className="lg:col-span-6 flex flex-col items-start text-left z-20">
@@ -329,6 +392,7 @@ export default function LandingPage() {
               alt="Cãominhada Pet Salute Evento"
               className="w-full h-full object-cover"
             />
+          </div>
           </div>
         </div>
 
