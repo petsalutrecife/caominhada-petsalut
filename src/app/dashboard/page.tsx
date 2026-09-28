@@ -48,7 +48,7 @@ export default function ParticipantDashboard() {
       
       // Fetch user registration details from local cache first
       let regs = supabaseMock.getRegistrations();
-      let userReg = regs.find(r => r.id === currentUser.id);
+      let userReg: Registration | null | undefined = regs.find(r => r.id === currentUser.id);
       
       if (userReg) {
         setRegistration(userReg);
