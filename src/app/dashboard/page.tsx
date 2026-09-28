@@ -250,7 +250,7 @@ export default function ParticipantDashboard() {
     doc.text(`e seu fiel pet ${registration.petName}${petBreedText}`, 148.5, 110, { align: 'center' });
     
     doc.text('completaram com sucesso o circuito oficial da', 148.5, 122, { align: 'center' });
-    doc.text('1ª Cãominhada Pet Salute 2026 no Parque Santana.', 148.5, 132, { align: 'center' });
+    doc.text('1ª Cãominhada Pet Salute 2026 no Forte do Brum.', 148.5, 132, { align: 'center' });
 
     // Registration metadata
     doc.setFont('helvetica', 'italic');
