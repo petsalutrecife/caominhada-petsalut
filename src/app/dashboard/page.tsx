@@ -165,7 +165,7 @@ export default function ParticipantDashboard() {
     }
   };
 
-  const handleDownloadCertificate = () => {
+  const handleDownloadCertificate = async () => {
     if (!registration) return;
     
     const doc = new jsPDF({
@@ -174,70 +174,97 @@ export default function ParticipantDashboard() {
       format: 'a4'
     });
     
-    // Outer border (Primary Blue)
+    // Outer border (Primary Blue #003A8C)
     doc.setDrawColor(0, 58, 140);
     doc.setLineWidth(4);
     doc.rect(6, 6, 285, 198);
 
-    // Inner border (Primary Green)
-    doc.setDrawColor(167, 207, 0);
+    // Inner border (Primary Green #8DC63F)
+    doc.setDrawColor(141, 198, 63);
     doc.setLineWidth(1.5);
     doc.rect(10, 10, 277, 190);
 
-    // Header Logo Mock
-    doc.setTextColor(0, 58, 140);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(26);
-    doc.text('Pet Salute', 148, 32, { align: 'center' });
-    
-    doc.setTextColor(100, 116, 139);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.text('PLANOS DE SAÚDE ANIMAL', 148, 38, { align: 'center' });
+    // Header: Official Caominhada Pet Salute Logo
+    try {
+      const logoDataUrl = await new Promise<string | null>((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || 470;
+          canvas.height = img.naturalHeight || 194;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          } else {
+            resolve(null);
+          }
+        };
+        img.onerror = () => resolve(null);
+        img.src = '/logocorrida.png';
+      });
+
+      if (logoDataUrl) {
+        // Logo width: 56mm, height: 23.1mm, centered at x = (297 - 56) / 2 = 120.5mm
+        doc.addImage(logoDataUrl, 'PNG', 120.5, 16, 56, 23.1);
+      } else {
+        doc.setTextColor(0, 58, 140);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.text('1ª CÃOMINHADA PET SALUTE', 148.5, 30, { align: 'center' });
+      }
+    } catch {
+      doc.setTextColor(0, 58, 140);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.text('1ª CÃOMINHADA PET SALUTE', 148.5, 30, { align: 'center' });
+    }
 
     // Certificate Title
     doc.setTextColor(0, 58, 140);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(32);
-    doc.text('CERTIFICADO DE PARTICIPAÇÃO', 148, 64, { align: 'center' });
+    doc.setFontSize(30);
+    doc.text('CERTIFICADO DE PARTICIPAÇÃO', 148.5, 58, { align: 'center' });
 
-    // Accent Line
-    doc.setDrawColor(167, 207, 0);
+    // Accent Line (Primary Green #8DC63F)
+    doc.setDrawColor(141, 198, 63);
     doc.setLineWidth(2);
-    doc.line(85, 74, 212, 74);
+    doc.line(85, 66, 212, 66);
 
     // Certificate text
     doc.setTextColor(30, 41, 59);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(15);
-    doc.text('Certificamos com alegria e reconhecimento que o tutor', 148, 92, { align: 'center' });
+    doc.setFontSize(14);
+    doc.text('Certificamos com alegria e reconhecimento que o(a) tutor(a)', 148.5, 82, { align: 'center' });
     
     doc.setTextColor(0, 58, 140);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
-    doc.text(registration.tutorName, 148, 106, { align: 'center' });
+    doc.text(registration.tutorName, 148.5, 96, { align: 'center' });
 
     doc.setTextColor(30, 41, 59);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(15);
-    doc.text(`e seu fiel pet ${registration.petName} (${registration.petBreed})`, 148, 118, { align: 'center' });
+    doc.setFontSize(14);
+    const petBreedText = registration.petBreed ? ` (${registration.petBreed})` : '';
+    doc.text(`e seu fiel pet ${registration.petName}${petBreedText}`, 148.5, 110, { align: 'center' });
     
-    doc.text('completaram com sucesso o circuito oficial da', 148, 130, { align: 'center' });
-    doc.text('Cãominhada Pet Salute 2026 no Parque Central.', 148, 140, { align: 'center' });
+    doc.text('completaram com sucesso o circuito oficial da', 148.5, 122, { align: 'center' });
+    doc.text('1ª Cãominhada Pet Salute 2026 no Parque Santana.', 148.5, 132, { align: 'center' });
 
     // Registration metadata
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(11);
     doc.setTextColor(100, 116, 139);
-    doc.text(`Nº Inscrição: ${registration.regNumber}  •  Data do Evento: 20/09/2026`, 148, 156, { align: 'center' });
+    doc.text(`Nº Inscrição: ${registration.regNumber}  •  Data do Evento: 27/09/2026`, 148.5, 150, { align: 'center' });
 
     // Signature stamp line
     doc.setFont('helvetica', 'normal');
     doc.setDrawColor(148, 163, 184);
     doc.setLineWidth(0.5);
-    doc.line(100, 180, 197, 180);
+    doc.line(100, 176, 197, 176);
     doc.setFontSize(9);
-    doc.text('DIRETORIA DE PROJETOS E EVENTOS PET SALUTE', 148, 186, { align: 'center' });
+    doc.text('DIRETORIA DE PROJETOS E EVENTOS PET SALUTE', 148.5, 182, { align: 'center' });
 
     // Save
     doc.save(`Certificado_Caominhada_${registration.regNumber}.pdf`);
