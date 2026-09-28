@@ -71,6 +71,71 @@ const stepLabels = [
 
 export default function RegisterPage() {
   const router = useRouter();
+
+  // ===================== INSCRIÇÕES ENCERRADAS =====================
+  const REGISTRATIONS_OPEN = false;
+
+  if (!REGISTRATIONS_OPEN) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
+        <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+          <Link href="/"><Logo /></Link>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1">
+              <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Site
+            </Link>
+          </div>
+        </header>
+
+        <main className="flex-1 flex items-center justify-center p-4 py-12">
+          <div className="max-w-xl w-full bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 sm:p-10 flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center text-amber-500 mb-6 shadow-sm">
+              <Lock className="h-8 w-8" />
+            </div>
+
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 mb-4 font-poppins">
+              Lote Esgotado
+            </span>
+
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-poppins">
+              Inscrições Encerradas! 🐾
+            </h1>
+
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-inter">
+              As inscrições para a <strong>Cãominhada Pet Salute 2026</strong> foram oficialmente finalizadas. Agradecemos imensamente a todos os tutores e apaixonados por pets que garantiram suas vagas e apoiaram essa causa!
+            </p>
+
+            <div className="mt-6 w-full p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 text-left">
+              <p className="text-xs text-[#003A8C] dark:text-blue-300 font-semibold flex items-center gap-2 mb-1">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#8DC63F]" />
+                Já é inscrito?
+              </p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                Você pode acessar o seu painel a qualquer momento para acompanhar a liberação do kit, consultar seu QR Code e baixar seu certificado de participação.
+              </p>
+            </div>
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full font-poppins">
+              <Link
+                href="/login"
+                className="flex-1 py-3.5 rounded-xl font-bold bg-[#003A8C] hover:bg-blue-800 text-white text-center text-sm shadow-md transition-all hover-lift"
+              >
+                Acessar Minha Inscrição (Login)
+              </Link>
+              <Link
+                href="/"
+                className="py-3.5 px-6 rounded-xl font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-center text-sm transition-colors"
+              >
+                Página Inicial
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const [currentStep, setCurrentStep] = useState(1);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   
@@ -378,123 +443,184 @@ export default function RegisterPage() {
       }
     };
 
-  // ===================== INSCRIÇÕES ENCERRADAS =====================
-  const REGISTRATIONS_OPEN = false;
-
-  if (!REGISTRATIONS_OPEN) {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
-        <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+        <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
           <Link href="/"><Logo /></Link>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1">
-              <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Site
-            </Link>
-          </div>
+          <ThemeToggle />
         </header>
 
         <main className="flex-1 flex items-center justify-center p-4 py-12">
-          <div className="max-w-xl w-full bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 sm:p-10 flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center text-amber-500 mb-6 shadow-sm">
-              <Lock className="h-8 w-8" />
+          <div className="max-w-2xl w-full bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden p-8 flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
+            
+            <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-full text-amber-500 mb-6">
+              <FileCheck className="h-14 w-14" />
             </div>
 
-            <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 mb-4 font-poppins">
-              Lote Esgotado
-            </span>
-
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-poppins">
-              Inscrições Encerradas! 🐾
-            </h1>
-
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-inter">
-              As inscrições para a <strong>Cãominhada Pet Salute 2026</strong> foram oficialmente finalizadas. Agradecemos imensamente a todos os tutores e apaixonados por pets que garantiram suas vagas e apoiaram essa causa!
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white font-poppins">
+              Recebemos sua inscrição! 🐾
+            </h2>
+            <p className="mt-3 text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
+              Parabéns, <strong>{registeredUser.tutorName.split(' ')[0]}</strong>! Sua inscrição foi registrada com sucesso e agora está na fila de aprovação.
             </p>
 
-            <div className="mt-6 w-full p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 text-left">
-              <p className="text-xs text-[#003A8C] dark:text-blue-300 font-semibold flex items-center gap-2 mb-1">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#8DC63F]" />
-                Já é inscrito?
-              </p>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                Você pode acessar o seu painel a qualquer momento para acompanhar a liberação do kit, consultar seu QR Code e baixar seu certificado de participação.
-              </p>
+            {/* Status Badge */}
+            <div className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm font-bold">
+              <div className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
+              Aguardando validação da instituição
             </div>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full font-poppins">
-              <Link
-                href="/login"
-                className="flex-1 py-3.5 rounded-xl font-bold bg-[#003A8C] hover:bg-blue-800 text-white text-center text-sm shadow-md transition-all hover-lift"
-              >
-                Acessar Minha Inscrição (Login)
-              </Link>
-              <Link
-                href="/"
-                className="py-3.5 px-6 rounded-xl font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-center text-sm transition-colors"
-              >
-                Página Inicial
-              </Link>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  if (!REGISTRATIONS_OPEN) {
-    return (
-      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
-        <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
-          <Link href="/"><Logo /></Link>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1">
-              <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Site
-            </Link>
-          </div>
-        </header>
-
-        <main className="flex-1 flex items-center justify-center p-4 py-12">
-          <div className="max-w-xl w-full bg-white dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 sm:p-10 flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center text-amber-500 mb-6 shadow-sm">
-              <Lock className="h-8 w-8" />
-            </div>
-
-            <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 mb-4 font-poppins">
-              Lote Esgotado
-            </span>
-
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-poppins">
-              Inscrições Encerradas! 🐾
-            </h1>
-
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-inter">
-              As inscrições para a <strong>Cãominhada Pet Salute 2026</strong> foram oficialmente finalizadas. Agradecemos imensamente a todos os tutores e apaixonados por pets que garantiram suas vagas e apoiaram essa causa!
+            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed">
+              Nossa equipe e a instituição parceira escolhida irão validar a sua doação. Assim que for confirmada, você receberá um e-mail de confirmação e sua inscrição com o QR Code para retirada do kit será liberada.
             </p>
 
-            <div className="mt-6 w-full p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 text-left">
-              <p className="text-xs text-[#003A8C] dark:text-blue-300 font-semibold flex items-center gap-2 mb-1">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#8DC63F]" />
-                Já é inscrito?
-              </p>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                Você pode acessar o seu painel a qualquer momento para acompanhar a liberação do kit, consultar seu QR Code e baixar seu certificado de participação.
+            {/* Receipt Summary info */}
+            <div className="mt-8 bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md text-left flex flex-col gap-3">
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-slate-800/50">
+                <span className="text-xs text-slate-400 font-semibold">Número da Inscrição</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono text-sm font-bold text-[#003A8C] dark:text-blue-400">{registeredUser.regNumber}</span>
+                  <button
+                    onClick={() => copyToClipboard(registeredUser.regNumber, setCopiedCode)}
+                    className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors"
+                    title="Copiar número"
+                  >
+                    {copiedCode ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-slate-800/50">
+                <span className="text-xs text-slate-400 font-semibold">Instituição Escolhida</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{instName}</span>
+              </div>
+
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-slate-800/50">
+                <span className="text-xs text-slate-400 font-semibold">Ponto de Retirada</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  {kitPickupLocation ? `${kitPickupLocation} (${kitPickupLocation === 'Zona Sul' ? 'Pet Happy' : 'Oh Pet'})` : 'Ponto Oficial'}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-slate-800/50">
+                <span className="text-xs text-slate-400 font-semibold">Valor da Doação</span>
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">R$ {registeredUser.donationValue.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between items-center py-1.5">
+                <span className="text-xs text-slate-400 font-semibold">Data de Envio</span>
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                  {new Date(registeredUser.createdAt).toLocaleDateString('pt-BR')} às {new Date(registeredUser.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            </div>
+
+            {/* Info card */}
+            <div className="mt-6 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-5 rounded-2xl w-full max-w-md text-left">
+              <div className="flex items-center gap-2.5 text-[#003A8C] dark:text-blue-400 font-semibold text-xs mb-1.5">
+                <Mail className="h-4 w-4" />
+                <span>Acompanhe pelo e-mail</span>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                Enviamos os detalhes do cadastro para <strong>{registeredUser.tutorEmail}</strong>. 
+                Você pode conferir o andamento na sua área de participante a qualquer momento.
               </p>
             </div>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full font-poppins">
-              <Link
-                href="/login"
-                className="flex-1 py-3.5 rounded-xl font-bold bg-[#003A8C] hover:bg-blue-800 text-white text-center text-sm shadow-md transition-all hover-lift"
+            {/* Social Sharing Section */}
+            {(() => {
+              const shareText = encodeURIComponent('Eu já garanti minha vaga com meu pet na Cãominhada Pet Salute 2026! 🐾 Venha caminhar com a gente e apoiar a causa animal!');
+              const shareUrl = encodeURIComponent('https://caominhadapetsalute.com.br');
+              const whatsappUrl = `https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`;
+
+              return (
+                <div className="mt-6 bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 dark:from-slate-900 dark:via-slate-900/80 dark:to-slate-850 border border-emerald-200/60 dark:border-emerald-800/40 p-5 rounded-2xl w-full max-w-md text-left flex flex-col gap-3.5 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-emerald-500 text-white rounded-xl shadow-sm shrink-0">
+                      <Share2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-extrabold text-slate-900 dark:text-white font-poppins">
+                        Espalhe essa causa animal! 🐾
+                      </h4>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                        Convide amigos e familiares para caminharem com a gente.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    {/* WhatsApp Button */}
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      <MessageCircle className="h-4 w-4 fill-white" />
+                      Enviar no WhatsApp
+                    </a>
+
+                    {/* Copy Link Button */}
+                    <button
+                      onClick={() => copyToClipboard('https://caominhadapetsalute.com.br', setCopiedShareLink)}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      {copiedShareLink ? (
+                        <>
+                          <Check className="h-4 w-4 text-emerald-400" />
+                          Link Copiado!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copiar Link
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Instagram Mention */}
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/70 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-800/60 text-[10px] text-slate-600 dark:text-slate-300">
+                    <InstagramIcon className="h-4 w-4 text-pink-500 shrink-0" />
+                    <span>No Instagram, marque <strong>@petsaluteoficial</strong> e use <strong>#CaominhadaPetSalute2026</strong></span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Download Ticket PDF & Stories Badge buttons */}
+            <div className="mt-6 w-full max-w-md flex flex-col gap-3">
+              <button
+                onClick={() => generateRegistrationTicket(registeredUser, instName)}
+                className="w-full py-3.5 px-5 rounded-2xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover-lift flex items-center justify-center gap-2 text-sm transition-all cursor-pointer"
               >
-                Acessar Minha Inscrição (Login)
-              </Link>
+                <Download className="h-4 w-4" /> Baixar Comprovante & Ticket (PDF)
+              </button>
+
+              <button
+                onClick={handleDownloadStories}
+                disabled={isGeneratingStories}
+                className="w-full py-3.5 px-5 rounded-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-md hover-lift flex items-center justify-center gap-2 text-sm transition-all disabled:opacity-50 cursor-pointer"
+              >
+                <Sparkles className="h-4 w-4 text-amber-300" />
+                {isGeneratingStories ? 'Gerando Crachá em Alta Resolução...' : 'Baixar Crachá Oficial p/ Stories 📸'}
+              </button>
+            </div>
+
+            {/* Action buttons */}
+            <div className="mt-4 flex flex-col sm:flex-row gap-3 w-full max-w-md">
+              <button
+                onClick={handleGoToDashboard}
+                className="flex-1 py-3.5 rounded-2xl font-bold bg-[#003A8C] hover:bg-blue-800 text-white dark:bg-lime-500 dark:hover:bg-lime-600 dark:text-slate-950 hover-lift text-center transition-all"
+              >
+                Área do Participante
+              </button>
               <Link
                 href="/"
-                className="py-3.5 px-6 rounded-xl font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-center text-sm transition-colors"
+                className="py-3.5 px-6 rounded-2xl font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors text-center text-xs"
               >
-                Página Inicial
+                Voltar ao Início
               </Link>
             </div>
           </div>
